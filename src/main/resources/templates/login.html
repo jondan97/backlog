@@ -2,53 +2,22 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Login Page</title>
 </head>
 <body>
-<div class="container" style="width: 300px;">
-    <div class="panel panel-default">
-        <div class="panel-body">
-            <form method="post" th:action="@{/login}">
-                <div class="form-row">
-                    <div class="col-md-12">
-                        <div class="md-form form-group">
-                            <label for="email">Email</label>
-                            <input class="form-control" id="email" name="email" th:value="${email} ? ${email}"
-                                   type="email"/>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="col-md-12">
-                        <div class="md-form form-group">
-                            <label for="password">Password</label>
-                            <input class="form-control" id="password" name="password" th:value="${password}"
-                                   type="password">
-
-                            <div class="errMsg" th:if="${param.error}">Invalid email or password</div>
-                            <div class="errMsg" th:if="${param.logout}">You have been logged out</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="btnPad">
-                    <button class="btn btn-default" type="submit">Log In</button>
-                </div>
-
-                <div class="btnPad">
-                    <button class="btn btn-default" th:onclick="'window.location.href=\'' + @{/} + '\''"
-                            type="button">Cancel
-                    </button>
-                </div>
-
-                <!--<div class="btnPad">
-                    <button type="button" class="btn btn-default"
-                            th:onclick="'window.history.back(-1);return false;'">Back</button>
-                </div>-->
-            </form>
-        </div>
-    </div>
-</div>
+<form method="post" th:action="@{/login}">
+    <label for="email">Email</label>
+    <input id="email" name="email" th:value="${session.userEmail}"
+           type="email"/>
+    <label for="password">Password</label>
+    <input id="password" name="password" th:value="${password}"
+           type="password">
+    <div class="errMsg" th:if="${param.error}">Invalid email or password</div>
+    <div class="errMsg" th:if="${param.logout}">You have been logged out</div>
+    <button type="submit">Log In</button>
+    <button th:onclick="'window.location.href=\'' + @{/} + '\''"
+            type="button">Cancel
+    </button>
+</form>
 </body>
 </html>

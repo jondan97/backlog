@@ -1,0 +1,5 @@
+week 1
+create an admin page where the admin can manage users (half-done)
+translate the ERD developed to java entities
+week 2
+

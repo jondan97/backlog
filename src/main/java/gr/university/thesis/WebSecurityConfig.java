@@ -44,14 +44,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .authorizeRequests()
                 .antMatchers(resources).permitAll()
-                .antMatchers("/**", "/login", "/error", "/firstTime").permitAll()
-                .antMatchers("/admin*").access("hasRole('ADMIN')")
+                .antMatchers("/", "/login", "/error", "/firstTime").permitAll()
+                .antMatchers("/admin/**").access("hasRole('ADMIN')")
                 .antMatchers("/user*").access("hasRole('USER') or hasRole('ADMIN')")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin()
                 .loginPage("/login").permitAll()
-                .defaultSuccessUrl("/welcome")
+                .defaultSuccessUrl("/")
                 .failureUrl("/login?error=true")
                 .usernameParameter("email")
                 .passwordParameter("password")
@@ -61,7 +61,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * This is the password encoder used for user authentication OR creation with strength set by the developer
+     * This is the password encoder used for user authentication OR user creation with encoding strength set by
+     * the developer
      *
      * @return the configured password encoder
      */
@@ -72,12 +73,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
-     * Register the service for users and the password encryptor
-     *
+     * Register the authentication service for the user and state the password encoder
      * @param auth: the authentication manager builder used to configure user authentications
      * @throws Exception: throws an exception if any of the instances within the method also throw an exception
      */
-    //
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         // Setting service to find user in the database and setting password encoder

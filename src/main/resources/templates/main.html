@@ -1,10 +1,25 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Main Page</title>
 </head>
 <body>
 Hi!
+<div th:switch="${session.role}">
+    <div th:case="'USER'">
+        <div th:text="${session.userId}"></div>
+        <div th:text="${session.userEmail}"></div>
+        <div th:text="${session.role}"></div>
+    </div>
+    <div th:case="'ADMIN'">
+        <div th:text="${session.userId}"></div>
+        <div th:text="${session.userEmail}"></div>
+        <div th:text="${session.role}"></div>
+    </div>
+    <div th:case='*'>
+        <div th:text="'Not signed in'"></div>
+    </div>
+</div>
 </body>
 </html>

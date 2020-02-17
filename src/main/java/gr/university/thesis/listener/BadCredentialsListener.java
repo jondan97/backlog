@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.authentication.event.AuthenticationFailureBadCredentialsEvent;
 import org.springframework.stereotype.Component;
-import org.springframework.ui.Model;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -14,7 +13,7 @@ import javax.servlet.http.HttpSession;
  * login and passing it to the redirection towards the login page
  */
 @Component
-public class LoginListener implements ApplicationListener<AuthenticationFailureBadCredentialsEvent> {
+public class BadCredentialsListener implements ApplicationListener<AuthenticationFailureBadCredentialsEvent> {
 
     private HttpServletRequest request;
 
@@ -24,13 +23,14 @@ public class LoginListener implements ApplicationListener<AuthenticationFailureB
      * @param request: the http request received from a user
      */
     @Autowired
-    public LoginListener(HttpServletRequest request) {
+    public BadCredentialsListener(HttpServletRequest request) {
         this.request = request;
     }
 
     /**
      * this method listens for application events, and specifically for bad credentials requests
-     *
+     * and sets the email value in the form through a session attribute,
+     * for the convenience of the user (so he does not have to type it again).
      * @param event: an event triggered by the user (login failed)
      */
     @Override
@@ -43,25 +43,5 @@ public class LoginListener implements ApplicationListener<AuthenticationFailureB
         HttpSession session = request.getSession();
         //set the userEmail attribute of the session
         session.setAttribute("userEmail", email);
-    }
-
-    /**
-     * this method allows the 'passing' of the email, that the user attempted to login with, during the redirection
-     * towards the login page. This allows a user to have the email readily shown again after a bad credentials
-     * attempt
-     *
-     * @param model:   the user interface that the email will be shown on
-     * @param session: the current user session
-     */
-    public void passEmail(Model model, HttpSession session) {
-        //if the session email attribute is not empty, then:
-        if (!(session.getAttribute("userEmail") == null)) {
-            //receive the attribute
-            String email = session.getAttribute("userEmail").toString();
-            //delete the attribute (you don't want the attribute to remain if the user refreshes the page for example)
-            session.removeAttribute("userEmail");
-            //add it to the UI
-            model.addAttribute("email", email);
-        }
     }
 }

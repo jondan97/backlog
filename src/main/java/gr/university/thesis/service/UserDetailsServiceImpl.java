@@ -22,7 +22,7 @@ import java.util.Set;
 
 
 /**
- * Class that manages user loading
+ * Class that manages current user details loading
  */
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -35,7 +35,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     /**
      * constructor of this class, correct way to set the autowired attributes
-     *
      * @param userRepository: repository that has access to all the users of the system
      */
     @Autowired
@@ -60,24 +59,24 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         boolean accountNonLocked = true;
         //Search for the user within the repository, and if the user doesn't exist, throw an exception
         User repoUser =
-                userRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
+                userRepository.findFirstByEmail(email).orElseThrow(() -> new UsernameNotFoundException("User does not exist"));
         //Map the authority list with the spring security list
         List grantList = new ArrayList();
         for (Role role : repoUser.getRoles()) {
-            // ROLE_USER or ROLE_ADMIN or BOTH
+            // ROLE:USER or ROLE:ADMIN or BOTH
             GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(role.getRole());
             grantList.add(grantedAuthority);
         }
-        SessionUser user = new SessionUser(repoUser.getEmail(), repoUser.getPassword(), enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantList);
+        SessionUser user = new SessionUser(repoUser.getId(), repoUser.getEmail(), repoUser.getPassword(), enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantList);
         return user;
     }
 
     /**
-     * initializes some essential initial data that the system requires in order to work properly
+     * initializes some essential data that the system requires in order to work properly
      * creates roles(ADMIN/USER) and sets an admin
      */
     public void firstTime() {
-        if (!userRepository.findByEmail(ADMIN_EMAIL).isPresent()) {
+        if (!userRepository.findFirstByEmail(ADMIN_EMAIL).isPresent()) {
             User user = new User();
             user.setEmail(ADMIN_EMAIL);
             //encrypt password
