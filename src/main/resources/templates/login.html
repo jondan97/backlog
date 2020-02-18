@@ -12,12 +12,12 @@
     <label for="password">Password</label>
     <input id="password" name="password" th:value="${password}"
            type="password">
-    <div class="errMsg" th:if="${param.error}">Invalid email or password</div>
-    <div class="errMsg" th:if="${param.logout}">You have been logged out</div>
     <button type="submit">Log In</button>
     <button th:onclick="'window.location.href=\'' + @{/} + '\''"
-            type="button">Cancel
+            type="button">Home
     </button>
+    <div class="errMsg" th:if="${param.error}">Invalid email or password</div>
+    <div class="errMsg" th:if="${param.logout}">You have been logged out</div>
 </form>
 </body>
 </html>

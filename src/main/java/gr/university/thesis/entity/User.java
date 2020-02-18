@@ -33,6 +33,18 @@ public class User {
     private String password;
 
     /**
+     * first name that matches to user
+     */
+    @Column
+    private String firstName;
+
+    /**
+     * last name that matches to user
+     */
+    @Column
+    private String lastName;
+
+    /**
      * many to many relationship with the Role class, each user can have one or more roles
      */
     @ManyToMany(fetch = FetchType.EAGER)
@@ -40,14 +52,27 @@ public class User {
     @JoinTable(name = "role_user", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
 
+    @OneToMany(mappedBy = "owner")
+    private Set<Item> owningItems;
+
+    @OneToMany(mappedBy = "assignee")
+    private Set<Item> assignedItems;
+
+    @OneToMany(mappedBy = "owner")
+    private Set<Comment> comments;
+
     /**
      * this constructor is being used when a new user is being created
      *
-     * @param email:    newly added email
-     * @param password: newly added password
+     * @param email:     newly added email
+     * @param password:  newly added password
+     * @param firstName: newly added first name of user
+     * @param lastName:  newly added last name of user
      */
-    public User(String email, String password) {
+    public User(String email, String password, String firstName, String lastName) {
         this.email = email;
         this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 }

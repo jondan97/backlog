@@ -1,6 +1,8 @@
 package gr.university.thesis.service;
 
 import gr.university.thesis.entity.SessionUser;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpSession;
@@ -40,6 +42,20 @@ public class SessionService {
             return "ADMIN";
         else
             return "USER";
+    }
+
+    /**
+     * this method checks if the user has logged in during the session or not
+     *
+     * @param authentication: received from current session of user
+     * @return returns true if user is already logged in, false if not
+     */
+    public boolean isUserLoggedIn(Authentication authentication) {
+        if (authentication instanceof AnonymousAuthenticationToken) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
 

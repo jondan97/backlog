@@ -5,16 +5,36 @@
     <title>Manage Users</title>
 </head>
 <body>
-<ul th:each="user : ${users}">
-    <li th:text="${user.id}"></li>
-    <li th:text="${user.email}"></li>
-</ul>
+<h3>Existing Users:</h3>
+<div th:each="user : ${users}">
+    <form method="post" th:action="@{/admin/edit}">
+        <label for="userId">ID</label>
+        <input id="userId" name="userId" readonly th:value="${user.id}">
+        <label for="userEmail">Email</label>
+        <input id="userEmail" name="userEmail" th:value="${user.email}">
+        <label for="userFirstName">First Name</label>
+        <input id="userFirstName" name="userFirstName" th:value="${user.firstName}">
+        <label for="userLastName">Last Name</label>
+        <input id="userLastName" name="userLastName" th:value="${user.lastName}">
+        <button name="action" type="submit" value="update">Update</button>
+        <button name="action" type="submit" value="delete">Delete</button>
+
+    </form>
+</div>
+<h3>Add a new User:</h3>
 <form method="post" th:action="@{/admin/createUser}">
     <label for="email">Email</label>
     <input id="email" name="email" th:value="${email}" type="email">
     <label for="password">Password</label>
     <input id="password" name="password" th:value="${password}" type="password">
+    <label for="firstName">First Name</label>
+    <input id="firstName" name="firstName" th:value="${firstName}">
+    <label for="lastName">Last Name</label>
+    <input id="lastName" name="lastName" th:value="${lastName}">
     <button type="submit">Submit</button>
 </form>
+<button th:onclick="'window.location.href=\'' + @{/} + '\''"
+        type="button">Home
+</button>
 </body>
 </html>

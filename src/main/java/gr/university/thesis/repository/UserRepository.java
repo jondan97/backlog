@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Repository that manages everything that has to do with a user
@@ -21,5 +21,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findFirstByEmail(String email);
 
     @Query("SELECT user FROM User user JOIN user.roles role WHERE role.role=:roleName")
-    List<User> findByUserRole(@Param("roleName") String roleName);
+    Set<User> findByUserRole(@Param("roleName") String roleName);
 }
