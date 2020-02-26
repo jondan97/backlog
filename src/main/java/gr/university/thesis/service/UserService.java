@@ -9,6 +9,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,25 +20,39 @@ import java.util.Set;
 public class UserService {
 
     UserRepository userRepository;
+    BCryptPasswordEncoder bCryptPasswordEncoder;
 
     /**
      * constructor of this class, correct way to set the autowired attributes
      *
-     * @param userRepository: repository that has access to all the users of the system
+     * @param userRepository:        repository that has access to all the users of the system
+     * @param bCryptPasswordEncoder: the encoder used when updating a user password or when creating a new user
      */
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     /**
      * this method allows an admin to fetch all users with a certain role from the repo
      *
      * @param roleStr: String role that the user(admin) is looking for
+     * @param adminId: the id of the admin, required because we want to fetch all users but the admin
      * @return: returns the list of all the users with that certain role
      */
     public Set<User> findUsersByRole(String roleStr) {
+        //return userRepository.findByUserRole(roleStr, adminId);
         return userRepository.findByUserRole(roleStr);
+    }
+
+    /**
+     * this method allows an admin to fetch all users from the repository
+     *
+     * @return: returns the list of all the users
+     */
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
     }
 
     /**
@@ -48,12 +63,11 @@ public class UserService {
      * @param firstName: first name of the user
      * @param lastName:  last name of the user
      */
-    public void createUser(String email, String password, String firstName, String lastName) {
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(4);
+    public void createUser(String email, String password, String firstName, String lastName, String roleName) {
         String encodedPassword = bCryptPasswordEncoder.encode(password);
         User user = new User(email, encodedPassword, firstName, lastName);
         Set<Role> roles = new HashSet<>();
-        Role role = new Role(RoleEnum.USER.getRepositoryId(), RoleEnum.USER.getRoleName());
+        Role role = new Role(RoleEnum.valueOf(roleName).getRepositoryId(), RoleEnum.valueOf(roleName).getRoleName());
         roles.add(role);
         user.setRoles(roles);
         userRepository.save(user);
@@ -67,11 +81,20 @@ public class UserService {
      * @param firstName: the first name that the admin has possibly updated
      * @param lastName:  the last name that the admin has possibly updated
      */
-    public void updateUser(long userId, String email, String firstName, String lastName) {
+    public void updateUser(long userId, String email, String password, String firstName, String lastName, String userRole) {
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             user.setEmail(email);
+            if (!password.isEmpty()) {
+                String encodedPassword = bCryptPasswordEncoder.encode(password);
+                user.setPassword(encodedPassword);
+            }
+            if (!userRole.equals("master_admin")) {
+                Role newRole = new Role(RoleEnum.valueOf(userRole).getRepositoryId(), RoleEnum.valueOf(userRole).getRoleName());
+                user.getRoles().clear();
+                user.getRoles().add(newRole);
+            }
             user.setFirstName(firstName);
             user.setLastName(lastName);
             userRepository.save(user);

@@ -5,10 +5,7 @@ import gr.university.thesis.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-
-import javax.servlet.http.HttpSession;
 
 /**
  * This is the general controller, here requests are of a more general nature, have almost nothing to do
@@ -43,14 +40,10 @@ public class GeneralController {
     /**
      * this is where the user is required to login, or is redirected here when attempting to do an unauthorized action
      *
-     * @param model:   user interface
-     * @param session: session communicated with the user
      * @return login page
      */
     @GetMapping("/login")
-    public String login(Model model,
-                        HttpSession session
-    ) {
+    public String login() {
         boolean loggedIn;
         loggedIn = sessionService.isUserLoggedIn(SecurityContextHolder.getContext().getAuthentication());
         if (loggedIn) {
@@ -78,7 +71,7 @@ public class GeneralController {
      * @return redirection to a page (probably main page)
      */
     @GetMapping("/firstTime")
-    public String createUsers() {
+    public String firstTime() {
         userDetailsServiceImpl.firstTime();
         return "redirect:/";
     }

@@ -84,16 +84,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             String encodedPassword = bCryptPasswordEncoder.encode(ADMIN_PASSWORD);
             user.setPassword(encodedPassword);
             //create role for user
-            Set<Role> userRoles = new HashSet<Role>();
+            Set<Role> allRoles = new HashSet<Role>();
             Role userRole = new Role();
             userRole.setRole("USER");
-            userRoles.add(userRole);
+            allRoles.add(userRole);
             Role adminRole = new Role();
             adminRole.setRole("ADMIN");
-            userRoles.add(adminRole);
-            user.setRoles(userRoles);
-            roleRepository.save(adminRole);
-            roleRepository.save(userRole);
+            allRoles.add(adminRole);
+            Role projectOwnerRole = new Role();
+            projectOwnerRole.setRole("PROJECT_OWNER");
+            allRoles.add(projectOwnerRole);
+            user.setRoles(allRoles);
+            roleRepository.saveAll(allRoles);
             userRepository.save(user);
         }
     }

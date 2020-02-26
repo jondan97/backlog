@@ -1,15 +1,15 @@
 package gr.university.thesis.controller;
 
+import gr.university.thesis.entity.Role;
 import gr.university.thesis.entity.User;
+import gr.university.thesis.service.RoleService;
 import gr.university.thesis.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpSession;
 import java.util.List;
 
 /**
@@ -20,29 +20,40 @@ import java.util.List;
 public class AdminController {
 
     UserService userService;
+    RoleService roleService;
 
     /**
      * constructor of this class, correct way to set the autowired attributes
      *
      * @param userService: service that manages all the users of the system
+     * @param roleService: service that manages all the roles of the system
      */
     @Autowired
-    public AdminController(UserService userService) {
+    public AdminController(UserService userService, RoleService roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
     /**
      * 'main' page of admin, here, the admin can manage all the users of the system
      *
-     * @param model: user interface that is shown to user
+     * @param model:   user interface that is shown to user
+     * @param session: session required to get the current's admin ID (only the admin can access this method so we
+     *                 find the session's userId attribute
      * @return: returns the manageUsers template
      */
     @GetMapping("/manageUsers")
-    public String manageUsers(Model model) {
-        List<User> users = userService.findUsersByRole("USER");
+    public String manageUsers(Model model, HttpSession session) {
+        //instantly getting the user id, which in all cases (hopefully if security works properly) is the admin
+        //we don't want the admin to be able to
+        //Set<User> users = userService.findUsersByRole("USER", (long) session.getAttribute("userId"));
+        //Set<User> users = userService.findUsersByRole("USER");
+        List<User> users = userService.findAllUsers();
         if (!users.isEmpty()) {
             model.addAttribute("users", users);
         }
+        List<Role> allRoles = roleService.findAllRoles();
+        model.addAttribute("allRoles", allRoles);
         return "manageUsers";
     }
 
@@ -55,8 +66,44 @@ public class AdminController {
      */
     @PostMapping("/createUser")
     public String createUser(@RequestParam String email,
-                             @RequestParam String password) {
-        userService.createUser(email, password);
+                             @RequestParam String password,
+                             @RequestParam String firstName,
+                             @RequestParam String lastName,
+                             @RequestParam String role) {
+        userService.createUser(email, password, firstName, lastName, role);
+        return "redirect:/admin/manageUsers";
+    }
+
+    /**
+     * this method calls the user service in order to update an existing user and store him in the repository
+     *
+     * @param userId:       required id in order to fetch the user from the repository
+     * @param userEmail:    input for the email of the user
+     * @param userPassword: input for the password of the user
+     * @param: userFirstName: input for the first name of the user
+     * @param: userLastName: input for the last name of the user
+     * @return: returns manageUsers template (redirects)
+     */
+    @RequestMapping(value = "/editUser", params = "action=update", method = RequestMethod.POST)
+    public String updateUser(@RequestParam long userId,
+                             @RequestParam String userEmail,
+                             @RequestParam String userPassword,
+                             @RequestParam String userFirstName,
+                             @RequestParam String userLastName,
+                             @RequestParam String userRole) {
+        userService.updateUser(userId, userEmail, userPassword, userFirstName, userLastName, userRole);
+        return "redirect:/admin/manageUsers";
+    }
+
+    /**
+     * this method calls the user service in order to delete an existing user from the repository
+     *
+     * @param userId: required id in order to delete the user from the repository
+     * @return: returns manageUsers template (redirects)
+     */
+    @RequestMapping(value = "/editUser", params = "action=delete", method = RequestMethod.POST)
+    public String deleteUser(@RequestParam long userId) {
+        userService.deleteUser(userId);
         return "redirect:/admin/manageUsers";
     }
 }

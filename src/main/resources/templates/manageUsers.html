@@ -5,21 +5,45 @@
     <title>Manage Users</title>
 </head>
 <body>
+<button th:onclick="'window.location.href=\'' + @{/} + '\''"
+        type="button">Home
+</button>
 <h3>Existing Users:</h3>
-<div th:each="user : ${users}">
-    <form method="post" th:action="@{/admin/edit}">
+<div th:each="user : ${users}" th:style="${user.roles.size() > 1 ? 'border-style: dotted' : 'border-style: solid'}">
+    <span th:if="${user.roles.size() > 1}" th:with="someVariable = ${user.id}"></span>
+    <form method="post" th:action="@{/admin/editUser}">
         <label for="userId">ID</label>
         <input id="userId" name="userId" readonly th:value="${user.id}">
         <label for="userEmail">Email</label>
-        <input id="userEmail" name="userEmail" th:value="${user.email}">
+        <input id="userEmail" name="userEmail" th:value="${user.email}" type="email">
+        <label for="userPassword">Password</label>
+        <input id="userPassword" name="userPassword" type="password">
         <label for="userFirstName">First Name</label>
         <input id="userFirstName" name="userFirstName" th:value="${user.firstName}">
         <label for="userLastName">Last Name</label>
         <input id="userLastName" name="userLastName" th:value="${user.lastName}">
-        <button name="action" type="submit" value="update">Update</button>
-        <button name="action" type="submit" value="delete">Delete</button>
-
+        <span th:if="${user.roles.size() > 1 or user.id == session.userId}">
+                <select disabled id="masterAdminFake" name="userRoleFake">
+                    <option selected value="master_admin">Disabled</option>
+                </select>
+            <!-- need a second one which is hidden because Spring does not recognise the disabled one -->
+                <select hidden id="masterAdmin" name="userRole">
+                    <option selected value="master_admin">Disabled</option>
+                </select>
+                    <button name="action" type="submit" value="update">Update</button>
+            </span>
+        <span th:unless="${user.roles.size() > 1 or user.id == session.userId}">
+                <select id="userRole" name="userRole">
+                    <span th:each="role : ${allRoles}">
+                        <option th:selected="${user.roles[0].role == role.role ? true : false}" th:text="${role.role}"
+                                th:value="${role.role}"></option>
+                    </span>
+                </select>
+                    <button name="action" type="submit" value="update">Update</button>
+                    <button name="action" type="submit" value="delete">Delete</button>
+                </span>
     </form>
+
 </div>
 <h3>Add a new User:</h3>
 <form method="post" th:action="@{/admin/createUser}">
@@ -31,10 +55,13 @@
     <input id="firstName" name="firstName" th:value="${firstName}">
     <label for="lastName">Last Name</label>
     <input id="lastName" name="lastName" th:value="${lastName}">
+    <label for="roles">Role</label>
+    <select id="roles" name="role">
+        <span th:each="role : ${allRoles}">
+            <option th:text="${role.role}" th:value="${role.role}"></option>
+        </span>
+    </select>
     <button type="submit">Submit</button>
 </form>
-<button th:onclick="'window.location.href=\'' + @{/} + '\''"
-        type="button">Home
-</button>
 </body>
 </html>

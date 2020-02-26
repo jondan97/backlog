@@ -45,19 +45,45 @@ public class User {
     private String lastName;
 
     /**
+     * the set of projects that belong to this user, one user can have many projects, and a project can have many users
+     */
+    @ManyToMany
+    @JoinTable(
+            name = "user_project",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "project_id"))
+    Set<Project> belongingProjects;
+    /**
      * many to many relationship with the Role class, each user can have one or more roles
      */
     @ManyToMany(fetch = FetchType.EAGER)
     //user owns the association, role does not own the association
-    @JoinTable(name = "role_user", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    @JoinTable(
+            name = "role_user",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles;
+    /**
+     * the associated items that are in the backlog
+     */
+    @OneToMany(mappedBy = "owner")
+    private Set<Item> ownedProjects;
 
+    /**
+     * the set of items that this user has created
+     */
     @OneToMany(mappedBy = "owner")
     private Set<Item> owningItems;
 
+    /**
+     * the set of items that are assigned to this user
+     */
     @OneToMany(mappedBy = "assignee")
     private Set<Item> assignedItems;
 
+    /**
+     * the set of comments that belong to this user
+     */
     @OneToMany(mappedBy = "owner")
     private Set<Comment> comments;
 

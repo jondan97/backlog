@@ -20,6 +20,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
      */
     Optional<User> findFirstByEmail(String email);
 
+    /**
+     * custom query made to fetch all the users but the admin from the repository
+     *
+     * @param roleName: role of the required users, could be something like: "fetch me all the users with role ADMIN"
+     *                  for example
+     * @param adminId:  the admin ID, required so that we do not fetch the id of the user(admin) that did this query
+     * @return: a set of all users fulfilling the requirements specified above
+     */
     @Query("SELECT user FROM User user JOIN user.roles role WHERE role.role=:roleName")
     Set<User> findByUserRole(@Param("roleName") String roleName);
 }

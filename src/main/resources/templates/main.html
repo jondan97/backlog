@@ -5,7 +5,7 @@
     <title>Main Page</title>
 </head>
 <body>
-Hi!
+Hi!@
 <div th:switch="${session.role}">
     <div th:case="'USER'">
         <div th:text="${session.userId}"></div>

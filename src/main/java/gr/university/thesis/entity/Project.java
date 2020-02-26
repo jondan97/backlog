@@ -49,4 +49,14 @@ public class Project {
      */
     @OneToMany(mappedBy = "project")
     private Set<Item> items;
+
+    /**
+     * the set of users that belong to this project
+     */
+    @ManyToMany(mappedBy = "belongingProjects")
+    Set<User> users;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User owner;
 }
