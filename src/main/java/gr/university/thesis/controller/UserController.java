@@ -61,7 +61,7 @@ public class UserController {
             model.addAttribute("project", projectOptional.get());
             //perhaps not the most sufficient but this application is not supposed to be scalable
             model.addAttribute("allUsers", userService.findAllUsers());
-            model.addAttribute("backlog", itemRepository.findByProjectId(projectId));
+            model.addAttribute("backlog", itemService.findAllItemsByProjectId(projectId));
             model.addAttribute("itemTypes", ItemType.values());
             model.addAttribute("itemPriorities", ItemPriority.values());
         }
