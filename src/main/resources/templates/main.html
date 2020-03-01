@@ -12,6 +12,11 @@ Hi!@
         <div th:text="${session.userEmail}"></div>
         <div th:text="${session.role}"></div>
     </div>
+    <div th:case="'PROJECT_MANAGER'">
+        <div th:text="${session.userId}"></div>
+        <div th:text="${session.userEmail}"></div>
+        <div th:text="${session.role}"></div>
+    </div>
     <div th:case="'ADMIN'">
         <div th:text="${session.userId}"></div>
         <div th:text="${session.userEmail}"></div>
@@ -24,7 +29,8 @@ Hi!@
 ---------------------------------------------<br>
 <a href="/login">Login</a><br>
 <a href="/logout">Logout</a><br>
-<a href="/admin/manageUsers">Manage Users</a><br>
+<a href="/pm/projectPanel">Project Panel</a><br>
+<a href="/admin/userPanel">User Panel</a><br>
 <a href="/firstTime">First Time</a><br>
 </body>
 </html>

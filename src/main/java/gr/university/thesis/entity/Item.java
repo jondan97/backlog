@@ -1,6 +1,7 @@
 package gr.university.thesis.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -11,6 +12,7 @@ import java.util.Set;
  */
 @Entity
 @Data
+@NoArgsConstructor
 public class Item {
 
     /**
@@ -107,4 +109,20 @@ public class Item {
      */
     @OneToMany(mappedBy = "item")
     private Set<Item_Sprint_History> associatedSprints;
+
+    /**
+     * custom constructor
+     */
+    public Item(String title, String description, int type, int priority, int effort, Project project, User assignee, User owner) {
+        this.title = title;
+        this.description = description;
+        this.type = type;
+        this.priority = priority;
+        this.effort = effort;
+        this.project = project;
+        this.assignee = assignee;
+        this.owner = owner;
+        this.active = false;
+        this.date_created = new Date();
+    }
 }

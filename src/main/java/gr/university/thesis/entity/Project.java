@@ -1,6 +1,7 @@
 package gr.university.thesis.entity;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -10,6 +11,7 @@ import java.util.Set;
  */
 @Entity
 @Data
+@NoArgsConstructor
 public class Project {
 
     /**
@@ -31,11 +33,17 @@ public class Project {
     @Column
     private String description;
 
-    /**
+    /*    *//**
      * the total effort of the project (will see if needed in the future), cached version of the total effort
      * so that it is not calculated every time the user requests it
-     */
+     *//*
     @Column
+    private long total_effort;*/
+
+    /**
+     * the total effort of the project calculated every time the user wants to see this project in the project panel
+     */
+    @Transient
     private long total_effort;
 
     /**
@@ -56,7 +64,30 @@ public class Project {
     @ManyToMany(mappedBy = "belongingProjects")
     Set<User> users;
 
+    /**
+     * the owner of this project
+     */
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
+
+    /**
+     * @param title:       the title of the project
+     * @param description: the description of the project
+     * @param owner:       the owner of tis project
+     */
+    public Project(String title, String description, User owner) {
+        this.title = title;
+        this.description = description;
+        this.owner = owner;
+    }
+
+    /**
+     * this constructor was created as some sort of 'setter'
+     *
+     * @param projectId: the id of the project
+     */
+    public Project(long projectId) {
+        this.id = projectId;
+    }
 }

@@ -1,7 +1,7 @@
 package gr.university.thesis.controller;
 
-import gr.university.thesis.entity.Role;
 import gr.university.thesis.entity.User;
+import gr.university.thesis.entity.enumeration.RoleEnum;
 import gr.university.thesis.service.RoleService;
 import gr.university.thesis.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,27 +42,27 @@ public class AdminController {
      *                 find the session's userId attribute
      * @return: returns the manageUsers template
      */
-    @GetMapping("/manageUsers")
+    @GetMapping("/userPanel")
     public String manageUsers(Model model, HttpSession session) {
         //instantly getting the user id, which in all cases (hopefully if security works properly) is the admin
         //we don't want the admin to be able to
-        //Set<User> users = userService.findUsersByRole("USER", (long) session.getAttribute("userId"));
-        //Set<User> users = userService.findUsersByRole("USER");
         List<User> users = userService.findAllUsers();
         if (!users.isEmpty()) {
             model.addAttribute("users", users);
         }
-        List<Role> allRoles = roleService.findAllRoles();
-        model.addAttribute("allRoles", allRoles);
-        return "manageUsers";
+        model.addAttribute("allRoleEnums", RoleEnum.values());
+        return "userPanel";
     }
 
     /**
      * this method calls the user service in order to create a new user and store him in the repository
      *
-     * @param email:    input for the email of the new user
-     * @param password: input for the password of the new user
-     * @return: returns manageUsers template (redirects)
+     * @param email:     input for the email of the new user
+     * @param password:  input for the password of the new user
+     * @param firstName: input for the first name of the user
+     * @param lastName:  input for the last name of the user
+     * @param role:      input for the role of the user
+     * @return: returns user panel template (redirects)
      */
     @PostMapping("/createUser")
     public String createUser(@RequestParam String email,
@@ -71,7 +71,7 @@ public class AdminController {
                              @RequestParam String lastName,
                              @RequestParam String role) {
         userService.createUser(email, password, firstName, lastName, role);
-        return "redirect:/admin/manageUsers";
+        return "redirect:/admin/userPanel";
     }
 
     /**
@@ -82,7 +82,8 @@ public class AdminController {
      * @param userPassword: input for the password of the user
      * @param: userFirstName: input for the first name of the user
      * @param: userLastName: input for the last name of the user
-     * @return: returns manageUsers template (redirects)
+     * @param userRole: input for the role of the user
+     * @return: returns user panel template (redirects)
      */
     @RequestMapping(value = "/editUser", params = "action=update", method = RequestMethod.POST)
     public String updateUser(@RequestParam long userId,
@@ -92,18 +93,18 @@ public class AdminController {
                              @RequestParam String userLastName,
                              @RequestParam String userRole) {
         userService.updateUser(userId, userEmail, userPassword, userFirstName, userLastName, userRole);
-        return "redirect:/admin/manageUsers";
+        return "redirect:/admin/userPanel";
     }
 
     /**
      * this method calls the user service in order to delete an existing user from the repository
      *
      * @param userId: required id in order to delete the user from the repository
-     * @return: returns manageUsers template (redirects)
+     * @return: returns user panel template (redirects)
      */
     @RequestMapping(value = "/editUser", params = "action=delete", method = RequestMethod.POST)
     public String deleteUser(@RequestParam long userId) {
         userService.deleteUser(userId);
-        return "redirect:/admin/manageUsers";
+        return "redirect:/admin/userPanel";
     }
 }

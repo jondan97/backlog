@@ -38,11 +38,9 @@ public class UserService {
      * this method allows an admin to fetch all users with a certain role from the repo
      *
      * @param roleStr: String role that the user(admin) is looking for
-     * @param adminId: the id of the admin, required because we want to fetch all users but the admin
      * @return: returns the list of all the users with that certain role
      */
     public Set<User> findUsersByRole(String roleStr) {
-        //return userRepository.findByUserRole(roleStr, adminId);
         return userRepository.findByUserRole(roleStr);
     }
 
@@ -67,7 +65,7 @@ public class UserService {
         String encodedPassword = bCryptPasswordEncoder.encode(password);
         User user = new User(email, encodedPassword, firstName, lastName);
         Set<Role> roles = new HashSet<>();
-        Role role = new Role(RoleEnum.valueOf(roleName).getRepositoryId(), RoleEnum.valueOf(roleName).getRoleName());
+        Role role = new Role((long) RoleEnum.valueOf(roleName).getRepositoryId(), RoleEnum.valueOf(roleName).getRoleName());
         roles.add(role);
         user.setRoles(roles);
         userRepository.save(user);
@@ -91,7 +89,7 @@ public class UserService {
                 user.setPassword(encodedPassword);
             }
             if (!userRole.equals("master_admin")) {
-                Role newRole = new Role(RoleEnum.valueOf(userRole).getRepositoryId(), RoleEnum.valueOf(userRole).getRoleName());
+                Role newRole = new Role((long) RoleEnum.valueOf(userRole).getRepositoryId(), RoleEnum.valueOf(userRole).getRoleName());
                 user.getRoles().clear();
                 user.getRoles().add(newRole);
             }

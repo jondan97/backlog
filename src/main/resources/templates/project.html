@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Page</title>
+</head>
+<body>
+<button th:onclick="'window.location.href=\'' + @{/} + '\''"
+        type="button">Home
+</button>
+<h3>Backlog:</h3>
+<div th:each="item : ${backlog}" th:style="'border-style: solid'">
+    <form method="post" th:action="@{/pm/editProject}">
+        <label for="itemId">ID</label>
+        <input id="itemId" name="itemId" th:value="${item.id}">
+        <label for="itemTitle">Title</label>
+        <input id="itemTitle" name="itemTitle" th:value="${item.title}">
+        <label for="itemDescription">Description</label>
+        <input id="itemDescription" name="itemDescription" th:value="${item.description}">
+        <label for="type">Type</label>
+        <select id="itemTypes" name="type">
+            <span th:each="itemType : ${itemTypes}">
+            <option th:selected="${item.type == itemType.repositoryId ? true : false}" th:text="${itemType.typeName}"
+                    th:value="${itemType}"></option>
+        </span>
+        </select>
+        <label for="itemPriorities">Priority</label>
+        <select id="itemPriorities" name="itemPriorities">
+            <span th:each="itemPriority : ${itemPriorities}">
+            <option th:selected="${item.priority == itemPriority.repositoryId ? true : false}"
+                    th:text="${itemPriority.priorityName}" th:value="${itemPriority}"></option>
+        </span>
+        </select>
+        <label for="itemEffort">Effort</label>
+        <input id="itemEffort" name="itemEffort" th:value="${item.effort}">
+        <label for="itemAssigneeId">Assignee</label>
+        <select id="itemAssigneeId" name="itemAssigneeId">
+            <span th:each="user : ${allUsers}">
+            <option th:selected="${item.assignee.id == user.id ? true : false}"
+                    th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                    th:value="${user.id}"></option>
+        </span>
+        </select>
+        <label for="itemOwner">Owner</label>
+        <input id="itemOwner" name="itemOwner" readonly th:value="${item.owner.firstName + ' ' + item.owner.lastName}">
+        <label for="itemOwner">Date</label>
+        <input id="itemDate" name="itemDate" readonly th:value="${item.date_created}">
+        <input hidden id="itemProjectId" name="itemProjectId" th:value="${project.id}">
+        <button name="action" th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id}} + '\''"
+                type="button" value="view">View
+        </button>
+        <button name="action" type="submit" value="update">Update</button>
+        <button name="action" type="submit" value="delete">Delete</button>
+    </form>
+
+</div>
+<h3>Create New Item</h3>
+<form method="post" th:action="@{/pm/createItem}">
+    <label for="title">Title</label>
+    <input id="title" name="title">
+    <label for="description">Description</label>
+    <input id="description" name="description">
+    <label for="type">Type</label>
+    <select id="type" name="type">
+        <option selected></option>
+        <span th:each="itemType : ${itemTypes}">
+            <option th:text="${itemType.typeName}" th:value="${itemType}"></option>
+        </span>
+    </select>
+    <label for="priority">Priority</label>
+    <select id="priority" name="priority">
+        <option selected></option>
+        <span th:each="itemPriority : ${itemPriorities}">
+            <option th:text="${itemPriority.priorityName}" th:value="${itemPriority}"></option>
+        </span>
+    </select>
+    <label for="effort">Effort</label>
+    <input id="effort" name="effort">
+    <label for="assigneeId">Assignee</label>
+    <select id="assigneeId" name="assigneeId">
+        <option selected></option>
+        <span th:each="user : ${allUsers}">
+            <option th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                    th:value="${user.id}"></option>
+        </span>
+    </select>
+    <input hidden id="projectId" name="projectId" th:value="${project.id}">
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>

@@ -2,7 +2,7 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
-    <title>Manage Users</title>
+    <title>User Panel</title>
 </head>
 <body>
 <button th:onclick="'window.location.href=\'' + @{/} + '\''"
@@ -26,7 +26,7 @@
                 <select disabled id="masterAdminFake" name="userRoleFake">
                     <option selected value="master_admin">Disabled</option>
                 </select>
-            <!-- need a second one which is hidden because Spring does not recognise the disabled one -->
+            <!-- need a second one which is hidden because Back-End does not recognise the disabled one -->
                 <select hidden id="masterAdmin" name="userRole">
                     <option selected value="master_admin">Disabled</option>
                 </select>
@@ -34,9 +34,10 @@
             </span>
         <span th:unless="${user.roles.size() > 1 or user.id == session.userId}">
                 <select id="userRole" name="userRole">
-                    <span th:each="role : ${allRoles}">
-                        <option th:selected="${user.roles[0].role == role.role ? true : false}" th:text="${role.role}"
-                                th:value="${role.role}"></option>
+                    <span th:each="roleEnum : ${allRoleEnums}">
+                        <option th:selected="${user.roles[0].role == roleEnum.roleName ? true : false}"
+                                th:text="${roleEnum.roleName}"
+                                th:value="${roleEnum.roleName}"></option>
                     </span>
                 </select>
                     <button name="action" type="submit" value="update">Update</button>
@@ -57,8 +58,8 @@
     <input id="lastName" name="lastName" th:value="${lastName}">
     <label for="roles">Role</label>
     <select id="roles" name="role">
-        <span th:each="role : ${allRoles}">
-            <option th:text="${role.role}" th:value="${role.role}"></option>
+        <span th:each="roleEnum : ${allRoleEnums}">
+            <option th:text="${roleEnum.roleName}" th:value="${roleEnum.roleName}"></option>
         </span>
     </select>
     <button type="submit">Submit</button>

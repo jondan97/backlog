@@ -101,4 +101,13 @@ public class User {
         this.firstName = firstName;
         this.lastName = lastName;
     }
+
+    /**
+     * this constructor was created as some sort of 'setter'
+     *
+     * @param userId: the id that this user is stored in the repository with
+     */
+    public User(long userId) {
+        this.id = userId;
+    }
 }

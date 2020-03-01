@@ -1,6 +1,7 @@
 package gr.university.thesis.service;
 
 import gr.university.thesis.entity.SessionUser;
+import gr.university.thesis.entity.User;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,16 @@ public class SessionService {
     }
 
     /**
+     * this method instantly finds the repository id of an user
+     *
+     * @param session: the current session with a user
+     * @return: returns a User that only contains the Id saved in an attribute of the session
+     */
+    public User getUserWithSessionId(HttpSession session) {
+        return new User((long) session.getAttribute("userId"));
+    }
+
+    /**
      * this method takes as input a user and returns a role in the form of a String
      *
      * @param user: the user that is associated with the current session
@@ -38,10 +49,15 @@ public class SessionService {
         List<String> authorityList = new ArrayList<>(user.getAuthorities().size());
         //for each authority, get the String authority (role) and add it to the String list
         user.getAuthorities().forEach(authority -> authorityList.add(authority.getAuthority()));
+        //since the role-user association is implemented as a ManyToMany relationship,
+        // we need to return the highest rank
         if (authorityList.contains("ADMIN"))
             return "ADMIN";
-        else
+        else if (authorityList.contains("PROJECT_MANAGER")) {
+            return "PROJECT_MANAGER";
+        } else {
             return "USER";
+        }
     }
 
     /**

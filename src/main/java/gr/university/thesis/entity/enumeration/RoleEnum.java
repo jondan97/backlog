@@ -5,27 +5,33 @@ package gr.university.thesis.entity.enumeration;
  * the role from the repository, this enum is used where the values are known beforehand
  */
 public enum RoleEnum {
-    ADMIN(1, "ADMIN"),
-    USER(2, "USER"),
-    PROJECT_OWNER(3, "PROJECT_OWNER");
+    PROJECT_MANAGER(1, "PROJECT_MANAGER"),
+    ADMIN(2, "ADMIN"),
+    USER(3, "USER");
 
     private final String roleName;
-    private final long repositoryId; //database id, known beforehand
+    private final int repositoryId; //database id, known beforehand
 
     /**
      * @param repositoryId: id stored in the repository
      * @param roleName:     string roleName stored in the repository
      */
-    RoleEnum(long repositoryId, String roleName) {
+    RoleEnum(int repositoryId, String roleName) {
         this.roleName = roleName;
         this.repositoryId = repositoryId;
     }
 
+    /**
+     * @return returns the role name of the wanted enum
+     */
     public String getRoleName() {
         return roleName;
     }
 
-    public long getRepositoryId() {
+    /**
+     * @return returns the repository id of the wanted enum
+     */
+    public int getRepositoryId() {
         return repositoryId;
     }
 }

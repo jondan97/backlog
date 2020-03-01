@@ -91,9 +91,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             Role adminRole = new Role();
             adminRole.setRole("ADMIN");
             allRoles.add(adminRole);
-            Role projectOwnerRole = new Role();
-            projectOwnerRole.setRole("PROJECT_OWNER");
-            allRoles.add(projectOwnerRole);
+            Role projectManagerRole = new Role();
+            projectManagerRole.setRole("PROJECT_MANAGER");
+            allRoles.add(projectManagerRole);
             user.setRoles(allRoles);
             roleRepository.saveAll(allRoles);
             userRepository.save(user);

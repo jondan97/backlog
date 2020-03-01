@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Project Panel</title>
+</head>
+<body>
+<button th:onclick="'window.location.href=\'' + @{/} + '\''"
+        type="button">Home
+</button>
+<h3>Existing Projects:</h3>
+<div th:each="project : ${projects}" th:style="'border-style: solid'">
+    <form method="post" th:action="@{/pm/editProject}">
+        <label for="projectId">ID</label>
+        <input id="projectId" name="projectId" readonly th:value="${project.id}">
+        <label for="projectTitle">Title</label>
+        <input id="projectTitle" name="projectTitle" th:value="${project.title}">
+        <label for="projectDescription">Description</label>
+        <input id="projectDescription" name="projectDescription" th:value="${project.description}">
+        <label for="projectTotalEffort">Total Effort</label>
+        <input id="projectTotalEffort" name="projectTotalEffort" readonly th:value="${project.total_effort}">
+        <button name="action" th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id}} + '\''"
+                type="button" value="view">View
+        </button>
+        <button name="action" type="submit" value="update">Update</button>
+        <button name="action" type="submit" value="delete">Delete</button>
+    </form>
+
+</div>
+<h3>Create a Project</h3>
+<form method="post" th:action="@{/pm/createProject}">
+    <label for="title">Title</label>
+    <input id="title" name="title">
+    <label for="description">Description</label>
+    <input id="description" name="description">
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>
