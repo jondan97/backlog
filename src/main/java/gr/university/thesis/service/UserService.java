@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -64,8 +64,8 @@ public class UserService {
     public void createUser(String email, String password, String firstName, String lastName, String roleName) {
         String encodedPassword = bCryptPasswordEncoder.encode(password);
         User user = new User(email, encodedPassword, firstName, lastName);
-        Set<Role> roles = new HashSet<>();
-        Role role = new Role((long) RoleEnum.valueOf(roleName).getRepositoryId(), RoleEnum.valueOf(roleName).getRoleName());
+        List<Role> roles = new ArrayList<>();
+        Role role = new Role((long) RoleEnum.valueOf(roleName).getRepositoryId(), RoleEnum.valueOf(roleName).getName());
         roles.add(role);
         user.setRoles(roles);
         userRepository.save(user);
@@ -89,7 +89,7 @@ public class UserService {
                 user.setPassword(encodedPassword);
             }
             if (!userRole.equals("master_admin")) {
-                Role newRole = new Role((long) RoleEnum.valueOf(userRole).getRepositoryId(), RoleEnum.valueOf(userRole).getRoleName());
+                Role newRole = new Role((long) RoleEnum.valueOf(userRole).getRepositoryId(), RoleEnum.valueOf(userRole).getName());
                 user.getRoles().clear();
                 user.getRoles().add(newRole);
             }

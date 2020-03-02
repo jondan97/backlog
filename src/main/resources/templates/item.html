@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Item Page</title>
+</head>
+<body>
+<button th:onclick="'window.location.href=\'' + @{/} + '\''"
+        type="button">Home
+</button>
+<h3>Item Details</h3>
+<form method="post">
+    <label for="itemId">ID</label>
+    <input id="itemId" readonly th:value="${item.id}">
+    <label for="itemTitle">Title</label>
+    <input id="itemTitle" readonly th:value="${item.title}">
+    <label for="itemDescription">Description</label>
+    <input id="itemDescription" readonly th:value="${item.description}">
+    <label for="itemType">Type</label>
+    <input id="itemType" readonly th:value="${itemType.name}">
+    <label for="itemPriority">Type</label>
+    <input id="itemPriority" readonly th:value="${itemPriority.name}">
+    <label for="itemEffort">Effort</label>
+    <input id="itemEffort" readonly th:value="${item.effort}">
+    <label for="itemAssignee">Assignee</label>
+    <input id="itemAssignee" readonly th:value="${item.assignee.firstName + ' ' + item.assignee.lastName}">
+    <label for="itemOwner">Owner</label>
+    <input id="itemOwner" readonly th:value="${item.owner.firstName + ' ' + item.owner.lastName}">
+    <label for="itemOwner">Date</label>
+    <input id="itemDate" readonly th:value="${item.date_created}">
+</form>
+<h4>Comments</h4>
+<div th:each="comment : ${item.getComments()}" th:style="'border-style: solid'">
+    <form method="post" th:action="@{/user/editComment}">
+        <label for="commentIdView">ID</label>
+        <input id="commentIdView" name="commentIdView" readonly th:value="${comment.id}">
+        <label for="commentBodyView">Body</label>
+        <input id="commentBodyView" name="commentBodyView" th:value="${comment.body}">
+        <label for="commentByView">By</label>
+        <input id="commentByView" name="commentByView" readonly
+               th:value="${comment.owner.firstName + ' ' + comment.owner.lastName}">
+        <label for="commentDateView">Date</label>
+        <input id="commentDateView" name="commentDateView" readonly th:value="${comment.date_created}">
+        <input hidden id="commentItemIdView" name="commentItemIdView" th:value="${item.id}">
+        <input hidden id="commentProjectIdView" name="commentProjectIdView" th:value="${item.project.id}">
+        <button name="action" th:if="${comment.owner.id == session.userId}" type="submit" value="update">Update</button>
+        <button name="action"
+                th:if="${comment.owner.id == session.userId or #authorization.expression('hasAuthority(''ADMIN'')')}"
+                type="submit" value="delete">Delete
+        </button>
+    </form>
+</div>
+<h5>Write a Comment</h5>
+<form method="post" th:action="@{/user/createComment}">
+    <label for="commentBody">Body</label>
+    <input id="commentBody" name="commentBody">
+    <input hidden id="commentItemId" name="commentItemId" th:value="${item.id}">
+    <input hidden id="commentProjectId" name="commentProjectId" th:value="${item.project.id}">
+    <input hidden id="commentOwnerId" name="commentOwnerId" th:value="${session.userId}">
+    <button type="submit">Submit</button>
+</form>
+</body>
+</html>

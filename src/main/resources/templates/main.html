@@ -7,29 +7,19 @@
 <body>
 Hi!@
 <div th:switch="${session.role}">
-    <div th:case="'USER'">
-        <div th:text="${session.userId}"></div>
-        <div th:text="${session.userEmail}"></div>
-        <div th:text="${session.role}"></div>
-    </div>
-    <div th:case="'PROJECT_MANAGER'">
-        <div th:text="${session.userId}"></div>
-        <div th:text="${session.userEmail}"></div>
-        <div th:text="${session.role}"></div>
-    </div>
-    <div th:case="'ADMIN'">
-        <div th:text="${session.userId}"></div>
-        <div th:text="${session.userEmail}"></div>
-        <div th:text="${session.role}"></div>
+    <div th:case="null">
+        <div th:text="'Not signed in'"></div>
     </div>
     <div th:case='*'>
-        <div th:text="'Not signed in'"></div>
+        <div th:text="${session.userId}"></div>
+        <div th:text="${session.userEmail}"></div>
+        <div th:text="${session.role}"></div>
     </div>
 </div>
 ---------------------------------------------<br>
 <a href="/login">Login</a><br>
 <a href="/logout">Logout</a><br>
-<a href="/pm/projectPanel">Project Panel</a><br>
+<a href="/user/projectPanel">Project Panel</a><br>
 <a href="/admin/userPanel">User Panel</a><br>
 <a href="/firstTime">First Time</a><br>
 </body>

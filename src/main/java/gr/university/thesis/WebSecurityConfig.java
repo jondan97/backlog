@@ -47,7 +47,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(resources).permitAll()
                 .antMatchers("/", "/login", "/error", "/firstTime").permitAll()
                 .antMatchers("/admin/*").access("hasAuthority('ADMIN')")
-                .antMatchers("/user/*").access("hasAuthority('USER') or hasAuthority('ADMIN')")
+                .antMatchers("/user/*").access("hasAuthority('USER') or hasAuthority('PROJECT_MANAGER') or hasAuthority('ADMIN')")
                 .antMatchers("/pm/*").access("hasAuthority('PROJECT_MANAGER') or hasAuthority('ADMIN')")
                 .anyRequest().authenticated()
                 .and()

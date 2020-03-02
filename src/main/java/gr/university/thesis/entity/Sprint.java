@@ -1,6 +1,7 @@
 package gr.university.thesis.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -10,7 +11,8 @@ import java.util.Set;
  * the sprint that is associated with a project, and contains items
  */
 @Entity
-@Data
+@Getter
+@Setter
 public class Sprint {
 
     /**

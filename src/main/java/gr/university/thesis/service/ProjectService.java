@@ -1,13 +1,8 @@
 package gr.university.thesis.service;
 
-import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.User;
-import gr.university.thesis.entity.enumeration.ItemPriority;
-import gr.university.thesis.entity.enumeration.ItemType;
-import gr.university.thesis.repository.ItemRepository;
 import gr.university.thesis.repository.ProjectRepository;
-import gr.university.thesis.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,21 +16,15 @@ import java.util.Optional;
 public class ProjectService {
 
     ProjectRepository projectRepository;
-    UserRepository userRepository;
-    ItemRepository itemRepository;
 
     /**
      * constructor of this class, correct way to set the autowired attributes
      *
      * @param projectRepository: repository that has access to all the projects
-     * @param userRepository:    repository that has access to all the users
-     * @param itemRepository:    repository that has access to all the items
      */
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, ItemRepository itemRepository) {
+    public ProjectService(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
-        this.userRepository = userRepository;
-        this.itemRepository = itemRepository;
     }
 
     /**
@@ -94,23 +83,5 @@ public class ProjectService {
      */
     public void deleteProject(long projectId) {
         projectRepository.deleteById(projectId);
-    }
-
-
-    /**
-     * this method creates a new item and saves it into the repository
-     *
-     * @param title:       the title of the new item
-     * @param description: the description of the new item
-     * @param type:        the type of the new item
-     * @param priority:    the priority of the new item
-     * @param effort:      the effort required for this item to complete
-     * @param project:     the project that this item belongs to
-     * @param assignee:    the user that this item has been assigned to
-     * @param owner:       the user who created this item
-     */
-    public void createItem(String title, String description, ItemType type, ItemPriority priority, int effort, Project project, User assignee, User owner) {
-        Item item = new Item(title, description, type.getRepositoryId(), priority.getRepositoryId(), effort, project, assignee, owner);
-        itemRepository.save(item);
     }
 }

@@ -1,6 +1,8 @@
 package gr.university.thesis.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -9,7 +11,9 @@ import java.util.Date;
  * users can leave comments below items, for other users to read
  */
 @Entity
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class Comment {
 
     /**
@@ -44,4 +48,14 @@ public class Comment {
     @ManyToOne
     @JoinColumn(name = "item_id", nullable = false)
     private Item item;
+
+    /**
+     * custom constructor
+     */
+    public Comment(String body, Item item, User owner) {
+        this.body = body;
+        this.item = item;
+        this.owner = owner;
+        this.date_created = new Date();
+    }
 }

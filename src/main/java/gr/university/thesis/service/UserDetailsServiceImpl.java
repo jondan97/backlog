@@ -16,9 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -73,7 +71,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     /**
      * initializes some essential data that the system requires in order to work properly
-     * creates roles(ADMIN/USER) and sets an admin
+     * creates roles(ADMIN/USER) and sets a master admin
      */
     public void firstTime() {
         if (!userRepository.findFirstByEmail(ADMIN_EMAIL).isPresent()) {
@@ -84,18 +82,25 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             String encodedPassword = bCryptPasswordEncoder.encode(ADMIN_PASSWORD);
             user.setPassword(encodedPassword);
             //create role for user
-            Set<Role> allRoles = new HashSet<Role>();
-            Role userRole = new Role();
-            userRole.setRole("USER");
-            allRoles.add(userRole);
+            List<Role> allRoles = new ArrayList<>();
+            Role masterRole = new Role();
+            masterRole.setId((long) 1);
+            masterRole.setRole("MASTER_ADMIN");
+            allRoles.add(masterRole);
             Role adminRole = new Role();
+            adminRole.setId((long) 2);
             adminRole.setRole("ADMIN");
             allRoles.add(adminRole);
             Role projectManagerRole = new Role();
+            projectManagerRole.setId((long) 3);
             projectManagerRole.setRole("PROJECT_MANAGER");
             allRoles.add(projectManagerRole);
-            user.setRoles(allRoles);
+            Role userRole = new Role();
+            userRole.setId((long) 4);
+            userRole.setRole("USER");
+            allRoles.add(userRole);
             roleRepository.saveAll(allRoles);
+            user.setRoles(allRoles);
             userRepository.save(user);
         }
     }

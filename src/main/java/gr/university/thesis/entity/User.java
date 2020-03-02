@@ -1,16 +1,19 @@
 package gr.university.thesis.entity;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Set;
 
 /**
  * User that is saved in the repository
  */
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class User {
 
@@ -62,7 +65,7 @@ public class User {
             name = "role_user",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
-    private Set<Role> roles;
+    private List<Role> roles;
     /**
      * the associated items that are in the backlog
      */

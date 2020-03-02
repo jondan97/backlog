@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
     <title>Project Panel</title>
@@ -22,11 +22,14 @@
         <button name="action" th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id}} + '\''"
                 type="button" value="view">View
         </button>
-        <button name="action" type="submit" value="update">Update</button>
-        <button name="action" type="submit" value="delete">Delete</button>
+        <button name="action" sec:authorize="hasAuthority('PROJECT_MANAGER')" type="submit" value="update">Update
+        </button>
+        <button name="action" sec:authorize="hasAuthority('PROJECT_MANAGER')" type="submit" value="delete">Delete
+        </button>
     </form>
 
 </div>
+<span sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')">
 <h3>Create a Project</h3>
 <form method="post" th:action="@{/pm/createProject}">
     <label for="title">Title</label>
@@ -35,5 +38,6 @@
     <input id="description" name="description">
     <button type="submit">Submit</button>
 </form>
+</span>
 </body>
 </html>

@@ -1,8 +1,9 @@
 package gr.university.thesis.entity;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -13,7 +14,8 @@ import java.io.Serializable;
  * table between an item and a sprint,
  */
 @Embeddable
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class SprintItemId implements Serializable {

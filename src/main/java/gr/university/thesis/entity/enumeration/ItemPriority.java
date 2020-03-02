@@ -5,29 +5,32 @@ package gr.university.thesis.entity.enumeration;
  * the priority from the repository, this enum is used where the values are known beforehand
  */
 public enum ItemPriority {
+    //'NONE' just in case something goes wrong, and we don't want the system to crash
+    NONE(0, "N/A"),
     LOWEST(1, "Lowest"),
     LOW(2, "Low"),
     MEDIUM(3, "Medium"),
     HIGH(4, "High"),
     HIGHEST(5, "Highest");
 
-    private final String priorityName;
+    private final String name;
     private final int repositoryId; //database id, known beforehand
 
     /**
      * @param repositoryId: id stored in the repository
-     * @param priorityName: the priority of an item
+     * @param name:         the priority of an item
      */
-    ItemPriority(int repositoryId, String priorityName) {
-        this.priorityName = priorityName;
+    ItemPriority(int repositoryId, String name) {
+        this.name = name;
         this.repositoryId = repositoryId;
     }
 
-    /**
-     * @return returns the priority name of the wanted enum
-     */
-    public String getPriorityName() {
-        return priorityName;
+    public static ItemPriority findItemTypeByRepositoryId(int id) {
+        for (ItemPriority itemPriority : ItemPriority.values()) {
+            if (itemPriority.repositoryId == id)
+                return itemPriority;
+        }
+        return ItemPriority.NONE;
     }
 
     /**
@@ -35,6 +38,13 @@ public enum ItemPriority {
      */
     public int getRepositoryId() {
         return repositoryId;
+    }
+
+    /**
+     * @return returns the priority name of the wanted enum
+     */
+    public String getName() {
+        return name;
     }
 
 }

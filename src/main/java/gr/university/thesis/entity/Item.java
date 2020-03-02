@@ -1,17 +1,20 @@
 package gr.university.thesis.entity;
 
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 /**
  * items/tasks that can be added to a backlog or a sprint
  */
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Item {
 
@@ -99,10 +102,10 @@ public class Item {
     private boolean active;
 
     /**
-     * the set of comments this item contains
+     * the list of comments this item contains
      */
     @OneToMany(mappedBy = "item")
-    private Set<Comment> comments;
+    private List<Comment> comments;
 
     /**
      * the set of sprints this item is associated with
@@ -124,5 +127,14 @@ public class Item {
         this.owner = owner;
         this.active = false;
         this.date_created = new Date();
+    }
+
+    /**
+     * this constructor was created as some sort of 'setter'
+     *
+     * @param itemId: the id of the comment
+     */
+    public Item(long itemId) {
+        this.id = itemId;
     }
 }

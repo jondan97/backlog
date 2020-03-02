@@ -51,7 +51,9 @@ public class SessionService {
         user.getAuthorities().forEach(authority -> authorityList.add(authority.getAuthority()));
         //since the role-user association is implemented as a ManyToMany relationship,
         // we need to return the highest rank
-        if (authorityList.contains("ADMIN"))
+        if (authorityList.contains("MASTER_ADMIN"))
+            return "MASTER_ADMIN";
+        else if (authorityList.contains("ADMIN"))
             return "ADMIN";
         else if (authorityList.contains("PROJECT_MANAGER")) {
             return "PROJECT_MANAGER";
