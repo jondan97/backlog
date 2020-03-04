@@ -22,9 +22,11 @@
         <button name="action" th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id}} + '\''"
                 type="button" value="view">View
         </button>
-        <button name="action" sec:authorize="hasAuthority('PROJECT_MANAGER')" type="submit" value="update">Update
+        <button name="action" sec:authorize="hasAnyAuthority('ADMIN','PROJECT_MANAGER')" type="submit" value="update">
+            Update
         </button>
-        <button name="action" sec:authorize="hasAuthority('PROJECT_MANAGER')" type="submit" value="delete">Delete
+        <button name="action" sec:authorize="hasAnyAuthority('ADMIN','PROJECT_MANAGER')" type="submit" value="delete">
+            Delete
         </button>
     </form>
 
