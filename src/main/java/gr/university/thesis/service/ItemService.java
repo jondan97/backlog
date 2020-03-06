@@ -37,7 +37,37 @@ public class ItemService {
      * @return returns all the items that are associated with a project
      */
     public Iterable<Item> findAllItemsByProjectId(long projectId) {
-        return itemRepository.findByProjectId(projectId);
+        Iterable<Item> projectItems = itemRepository.findByProjectId(projectId);
+        calculatedCombinedEffort(projectItems);
+        return projectItems;
+    }
+
+    /**
+     * this method calculates the  combined effort of all the items (tasks/bugs etc.) for each epic/story
+     * epics and stories have no effort on their own, and the effort for each one is the sum of all the tasks/bugs etc.
+     * they contain
+     *
+     * @param items: the set of items that Java needs to calculate the combined effort of
+     */
+    public void calculatedCombinedEffort(Iterable<Item> items) {
+        for (Item item : items) {
+            if (item.getType() == ItemType.EPIC.getRepositoryId() || item.getType() == ItemType.STORY.getRepositoryId()) {
+                int calculatedEffort = 0;
+                for (Item child : item.getChildren()) {
+                    //if it's not a story (task belongs straight to epic)
+                    if (child.getType() != ItemType.STORY.getRepositoryId()) {
+                        calculatedEffort += child.getEffort();
+                    }
+                    //task belongs to a story that belongs to an epic
+                    else if (child.getType() == ItemType.STORY.getRepositoryId()) {
+                        for (Item childOfStory : child.getChildren()) {
+                            calculatedEffort += childOfStory.getEffort();
+                        }
+                    }
+                }
+                item.setEffort(calculatedEffort);
+            }
+        }
     }
 
     /**
@@ -51,9 +81,17 @@ public class ItemService {
      * @param project:     the project that this item belongs to
      * @param assignee:    the user that this item has been assigned to
      * @param owner:       the user who created this item
+     * @param parent:      the parent (epic/story) of this item
      */
-    public void createItem(String title, String description, ItemType type, ItemPriority priority, int effort, Project project, User assignee, User owner) {
-        Item item = new Item(title, description, type.getRepositoryId(), priority.getRepositoryId(), effort, project, assignee, owner);
+    public void createItem(String title, String description, ItemType type, ItemPriority priority, int effort, Project project, User assignee, User owner, Item parent) {
+        if (parent.getId() == 0) {
+            parent = null;
+        }
+        //if its an epic or a story, we want to calculate its children's' effort
+        if (type == ItemType.EPIC || type == ItemType.STORY) {
+            effort = 0;
+        }
+        Item item = new Item(title, description, type.getRepositoryId(), priority.getRepositoryId(), effort, project, assignee, owner, parent);
         itemRepository.save(item);
     }
 
@@ -66,9 +104,10 @@ public class ItemService {
      * @param type:        ItemType of the item
      * @param priority:    ItemPriority of the item
      * @param effort:      effort required to finish this item
-     * @param assigneeId:  the user that thisitem is assigned to
+     * @param assignee:    the user that this item is assigned to
+     * @param parent:      the parent (epic/story) of this item
      */
-    public void updateItem(long itemId, String title, String description, String type, String priority, int effort, long assigneeId) {
+    public void updateItem(long itemId, String title, String description, String type, String priority, int effort, User assignee, Item parent) {
         Optional<Item> itemOptional = itemRepository.findById(itemId);
         System.out.println(itemOptional.isPresent());
         if (itemOptional.isPresent()) {
@@ -78,7 +117,12 @@ public class ItemService {
             item.setType(ItemType.valueOf(type).getRepositoryId());
             item.setPriority(ItemPriority.valueOf(priority).getRepositoryId());
             item.setEffort(effort);
-            item.setAssignee(new User(assigneeId));
+            item.setAssignee(assignee);
+            if (parent.getId() == 0) {
+                item.setParent(null);
+            } else {
+                item.setParent(parent);
+            }
             itemRepository.save(item);
         }
     }

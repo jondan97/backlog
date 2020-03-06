@@ -1,5 +1,6 @@
 package gr.university.thesis.controller;
 
+import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.ItemPriority;
@@ -107,10 +108,12 @@ public class ProjectManagerController {
                              @RequestParam int effort,
                              @RequestParam long projectId,
                              @RequestParam long assigneeId,
+                             @RequestParam long parentId,
                              HttpSession session) {
         itemService.createItem(title, description, ItemType.valueOf(type),
                 ItemPriority.valueOf(priority), effort, new Project(projectId),
-                new User(assigneeId), sessionService.getUserWithSessionId(session));
+                new User(assigneeId), sessionService.getUserWithSessionId(session),
+                new Item(parentId));
         return "redirect:/user/project/" + projectId;
     }
 
@@ -135,8 +138,10 @@ public class ProjectManagerController {
                              @RequestParam String itemType,
                              @RequestParam String itemPriority,
                              @RequestParam int itemEffort,
-                             @RequestParam long itemAssigneeId) {
-        itemService.updateItem(itemId, itemTitle, itemDescription, itemType, itemPriority, itemEffort, itemAssigneeId);
+                             @RequestParam long itemAssigneeId,
+                             @RequestParam long itemParentId
+    ) {
+        itemService.updateItem(itemId, itemTitle, itemDescription, itemType, itemPriority, itemEffort, new User(itemAssigneeId), new Item(itemParentId));
         return "redirect:/user/project/" + itemProjectId;
     }
 

@@ -64,7 +64,7 @@ public class Item {
     /**
      * the child items that belong to a parent item, for example an epic
      */
-    @OneToMany(mappedBy = "parent")
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private Set<Item> children;
 
     /**
@@ -104,7 +104,7 @@ public class Item {
     /**
      * the list of comments this item contains
      */
-    @OneToMany(mappedBy = "item")
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
     private List<Comment> comments;
 
     /**
@@ -116,7 +116,7 @@ public class Item {
     /**
      * custom constructor
      */
-    public Item(String title, String description, int type, int priority, int effort, Project project, User assignee, User owner) {
+    public Item(String title, String description, int type, int priority, int effort, Project project, User assignee, User owner, Item parent) {
         this.title = title;
         this.description = description;
         this.type = type;
@@ -127,6 +127,7 @@ public class Item {
         this.owner = owner;
         this.active = false;
         this.date_created = new Date();
+        this.parent = parent;
     }
 
     /**
