@@ -77,6 +77,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (!userRepository.findFirstByEmail(ADMIN_EMAIL).isPresent()) {
             User user = new User();
             user.setEmail(ADMIN_EMAIL);
+            user.setFirstName("John");
+            user.setLastName("Daniel");
             //encrypt password
             BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(4);
             String encodedPassword = bCryptPasswordEncoder.encode(ADMIN_PASSWORD);
