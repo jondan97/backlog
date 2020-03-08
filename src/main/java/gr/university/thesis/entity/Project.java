@@ -35,13 +35,6 @@ public class Project {
     @Column
     private String description;
 
-    /*    *//**
-     * the total effort of the project (will see if needed in the future), cached version of the total effort
-     * so that it is not calculated every time the user requests it
-     *//*
-    @Column
-    private long total_effort;*/
-
     /**
      * the total effort of the project calculated every time the user wants to see this project in the project panel
      */
@@ -51,13 +44,13 @@ public class Project {
     /**
      * the associated sprints
      */
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private Set<Sprint> sprints;
 
     /**
      * the associated items that are in the backlog
      */
-    @OneToMany(mappedBy = "project")
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private Set<Item> items;
 
     /**

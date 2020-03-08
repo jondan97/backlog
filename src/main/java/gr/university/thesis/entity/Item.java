@@ -96,10 +96,13 @@ public class Item {
     private User assignee;
 
     /**
-     * is this item active or not (will see if I need this in the future)
+     * 0: finished item
+     * 1: item in backlog
+     * 2: item is included in ready sprint
+     * 3: item is included in active sprint
      */
     @Column
-    private boolean active;
+    private byte status;
 
     /**
      * the list of comments this item contains
@@ -110,8 +113,8 @@ public class Item {
     /**
      * the set of sprints this item is associated with
      */
-    @OneToMany(mappedBy = "item")
-    private Set<Item_Sprint_History> associatedSprints;
+    @OneToMany(mappedBy = "item", cascade = CascadeType.ALL)
+    private Set<ItemSprintHistory> associatedSprints;
 
     /**
      * custom constructor
@@ -125,7 +128,8 @@ public class Item {
         this.project = project;
         this.assignee = assignee;
         this.owner = owner;
-        this.active = false;
+        //ready to be taken from backlog
+        this.status = 1;
         this.date_created = new Date();
         this.parent = parent;
     }

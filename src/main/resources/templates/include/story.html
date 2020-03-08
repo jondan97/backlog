@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<form method="post" th:action="@{/pm/editItem}" th:fragment="updateForm">
+
+    <label for="itemId">ID</label>
+    <input id="itemId" name="itemId" readonly th:value="${item.id}">
+
+    <label for="itemTitle">Title</label>
+    <input id="itemTitle" name="itemTitle"
+           th:readonly="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') ? 'false' : 'true'}"
+           th:value="${item.title}">
+
+    <label for="itemDescription">Description</label>
+    <input id="itemDescription" name="itemDescription"
+           th:readonly="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') ? 'false' : 'true'}"
+           th:value="${item.description}">
+
+    <label for="itemType">Type</label>
+    <select disabled id="itemType" name="itemType">
+        <option selected>Disabled</option>
+    </select>
+    <input name="itemType" type="hidden" value="STORY">
+
+    <label for="itemParentId">Parent</label>
+    <select id="itemParentId" name="itemParentId">
+        <option selected value="0">No parent</option>
+        <span th:each="parent : ${backlog}">
+            <span th:if="${parent.type == 1}">
+                <!-- if the item is in an active sprint, show only its parent            -->
+                <span th:if="${item.status == 3}">
+                    <span th:if="${item.parent}">
+                        <span th:if="${parent.id == item.parent.id}">
+                            <option selected th:text="${parent.title}"
+                                    th:value="${parent.id}"></option>
+                        </span>
+                        <span th:unless="${parent.id == item.parent.id}">
+                            <option th:text="${parent.title}"
+                                    th:value="${parent.id}"></option>
+                        </span>
+                    </span>
+                    <span th:unless="${item.parent}">
+                        <option th:text="${parent.title}"
+                                th:value="${parent.id}"></option>
+                    </span>
+                </span>
+                <!-- if item is not in active sprint, show only available parents-->
+                <span th:unless="${item.status == 3}">
+                    <span th:if="${parent.status !=3}">
+                        <span th:if="${item.parent}">
+                            <span th:if="${parent.id == item.parent.id}">
+                                <option selected th:text="${parent.title}"
+                                        th:value="${parent.id}"></option>
+                            </span>
+                            <span th:unless="${parent.id == item.parent.id}">
+                                <option th:text="${parent.title}"
+                                        th:value="${parent.id}"></option>
+                            </span>
+                        </span>
+                        <span th:unless="${item.parent}">
+                            <option th:text="${parent.title}"
+                                    th:value="${parent.id}"></option>
+                        </span>
+                    </span>
+                </span>
+
+            </span>
+        </span>
+    </select>
+
+    <label for="itemPriority">Priority</label>
+    <select id="itemPriority" name="itemPriority"
+            th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') ? 'false' : 'true'}">
+                <span th:each="itemPriority : ${itemPriorities}">
+                    <span th:if="${itemPriority.repositoryId != 0}">
+                        <option th:selected="${item.priority == itemPriority.repositoryId ? true : false}"
+                                th:text="${itemPriority.name}" th:value="${itemPriority}">
+                        </option>
+                    </span>
+                </span>
+    </select>
+
+    <label for="itemEffort">Effort</label>
+    <input id="itemEffort" name="itemEffort" readonly th:value="${item.effort}">
+
+    <label for="itemAssigneeId">Assignee</label>
+    <select id="itemAssigneeId" name="itemAssigneeId"
+            th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') or (session.userId == item.assignee.id) ? 'false' : 'true'}">
+                <span th:each="user : ${allUsers}">
+                    <option th:selected="${item.assignee.id == user.id ? true : false}"
+                            th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                            th:value="${user.id}">
+                    </option>
+            </span>
+    </select>
+
+    <label for="itemOwner">Owner</label>
+    <input id="itemOwner" name="itemOwner" readonly th:value="${item.owner.firstName + ' ' + item.owner.lastName}">
+
+    <label for="itemOwner">Date</label>
+    <input id="itemDate" name="itemDate" readonly th:value="${item.date_created}">
+
+    <input hidden id="itemProjectId" name="itemProjectId" th:value="${project.id}">
+
+    <button name="action"
+            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/item/' + ${item.id}} + '\''"
+            type="button" value="view">View
+    </button>
+
+    <span th:if="${item.status != 3}">
+
+        <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+                value="update">
+            Update
+        </button>
+
+        <button formaction="/user/updateAssignee" name="action"
+                th:if="${item.assignee.id == session.userId and not #authorization.expression('hasAnyAuthority(''ADMIN'', ''PROJECT_MANAGER'')')}"
+                type="submit" value="assign">Update
+        </button>
+
+        <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+                value="delete">
+            Delete
+        </button>
+
+        <span th:if="${item.status == 2}">
+            <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+                    value="remove">
+            Remove from Sprint
+        </button>
+        </span>
+
+    </span>
+
+    <input hidden id="sprintId" name="sprintId" th:value="${sprint.id}">
+
+    <span th:if="${sprint.status != 1}">
+        <span th:if="${item.status == 1}">
+            <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+                    value="move">
+            Move to Sprint
+        </button>
+        </span>
+    </span>
+
+</form>
+</body>
+</html>

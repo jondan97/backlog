@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<span th:fragment="items">
+        <!-- if the item is an epic (no parent by default) or item is a story without a parent or item is a task/bug etc.  -->
+        <span th:if="${(item.type == 1) or (item.type == 2 and item.parent == null) or (item.type != 1 and item.type !=2 and item.parent == null)}">
+            <!--        if item is a task or a story-->
+                    <span th:if="${item.type == 1 or item.type == 2}">
+            <!--            if item is an epic-->
+                        <span th:if="${item.type == 1}">
+                        <span th:insert="include/epic :: updateForm"
+                              th:style="'border-style:solid;border-color:purple;display:block;'"></span>
+                            <!--                if the epic has children-->
+                            <span th:if="${item.children}">
+                                <span th:each="item : ${item.children}">
+            <!--                        if the child is a story-->
+                                    <span th:if="${item.type == 2}">
+                                        <ul>
+                                            <span th:insert="include/story :: updateForm"
+                                                  th:style="'border-style:solid;border-color:green;display:block;'"></span>
+                                            <!--                            if the child story has any children on its own-->
+                                                <span th:if="${item.children}">
+                                                    <span th:each="item: ${item.children}">
+                                                        <ul>
+                                                            <span th:insert="include/task :: updateForm"
+                                                                  th:style="'border-style:solid;border-color:lightblue;display:block;'"></span>
+                                                        </ul>
+                                                    </span>
+                                                </span>
+                                        </ul>
+                                    </span>
+                                    <!--                        if the child is a task/bug etc.-->
+                                    <span th:unless="${item.type == 2}">
+                                        <ul>
+                                            <span th:insert="include/task :: updateForm"
+                                                  th:style="'border-style:solid;border-color:lightblue;display:block;'"></span>
+                                        </ul>
+                                    </span>
+                                </span>
+
+                            </span>
+                        </span>
+                        <!--            if item is a story-->
+                        <span th:if="${item.type == 2}">
+                            <span th:insert="include/story :: updateForm"
+                                  th:style="'border-style:solid;border-color:green;display:block;'"></span>
+                            <!--                if the story has children-->
+                                <span th:if="${item.children}">
+                                    <ul>
+                                        <span th:each="item : ${item.children}">
+                                        <span th:insert="include/task :: updateForm"
+                                              th:style="'border-style:solid;border-color:lightblue;display:block;'"></span>
+                                        </span>
+                                    </ul>
+                                </span>
+                        </span>
+                    </span>
+            <!--        if item is not an epic nor a story (without a parent), but a task/bug etc-->
+                    <span th:unless="${item.type == 1 or item.type == 2}">
+                        <span th:insert="include/task :: updateForm"
+                              th:style="'border-style:solid;border-color:lightblue;display:block;'"></span>
+                    </span>
+                </span>
+    </span>
+</body>
+</html>

@@ -2,12 +2,11 @@ package gr.university.thesis.controller;
 
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
+import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.ItemPriority;
 import gr.university.thesis.entity.enumeration.ItemType;
-import gr.university.thesis.service.ItemService;
-import gr.university.thesis.service.ProjectService;
-import gr.university.thesis.service.SessionService;
+import gr.university.thesis.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +27,9 @@ public class ProjectManagerController {
     ProjectService projectService;
     SessionService sessionService;
     ItemService itemService;
+    SprintService sprintService;
+    ItemSprintHistoryService itemSprintHistoryService;
+
 
     /**
      * constructor of this class, correct way to set the autowired attributes
@@ -35,12 +37,17 @@ public class ProjectManagerController {
      * @param projectService: service that manages all the projects of the system
      * @param sessionService: service that manages the current session
      * @param itemService:    service that manages the items stored in the repository
+     * @param sprintService:  service that manages the sprints stored in the repository
      */
     @Autowired
-    public ProjectManagerController(ProjectService projectService, SessionService sessionService, ItemService itemService) {
+    public ProjectManagerController(ProjectService projectService, SessionService sessionService,
+                                    ItemService itemService, SprintService sprintService,
+                                    ItemSprintHistoryService itemSprintHistoryService) {
         this.projectService = projectService;
         this.sessionService = sessionService;
         this.itemService = itemService;
+        this.sprintService = sprintService;
+        this.itemSprintHistoryService = itemSprintHistoryService;
     }
 
     /**
@@ -139,9 +146,14 @@ public class ProjectManagerController {
                              @RequestParam String itemPriority,
                              @RequestParam int itemEffort,
                              @RequestParam long itemAssigneeId,
-                             @RequestParam long itemParentId
+                             @RequestParam long itemParentId,
+                             @RequestParam long sprintId
     ) {
-        itemService.updateItem(itemId, itemTitle, itemDescription, itemType, itemPriority, itemEffort, new User(itemAssigneeId), new Item(itemParentId));
+
+        //the associations need to be defined before the item is updated
+        itemSprintHistoryService.manageItemSprintAssociation(new Item(itemId), new Sprint(sprintId), new Item(itemParentId));
+        itemService.updateItem(itemId, itemTitle, itemDescription, itemType, itemPriority, itemEffort,
+                new User(itemAssigneeId), new Item(itemParentId));
         return "redirect:/user/project/" + itemProjectId;
     }
 
@@ -150,12 +162,76 @@ public class ProjectManagerController {
      *
      * @param itemId:        required id in order to delete the item from the repository
      * @param itemProjectId: required for the redirection to the project backlog
-     * @return: returns project panel template (redirects)
+     * @return: returns a redirection to the current project backlog
      */
     @RequestMapping(value = "/editItem", params = "action=delete", method = RequestMethod.POST)
     public String deleteItem(@RequestParam long itemId,
-                             @RequestParam long itemProjectId) {
+                             @RequestParam long itemProjectId,
+                             @RequestParam long sprintId) {
+        //need to delete its associations first (if they exist)
+        itemSprintHistoryService.removeItemToSprint(new Item(itemId), new Sprint(sprintId), null);
         itemService.deleteItem(itemId);
         return "redirect:/user/project/" + itemProjectId;
+    }
+
+    /**
+     * this method calls the ItemSprintHistory service in order to move an item to a ready sprint
+     *
+     * @param itemId:        required id in order to know which item to move to the sprint
+     * @param sprintId:      require id in order to know to which sprint it should move the item to
+     * @param itemProjectId: required for the redirection to the project backlog
+     * @return: returns a redirection to the current project backlog
+     */
+    @RequestMapping(value = "/editItem", params = "action=move", method = RequestMethod.POST)
+    public String moveItemToSprint(@RequestParam long itemId,
+                                   @RequestParam long sprintId,
+                                   @RequestParam long itemProjectId) {
+        itemSprintHistoryService.moveItemToSprint(new Item(itemId), new Sprint(sprintId), null);
+        return "redirect:/user/project/" + itemProjectId;
+    }
+
+    /**
+     * this method calls the ItemSprintHistory service in order to remove an item to a ready sprint
+     *
+     * @param itemId:        required id in order to know which item to move to the sprint
+     * @param sprintId:      require id in order to know to which sprint it should move the item to
+     * @param itemProjectId: required for the redirection to the project backlog
+     * @return: returns a redirection to the current project backlog
+     */
+    @RequestMapping(value = "/editItem", params = "action=remove", method = RequestMethod.POST)
+    public String removeItemFromSprint(@RequestParam long itemId,
+                                       @RequestParam long sprintId,
+                                       @RequestParam long itemProjectId) {
+        System.out.println(itemId + " " + sprintId);
+        itemSprintHistoryService.removeItemToSprint(new Item(itemId), new Sprint(sprintId), null);
+        return "redirect:/user/project/" + itemProjectId;
+    }
+
+    /**
+     * this method moves a ready sprint to the state of active
+     *
+     * @param sprintId:        the sprint that the user wants to start
+     * @param sprintProjectId: the project that this sprint belongs to
+     * @return: redirection to project page
+     */
+    @RequestMapping(value = "/editSprint", params = "action=start", method = RequestMethod.POST)
+    public String startSprint(@RequestParam long sprintId,
+                              @RequestParam long sprintProjectId) {
+        sprintService.startSprint(sprintId);
+        return "redirect:/user/project/" + sprintProjectId;
+    }
+
+    /**
+     * this methods finishes a sprint and moves it to a finish state
+     *
+     * @param sprintId:        the sprint that the user wants to finish
+     * @param sprintProjectId: the project that this sprint belongs to
+     * @return: redirection to project page
+     */
+    @RequestMapping(value = "/editSprint", params = "action=finish", method = RequestMethod.POST)
+    public String finishSprint(@RequestParam long sprintId,
+                               @RequestParam long sprintProjectId) {
+        sprintService.finishSprint(sprintId, new Project(sprintProjectId));
+        return "redirect:/user/project/" + sprintProjectId;
     }
 }

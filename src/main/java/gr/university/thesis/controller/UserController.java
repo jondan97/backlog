@@ -3,6 +3,7 @@ package gr.university.thesis.controller;
 
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
+import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.ItemPriority;
 import gr.university.thesis.entity.enumeration.ItemType;
@@ -29,6 +30,7 @@ public class UserController {
     UserService userService;
     CommentService commentService;
     ItemService itemService;
+    SprintService sprintService;
 
     /**
      * constructor of this class, correct way to set the autowired attributes
@@ -37,14 +39,18 @@ public class UserController {
      * @param sessionService: the service that manages the current session
      * @param userService:    service that manages all the users of the system
      * @param itemService:    service that handles all the items of the system
+     * @param commentService: service that handles all the comments
+     * @param sprintService:  service that handles all the sprints
      */
     @Autowired
-    public UserController(ProjectService projectService, SessionService sessionService, UserService userService, ItemService itemService, CommentService commentService) {
+    public UserController(ProjectService projectService, SessionService sessionService, UserService userService,
+                          ItemService itemService, CommentService commentService, SprintService sprintService) {
         this.projectService = projectService;
         this.sessionService = sessionService;
         this.userService = userService;
         this.itemService = itemService;
         this.commentService = commentService;
+        this.sprintService = sprintService;
     }
 
     /**
@@ -74,7 +80,9 @@ public class UserController {
                               Model model) {
         Optional<Project> projectOptional = projectService.findProjectById(projectId);
         if (projectOptional.isPresent()) {
-            model.addAttribute("project", projectOptional.get());
+            Project project = projectOptional.get();
+            model.addAttribute("project", project);
+            model.addAttribute("sprint", sprintService.findActiveSprintInProject(project).get());
             //perhaps not the most sufficient but this application is not supposed to be scalable
             model.addAttribute("allUsers", userService.findAllUsers());
             model.addAttribute("backlog", itemService.findAllItemsByProjectId(projectId));
@@ -107,6 +115,15 @@ public class UserController {
         return "item";
     }
 
+    /**
+     * this method updates the assignee of an item to another assignee, and only admins/projects managers or current
+     * assignees can change that
+     *
+     * @param itemId:         the id of the item that we want the new assignee to 'own'
+     * @param itemAssigneeId: the new assignee
+     * @param itemProjectId:  the project that this item belongs to
+     * @return: redirection to project page
+     */
     @RequestMapping(value = "/updateAssignee")
     public String updateAssignee(@RequestParam long itemId,
                                  @RequestParam long itemAssigneeId,
@@ -165,6 +182,28 @@ public class UserController {
     ) {
         commentService.deleteComment(commentIdView);
         return "redirect:/user/project/" + commentProjectIdView + "/item/" + commentItemIdView;
+    }
+
+    /**
+     * this method shows to the user, the task board of a sprint that belongs to a certain project
+     *
+     * @param sprintId:  the sprint that contains the tasks the user has requested to see
+     * @param projectId: the project that this sprint belongs to
+     * @param model:     the user interface
+     * @return: the task board of the sprint requested
+     */
+    @RequestMapping(value = "/project/{projectId}/sprint/{sprintId}")
+    public String viewTaskBoard(@PathVariable long sprintId,
+                                @PathVariable long projectId,
+                                Model model) {
+        Optional<Sprint> sprintOptional = sprintService.findSprintInProject(sprintId, projectId);
+        if (sprintOptional.isPresent()) {
+            model.addAttribute("sprint", sprintOptional.get());
+
+            model.addAttribute("sprintItems",
+                    sprintService.getAssociatedItemsList(sprintOptional.get().getAssociatedItems()));
+        }
+        return "taskboard";
     }
 
 }

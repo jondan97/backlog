@@ -19,16 +19,20 @@ public class ProjectService {
 
     ProjectRepository projectRepository;
     ItemService itemService;
+    SprintService sprintService;
 
     /**
      * constructor of this class, correct way to set the autowired attributes
      *
      * @param projectRepository: repository that has access to all the projects
+     * @param itemService:       service that manages items
+     * @param sprintService:     services that manages sprints
      */
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, ItemService itemService) {
+    public ProjectService(ProjectRepository projectRepository, ItemService itemService, SprintService sprintService) {
         this.itemService = itemService;
         this.projectRepository = projectRepository;
+        this.sprintService = sprintService;
     }
 
     /**
@@ -56,7 +60,8 @@ public class ProjectService {
         itemService.calculatedCombinedEffort(project.getItems());
         int totalEffort = 0;
         for (Item item : project.getItems()) {
-            if (item.getType() == ItemType.EPIC.getRepositoryId() || (item.getType() == ItemType.STORY.getRepositoryId() && item.getParent() == null)) {
+            if (item.getType() == ItemType.EPIC.getRepositoryId() || (item.getType() == ItemType.STORY.getRepositoryId() && item.getParent() == null)
+                    || (item.getParent() == null)) {
                 totalEffort += item.getEffort();
             }
         }
@@ -81,7 +86,9 @@ public class ProjectService {
      */
     public void createProject(String title, String description, User owner) {
         Project project = new Project(title, description, owner);
-        projectRepository.save(project);
+        //saving it to get the id from the DB
+        project = projectRepository.save(project);
+        sprintService.firstSprint(project);
     }
 
     /**

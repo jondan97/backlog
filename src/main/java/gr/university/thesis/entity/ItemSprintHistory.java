@@ -16,7 +16,7 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Item_Sprint_History {
+public class ItemSprintHistory {
 
     /**
      * unique identifier, composite key of sprint and item
@@ -28,14 +28,14 @@ public class Item_Sprint_History {
      * sprint of the association
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("sprint_id")
+    @MapsId("sprintId")
     private Sprint sprint;
 
     /**
      * item of the association
      */
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("item_id")
+    @MapsId("itemId")
     private Item item;
 
     /**
@@ -43,4 +43,18 @@ public class Item_Sprint_History {
      */
     @Column
     private int status;
+
+    /**
+     * constructor that sets the association between an item and a sprint
+     *
+     * @param item    : item of the assocation
+     * @param sprint  : sprint of the assocation
+     * @param status: the status of the item in the sprint, check the respective enum class for more info
+     */
+    public ItemSprintHistory(Item item, Sprint sprint, int status) {
+        this.item = item;
+        this.sprint = sprint;
+        this.status = status;
+        sprintItemId = new SprintItemId();
+    }
 }

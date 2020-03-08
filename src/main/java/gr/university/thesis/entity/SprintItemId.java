@@ -24,14 +24,14 @@ public class SprintItemId implements Serializable {
     /**
      * id of the sprint that belongs to the association
      */
-    @Column
-    private Long sprint_id;
+    @Column(name = "sprint_id")
+    private Long sprintId;
 
     /**
      * id of the item that belongs to the assocation
      */
-    @Column
-    private Long item_id;
+    @Column(name = "item_id")
+    private Long itemId;
 
     //maybe an equals is needed to check for both ids (reminder to check later if it works) ----> UPDATE: 1 month later,
     // yes I needed a hashCode method...
@@ -41,12 +41,12 @@ public class SprintItemId implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SprintItemId that = (SprintItemId) o;
-        return Objects.equals(sprint_id, that.sprint_id) &&
-                Objects.equals(item_id, that.item_id);
+        return Objects.equals(sprintId, that.sprintId) &&
+                Objects.equals(itemId, that.itemId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(sprint_id, item_id);
+        return Objects.hash(sprintId, itemId);
     }
 }

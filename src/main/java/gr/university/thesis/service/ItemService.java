@@ -27,6 +27,17 @@ public class ItemService {
     @Autowired
     public ItemService(ItemRepository itemRepository) {
         this.itemRepository = itemRepository;
+
+    }
+
+    /**
+     * this method searches the repository in search of an item requested by the user
+     *
+     * @param item: the item that the user wants to find
+     * @return: returns an optional that may contain the item the user has requested
+     */
+    public Optional<Item> findItemById(Item item) {
+        return itemRepository.findById(item.getId());
     }
 
     /**
@@ -97,15 +108,14 @@ public class ItemService {
 
     /**
      * this method updates an existing item and saves it into the repository
-     *
-     * @param itemId:      id of the item, needed to find it on the repository
-     * @param title:       title of the item
-     * @param description: description of the item
-     * @param type:        ItemType of the item
-     * @param priority:    ItemPriority of the item
-     * @param effort:      effort required to finish this item
-     * @param assignee:    the user that this item is assigned to
-     * @param parent:      the parent (epic/story) of this item
+     * @param itemId :      id of the item, needed to find it on the repository
+     * @param title :       title of the item
+     * @param description : description of the item
+     * @param type :        ItemType of the item
+     * @param priority :    ItemPriority of the item
+     * @param effort :      effort required to finish this item
+     * @param assignee :    the user that this item is assigned to
+     * @param parent :      the parent (epic/story) of this item
      */
     public void updateItem(long itemId, String title, String description, String type, String priority, int effort, User assignee, Item parent) {
         Optional<Item> itemOptional = itemRepository.findById(itemId);
@@ -118,10 +128,17 @@ public class ItemService {
             item.setPriority(ItemPriority.valueOf(priority).getRepositoryId());
             item.setEffort(effort);
             item.setAssignee(assignee);
+            // if item was updated to no parent
             if (parent.getId() == 0) {
                 item.setParent(null);
-            } else {
-                item.setParent(parent);
+            }
+            //all other cases
+            else {
+                Optional<Item> parentOptional = itemRepository.findById(parent.getId());
+                if (parentOptional.isPresent()) {
+                    setStatusToItemAndChildren(item, parentOptional.get().getStatus());
+                    item.setParent(parentOptional.get());
+                }
             }
             itemRepository.save(item);
         }
@@ -137,16 +154,64 @@ public class ItemService {
         itemRepository.deleteById(itemId);
     }
 
+    /**
+     * this method finds an item in a certain project, most likely used to confirm that this item is included
+     * in the project
+     *
+     * @param itemId:    the item that the user wants to find
+     * @param projectId: the project that this item belongs to
+     * @return: returns an optional that may contain the item requested
+     */
     public Optional<Item> findItemInProject(long itemId, long projectId) {
         return itemRepository.findDistinctItemByProjectId(itemId, projectId);
     }
 
+    /**
+     * this method updates the assignee of an item to another assignee, and only admins/projects managers or current
+     * assignees can change that
+     *
+     * @param itemId:   the id of the item that we want the new assignee to 'own'
+     * @param assignee: the new assignee that the user wants to 'own' this item
+     */
     public void updateAssignee(long itemId, User assignee) {
         Optional<Item> itemOptional = itemRepository.findById(itemId);
         if (itemOptional.isPresent()) {
             Item item = itemOptional.get();
             item.setAssignee(assignee);
             itemRepository.save(item);
+        }
+    }
+
+
+    /**
+     * this method saves an item to the repository
+     *
+     * @param item: the item the user wants to save in the repository
+     */
+    public void saveToRepository(Item item) {
+        itemRepository.save(item);
+    }
+
+    /**
+     * this method updates the status of the item and all its children to a new one, for status information
+     * please check the Item Class
+     *
+     * @param item:   the item (perhaps parent) that the user requested to update the status of
+     * @param status: the new status that the user wants this item to have
+     */
+    public void setStatusToItemAndChildren(Item item, byte status) {
+        //if it's a story or an epic, then set the same status for the children
+        if (item.getType() == ItemType.EPIC.getRepositoryId() || item.getType() == ItemType.STORY.getRepositoryId()) {
+            item.setStatus(status);
+            for (Item child : item.getChildren()) {
+                child.setStatus(status);
+                //if the parent is an epic and the child a story, then set the same status for the children of the story
+                for (Item childOfChild : child.getChildren()) {
+                    childOfChild.setStatus(status);
+                }
+            }
+        } else {
+            item.setStatus(status);
         }
     }
 }

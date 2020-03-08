@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Task Board</title>
+</head>
+<body>
+<button th:onclick="'window.location.href=\'' + @{/} + '\''"
+        type="button">Home
+</button>
+
+<span th:each="association: ${sprint.associatedItems}">
+    <span th:if="${association.item.type != 1 and association.item.type != 2}">
+        <div th:text="${association.item.title + ' ' + association.status}">
+        </div>
+    </span>
+</span>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<span th:fragment="sprintForm">
+    <form method="post" th:action="@{/pm/editSprint}">
+
+        <label for="sprintId">ID</label>
+        <input id="sprintId" name="sprintId" readonly th:value="${sprint.id}">
+
+        <label for="sprintStatus">Status</label>
+        <input id="sprintStatus" name="sprintStatus" readonly th:value="${sprint.status}">
+
+        <label for="sprintStartDate">Start Date</label>
+        <input id="sprintStartDate" name="sprintStartDate" readonly th:value="${sprint.start_date}">
+
+        <label for="sprintEndDate">End Date</label>
+        <input id="sprintEndDate" name="sprintEndDate" readonly th:value="${sprint.end_date}">
+
+        <label for="sprintDuration">Duration</label>
+        <input id="sprintDuration" name="sprintDuration" readonly th:value="${sprint.duration}">
+
+        <label for="sprintDaysRemaining">Days Remaining</label>
+        <input id="sprintDaysRemaining" name="sprintDaysRemaining" readonly th:value="${sprint.days_remaining}">
+
+        <label for="sprintGoal">Goal</label>
+        <input id="sprintGoal" name="sprintGoal" readonly th:value="${sprint.goal}">
+
+        <label for="sprintTotalEffort">Total Effort</label>
+        <input id="sprintTotalEffort" name="sprintTotalEffort" readonly th:value="${sprint.total_effort}">
+
+        <label for="sprintVelocity">Velocity</label>
+        <input id="sprintVelocity" name="sprintVelocity" readonly th:value="${sprint.velocity}">
+
+        <input hidden id="sprintProjectId" name="sprintProjectId" th:value="${project.id}">
+
+        <span th:if="${sprint.status == 1}">
+
+            <button name="action"
+                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/sprint/' + ${sprint.id}} + '\''"
+                    type="button" value="view">View Board
+            </button>
+
+            <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+                    value="finish">
+                Finish
+            </button>           </span>
+        <span th:if="${sprint.status == 2}">
+            <button sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+                    value="start">
+                Start
+            </button>
+        </span>
+    </form>
+</span>
+</body>
+</html>
