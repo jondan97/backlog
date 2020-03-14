@@ -1,12 +1,10 @@
 package gr.university.thesis.controller;
 
 
-import gr.university.thesis.entity.Item;
-import gr.university.thesis.entity.Project;
-import gr.university.thesis.entity.Sprint;
-import gr.university.thesis.entity.User;
+import gr.university.thesis.entity.*;
 import gr.university.thesis.entity.enumeration.ItemPriority;
 import gr.university.thesis.entity.enumeration.ItemType;
+import gr.university.thesis.entity.enumeration.TaskBoardStatus;
 import gr.university.thesis.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -31,26 +29,30 @@ public class UserController {
     CommentService commentService;
     ItemService itemService;
     SprintService sprintService;
+    ItemSprintHistoryService itemSprintHistoryService;
 
     /**
      * constructor of this class, correct way to set the autowired attributes
      *
-     * @param projectService: service that manages all the projects of the system
-     * @param sessionService: the service that manages the current session
-     * @param userService:    service that manages all the users of the system
-     * @param itemService:    service that handles all the items of the system
-     * @param commentService: service that handles all the comments
-     * @param sprintService:  service that handles all the sprints
+     * @param projectService:           service that manages all the projects of the system
+     * @param sessionService:           the service that manages the current session
+     * @param userService:              service that manages all the users of the system
+     * @param itemService:              service that handles all the items of the system
+     * @param commentService:           service that handles all the comments
+     * @param sprintService:            service that handles all the sprints
+     * @param itemSprintHistoryService: service that handles all associations between items and sprints
      */
     @Autowired
     public UserController(ProjectService projectService, SessionService sessionService, UserService userService,
-                          ItemService itemService, CommentService commentService, SprintService sprintService) {
+                          ItemService itemService, CommentService commentService, SprintService sprintService,
+                          ItemSprintHistoryService itemSprintHistoryService) {
         this.projectService = projectService;
         this.sessionService = sessionService;
         this.userService = userService;
         this.itemService = itemService;
         this.commentService = commentService;
         this.sprintService = sprintService;
+        this.itemSprintHistoryService = itemSprintHistoryService;
     }
 
     /**
@@ -62,7 +64,7 @@ public class UserController {
      * @return: returns the manageUsers template
      */
     @GetMapping("/projectPanel")
-    public String projectsPanel(Model model, HttpSession session) {
+    public String viewProjectsPanel(Model model, HttpSession session) {
         List<Project> allProjects = projectService.findAllProjects();
         model.addAttribute("projects", allProjects);
         return "projectPanel";
@@ -122,14 +124,22 @@ public class UserController {
      * @param itemId:         the id of the item that we want the new assignee to 'own'
      * @param itemAssigneeId: the new assignee
      * @param itemProjectId:  the project that this item belongs to
-     * @return: redirection to project page
+     * @return: redirection to project page if assignment was done in project page, taskBoard page if assignment
+     * was done in taskBoard page or home page if assignment failed to be recognised where it came from
      */
     @RequestMapping(value = "/updateAssignee")
     public String updateAssignee(@RequestParam long itemId,
                                  @RequestParam long itemAssigneeId,
-                                 @RequestParam long itemProjectId) {
+                                 @RequestParam long itemProjectId,
+                                 @RequestParam long sprintId,
+                                 @RequestParam String updateAssigneeButton) {
         itemService.updateAssignee(itemId, new User(itemAssigneeId));
-        return "redirect:/user/project/" + itemProjectId;
+        if (updateAssigneeButton.equals("projectPage"))
+            return "redirect:/user/project/" + itemProjectId;
+        else if (updateAssigneeButton.equals("taskBoardPage"))
+            return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
+        else
+            return "redirect:/";
     }
 
     /**
@@ -193,15 +203,38 @@ public class UserController {
      * @return: the task board of the sprint requested
      */
     @RequestMapping(value = "/project/{projectId}/sprint/{sprintId}")
-    public String viewTaskBoard(@PathVariable long sprintId,
-                                @PathVariable long projectId,
+    public String viewTaskBoard(@PathVariable long projectId,
+                                @PathVariable long sprintId,
                                 Model model) {
-        Optional<Sprint> sprintOptional = sprintService.findSprintInProject(sprintId, projectId);
+        Optional<Sprint> sprintOptional = projectService.findSprintInProject(projectId, sprintId);
         if (sprintOptional.isPresent()) {
+            model.addAttribute("allUsers", userService.findAllUsers());
+            model.addAttribute("projectId", projectId);
             model.addAttribute("sprint", sprintOptional.get());
-
-            model.addAttribute("sprintItems",
-                    sprintService.getAssociatedItemsList(sprintOptional.get().getAssociatedItems()));
+            Optional<List<ItemSprintHistory>> todoAssociations = itemSprintHistoryService.
+                    findAllAssociationsByStatus(new Sprint(sprintId), TaskBoardStatus.TO_DO,
+                            ItemType.TASK, ItemType.BUG);
+            if (todoAssociations.isPresent()) {
+                model.addAttribute("todoAssociations", todoAssociations.get());
+            }
+            Optional<List<ItemSprintHistory>> inProgressAssociations = itemSprintHistoryService.
+                    findAllAssociationsByStatus(new Sprint(sprintId), TaskBoardStatus.IN_PROGRESS,
+                            ItemType.TASK, ItemType.BUG);
+            if (inProgressAssociations.isPresent()) {
+                model.addAttribute("inProgressAssociations", inProgressAssociations.get());
+            }
+            Optional<List<ItemSprintHistory>> forReviewAssociations = itemSprintHistoryService.
+                    findAllAssociationsByStatus(new Sprint(sprintId), TaskBoardStatus.FOR_REVIEW,
+                            ItemType.TASK, ItemType.BUG);
+            if (forReviewAssociations.isPresent()) {
+                model.addAttribute("forReviewAssociations", forReviewAssociations.get());
+            }
+            Optional<List<ItemSprintHistory>> doneAssociations = itemSprintHistoryService.
+                    findAllAssociationsByStatus(new Sprint(sprintId), TaskBoardStatus.DONE,
+                            ItemType.TASK, ItemType.BUG);
+            if (doneAssociations.isPresent()) {
+                model.addAttribute("doneAssociations", doneAssociations.get());
+            }
         }
         return "taskboard";
     }

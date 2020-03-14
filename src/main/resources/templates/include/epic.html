@@ -21,7 +21,7 @@
 
     <label for="itemType">Type</label>
     <select disabled id="itemType" name="itemType">
-        <option selected>Disabled</option>
+        <option selected>Epic</option>
     </select>
     <input name="itemType" type="hidden" value="EPIC">
 
@@ -70,32 +70,33 @@
             type="button" value="view">View
     </button>
 
+    <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+            value="update">
+        Update
+    </button>
+
+    <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+            value="delete">
+        Delete
+    </button>
+
+    <!--    if the user is not an admin nor a project manager, and needs to assigne the item to somebody else-->
+    <button formaction="/user/updateAssignee" name="updateAssigneeButton"
+            th:if="${item.assignee.id == session.userId and not #authorization.expression('hasAnyAuthority(''ADMIN'', ''PROJECT_MANAGER'')')}"
+            type="submit"
+            value="projectPage">Change Assignee
+    </button>
+
+    <input hidden id="sprintId" name="sprintId" th:value="${sprint.id}">
+
     <span th:if="${item.status != 3}">
-        <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
-                value="update">
-            Update
-        </button>
-
-        <!--    if the user is not an admin nor a project manager, and needs to assigne the item to somebody else-->
-        <button formaction="/user/updateAssignee" name="action"
-                th:if="${item.assignee.id == session.userId and not #authorization.expression('hasAnyAuthority(''ADMIN'', ''PROJECT_MANAGER'')')}"
-                type="submit" value="assign">Update
-        </button>
-
-        <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
-                value="delete">
-            Delete
-        </button>
-
         <span th:if="${item.status == 2}">
             <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
                     value="remove">
             Remove from Sprint
         </button>
         </span>
-    </span>
-
-    <input hidden id="sprintId" name="sprintId" th:value="${sprint.id}">
+     </span>
 
     <span th:if="${sprint.status != 1}">
         <span th:if="${item.status == 1}">

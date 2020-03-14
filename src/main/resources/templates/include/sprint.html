@@ -20,13 +20,35 @@
         <input id="sprintEndDate" name="sprintEndDate" readonly th:value="${sprint.end_date}">
 
         <label for="sprintDuration">Duration</label>
-        <input id="sprintDuration" name="sprintDuration" readonly th:value="${sprint.duration}">
+        <select id="sprintDuration" name="sprintDuration"
+                th:disabled="${not #authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+                and sprint.status == 2
+                or sprint.status == 1
+                ? 'true' : 'false'}">
+                <option th:selected="${sprint.duration == 1 ? 'true' : 'false'}" value="1">
+                    1 week
+                </option>
+                <option th:selected="${sprint.duration == 2 or sprint.duration == 0 ? 'true' : 'false'}" value="2">
+                        2 weeks
+                    </option>
+                <option th:selected="${sprint.duration == 3 ? 'true' : 'false'}" value="3">
+                        3 weeks
+                    </option>
+                <option th:selected="${sprint.duration == 4 ? 'true' : 'false'}" value="4">
+                        4 weeks
+                    </option>
+        </select>
 
         <label for="sprintDaysRemaining">Days Remaining</label>
         <input id="sprintDaysRemaining" name="sprintDaysRemaining" readonly th:value="${sprint.days_remaining}">
 
         <label for="sprintGoal">Goal</label>
-        <input id="sprintGoal" name="sprintGoal" readonly th:value="${sprint.goal}">
+        <input id="sprintGoal" name="sprintGoal" th:readonly="${not #authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+               and sprint.status == 2
+               or sprint.status == 1
+               ? 'true' : 'false'}"
+               th:value="${sprint.goal}"
+        >
 
         <label for="sprintTotalEffort">Total Effort</label>
         <input id="sprintTotalEffort" name="sprintTotalEffort" readonly th:value="${sprint.total_effort}">
@@ -48,7 +70,7 @@
                 Finish
             </button>           </span>
         <span th:if="${sprint.status == 2}">
-            <button sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+            <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
                     value="start">
                 Start
             </button>

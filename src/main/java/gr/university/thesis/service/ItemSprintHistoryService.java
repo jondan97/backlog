@@ -4,6 +4,7 @@ import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.ItemSprintHistory;
 import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.enumeration.ItemType;
+import gr.university.thesis.entity.enumeration.TaskBoardStatus;
 import gr.university.thesis.repository.ItemSprintHistoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -111,7 +112,7 @@ public class ItemSprintHistoryService {
     private List<ItemSprintHistory> createAssociationForItemAndChildren(Item item, Sprint sprint) {
         List<ItemSprintHistory> assocations = new ArrayList<>();
         ItemSprintHistory parentItemSprintHistory = new ItemSprintHistory(item, sprint,
-                0);
+                TaskBoardStatus.TO_DO);
         parentItemSprintHistory.getSprintItemId().setItemId(item.getId());
         parentItemSprintHistory.getSprintItemId().setSprintId(sprint.getId());
         assocations.add(parentItemSprintHistory);
@@ -119,7 +120,7 @@ public class ItemSprintHistoryService {
         if (item.getType() == ItemType.EPIC.getRepositoryId() || item.getType() == ItemType.STORY.getRepositoryId()) {
             for (Item child : item.getChildren()) {
                 ItemSprintHistory childItemSprintHistory = new ItemSprintHistory(child, sprint,
-                        0);
+                        TaskBoardStatus.TO_DO);
                 childItemSprintHistory.getSprintItemId().setItemId(child.getId());
                 childItemSprintHistory.getSprintItemId().setSprintId(sprint.getId());
                 assocations.add(childItemSprintHistory);
@@ -127,7 +128,7 @@ public class ItemSprintHistoryService {
                 // children of the story
                 for (Item childOfChild : child.getChildren()) {
                     ItemSprintHistory childOfChildItemSprintHistory = new ItemSprintHistory(childOfChild, sprint,
-                            0);
+                            TaskBoardStatus.TO_DO);
                     childOfChildItemSprintHistory.getSprintItemId().setSprintId(sprint.getId());
                     childOfChildItemSprintHistory.getSprintItemId().setItemId(childOfChild.getId());
                     assocations.add(childOfChildItemSprintHistory);
@@ -170,5 +171,22 @@ public class ItemSprintHistoryService {
                 return;
             }
         }
+    }
+
+    /**
+     * this method takes as input two types (at max) of item (bug and task for example), and returns all the items
+     * that belongs to a certain sprint and have a certain task board status (for example 'done'), the developer chose
+     * two item types, because at the time of creating this method, they needed a way to fetch both tasks and bugs,
+     * and instead of using 2 queries for it, they used only one
+     *
+     * @param sprint:          the sprint that the requested items belong to
+     * @param taskBoardStatus: the task board status of the requested items (for example 'done')
+     * @param itemType1:       item type 1 (for example bug)
+     * @param itemType2:       item type 2 (for example task)
+     * @return: returns an optional that may contain a list with all the items requested
+     */
+    public Optional<List<ItemSprintHistory>> findAllAssociationsByStatus(Sprint sprint, TaskBoardStatus taskBoardStatus, ItemType itemType1, ItemType itemType2) {
+        return itemSprintHistoryRepository.findAllBySprintAndStatusAndItemTypes(sprint.getId(),
+                taskBoardStatus, itemType1.getRepositoryId(), itemType2.getRepositoryId());
     }
 }

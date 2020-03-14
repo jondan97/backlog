@@ -1,5 +1,6 @@
 package gr.university.thesis.entity;
 
+import gr.university.thesis.entity.enumeration.TaskBoardStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -42,7 +43,7 @@ public class ItemSprintHistory {
      * what was the status of the item when the sprint finished? What is the status of the item on the current sprint?
      */
     @Column
-    private int status;
+    private TaskBoardStatus status;
 
     /**
      * constructor that sets the association between an item and a sprint
@@ -51,7 +52,7 @@ public class ItemSprintHistory {
      * @param sprint  : sprint of the assocation
      * @param status: the status of the item in the sprint, check the respective enum class for more info
      */
-    public ItemSprintHistory(Item item, Sprint sprint, int status) {
+    public ItemSprintHistory(Item item, Sprint sprint, TaskBoardStatus status) {
         this.item = item;
         this.sprint = sprint;
         this.status = status;

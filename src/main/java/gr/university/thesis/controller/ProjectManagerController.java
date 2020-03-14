@@ -216,8 +216,10 @@ public class ProjectManagerController {
      */
     @RequestMapping(value = "/editSprint", params = "action=start", method = RequestMethod.POST)
     public String startSprint(@RequestParam long sprintId,
-                              @RequestParam long sprintProjectId) {
-        sprintService.startSprint(sprintId);
+                              @RequestParam long sprintProjectId,
+                              @RequestParam String sprintGoal,
+                              @RequestParam int sprintDuration) {
+        sprintService.startSprint(sprintId, sprintGoal, sprintDuration);
         return "redirect:/user/project/" + sprintProjectId;
     }
 
@@ -231,7 +233,7 @@ public class ProjectManagerController {
     @RequestMapping(value = "/editSprint", params = "action=finish", method = RequestMethod.POST)
     public String finishSprint(@RequestParam long sprintId,
                                @RequestParam long sprintProjectId) {
-        sprintService.finishSprint(sprintId, new Project(sprintProjectId));
+        sprintService.finishSprint(sprintId);
         return "redirect:/user/project/" + sprintProjectId;
     }
 }

@@ -2,6 +2,7 @@ package gr.university.thesis.service;
 
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
+import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.ItemType;
 import gr.university.thesis.repository.ProjectRepository;
@@ -50,7 +51,7 @@ public class ProjectService {
 
     /**
      * this method takes a project and calculates the total effort from all its children items within, it doesn't
-     * take into account the stories/epics but rather, the children items of those parents
+     * take into account the stories/epics but rather, the children items of those parents (tasks/bugs etc.)
      * this method uses the item service to calculate the effort of each parent, before it sets the total effort
      * of the project
      *
@@ -116,5 +117,17 @@ public class ProjectService {
      */
     public void deleteProject(long projectId) {
         projectRepository.deleteById(projectId);
+    }
+
+    /**
+     * this method finds a sprint in a certain project, most likely used to confirm that this sprint is included
+     * in the project
+     *
+     * @param projectId: the project that this sprint belongs to
+     * @param sprintId:  the sprint that the user wants to find
+     * @return: returns an optional that may contain the sprint requested
+     */
+    public Optional<Sprint> findSprintInProject(long projectId, long sprintId) {
+        return sprintService.findSprintByProjectId(projectId, sprintId);
     }
 }

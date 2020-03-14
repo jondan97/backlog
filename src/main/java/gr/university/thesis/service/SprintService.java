@@ -4,7 +4,9 @@ import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.ItemSprintHistory;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.Sprint;
+import gr.university.thesis.entity.enumeration.ItemType;
 import gr.university.thesis.repository.SprintRepository;
+import gr.university.thesis.util.Time;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -62,11 +64,23 @@ public class SprintService {
         Optional<Sprint> readySprintOptional = sprintRepository.findFirstByProjectAndStatus(project, (byte) 2);
         //if there is a sprint ready to be filled with items
         if (readySprintOptional.isPresent()) {
+            Sprint sprint = readySprintOptional.get();
+            calculateTotalEffort(sprint);
             return readySprintOptional;
+            //if there's no ready sprint but instead, an active one
         } else {
             Optional<Sprint> activeSprintOptional = sprintRepository.findFirstByProjectAndStatus(project, (byte) 1);
             //if there is an active running sprint
             if (activeSprintOptional.isPresent()) {
+                Sprint sprint = activeSprintOptional.get();
+                calculateTotalEffort(sprint);
+                int daysRemaining = Time.calculateDaysRemaining(new Date(), sprint.getEnd_date());
+                //this checks if the days remaining are 0 or less, which means that the sprint duration has expired
+                //and the sprint needs to be set to finished
+                if (daysRemaining <= 0) {
+                    finishSprint(sprint.getId());
+                }
+                sprint.setDays_remaining(daysRemaining);
                 return activeSprintOptional;
             }
         }
@@ -77,14 +91,21 @@ public class SprintService {
     /**
      * this methods starts a sprint and moves it to an active state
      *
-     * @param sprintId: the sprint that the user wants to start
+     * @param sprintId       : the sprint that the user wants to start
+     * @param sprintGoal
+     * @param sprintDuration
      */
-    public void startSprint(long sprintId) {
+    public void startSprint(long sprintId, String sprintGoal, int sprintDuration) {
         Optional<Sprint> sprintOptional = findSprintById(new Sprint(sprintId));
         if (sprintOptional.isPresent()) {
             Sprint sprint = sprintOptional.get();
             sprint.setStatus((byte) 1);
-            sprint.setStart_date(new Date());
+            Date now = new Date();
+            sprint.setStart_date(now);
+            Date endDate = Time.calculateEndDate(now, sprintDuration);
+            sprint.setEnd_date(endDate);
+            sprint.setGoal(sprintGoal);
+            sprint.setDuration(sprintDuration);
             for (Item item : getAssociatedItemsList(sprint.getAssociatedItems())) {
                 itemService.setStatusToItemAndChildren(item, (byte) 3);
             }
@@ -96,13 +117,11 @@ public class SprintService {
      * this methods finishes a sprint and moves it to a finish state
      *
      * @param sprintId: the sprint that the user wants to finish
-     * @param project:  the project that this sprint belongs to
      */
-    public void finishSprint(long sprintId, Project project) {
+    public void finishSprint(long sprintId) {
         Optional<Sprint> sprintOptional = findSprintById(new Sprint(sprintId));
         if (sprintOptional.isPresent()) {
             Sprint sprint = sprintOptional.get();
-            sprint.setProject(project);
             sprint.setStatus((byte) 2);
             sprint.setEnd_date(new Date());
             for (Item item : getAssociatedItemsList(sprint.getAssociatedItems())) {
@@ -127,17 +146,36 @@ public class SprintService {
         return associatedItems;
     }
 
-
     /**
-     * this method finds a sprint in a certain project, most likely used to confirm that this sprint is included
+     * this method finds a sprint in a certain project
      * in the project
      *
      * @param sprintId:  the sprint that the user wants to find
-     * @param projectId: the project that this sprint belongs to
+     * @param projectId: the project that the sprint belongs to
      * @return: returns an optional that may contain the sprint requested
      */
-    public Optional<Sprint> findSprintInProject(long sprintId, long projectId) {
-        return sprintRepository.findDistinctSprintByProjectId(sprintId, projectId);
-
+    public Optional<Sprint> findSprintByProjectId(long projectId, long sprintId) {
+        return sprintRepository.findDistinctSprintByProjectId(projectId, sprintId);
     }
+
+    /**
+     * this method takes a sprint and calculates the total effort from all its children items within, it doesn't
+     * take into account the stories/epics but rather, the children items of those parents (tasks/bugs etc.)
+     * this method uses the item service to calculate the effort of each parent, before it sets the total effort
+     * of the sprint
+     *
+     * @param sprint: the sprint that the total effort needs to be calculated
+     */
+    public void calculateTotalEffort(Sprint sprint) {
+        itemService.calculatedCombinedEffort(getAssociatedItemsList(sprint.getAssociatedItems()));
+        int totalEffort = 0;
+        for (Item item : getAssociatedItemsList(sprint.getAssociatedItems())) {
+            if (item.getType() == ItemType.EPIC.getRepositoryId() || (item.getType() == ItemType.STORY.getRepositoryId() && item.getParent() == null)
+                    || (item.getParent() == null)) {
+                totalEffort += item.getEffort();
+            }
+        }
+        sprint.setTotal_effort(totalEffort);
+    }
+
 }
