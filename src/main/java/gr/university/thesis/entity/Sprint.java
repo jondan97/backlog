@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -106,5 +107,42 @@ public class Sprint {
      */
     public Sprint(long sprintId) {
         this.id = sprintId;
+    }
+
+    /**
+     * this method compares if two sprints are equal by comparing their ids
+     *
+     * @param o: object the user requested to compare this with
+     * @return returns true if sprints are equal, false if not
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Sprint)) return false;
+        Sprint sprint = (Sprint) o;
+        return getId().equals(sprint.getId());
+    }
+
+    /**
+     * this method converts the sprint to a set of numbers, mainly used for integrity reasons
+     *
+     * @return: returns the hashcode of the sprint which is an int
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
+
+    /**
+     * this method is mainly used for debugging reasons
+     *
+     * @return: returns a string with a set of attributes of an sprint
+     */
+    @Override
+    public String toString() {
+        return "Sprint{" +
+                "id=" + id +
+                ", status=" + status +
+                '}';
     }
 }

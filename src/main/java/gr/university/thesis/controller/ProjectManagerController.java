@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpSession;
+import java.util.Optional;
 
 /**
  * This is the project manager controller, here, a project manager can request actions such as viewing all projects
@@ -224,7 +225,8 @@ public class ProjectManagerController {
     }
 
     /**
-     * this methods finishes a sprint and moves it to a finish state
+     * this methods finishes a sprint and moves it to a finish state, and creates a new one for the current project,
+     * it also transfers all unfinished items to the next sprint
      *
      * @param sprintId:        the sprint that the user wants to finish
      * @param sprintProjectId: the project that this sprint belongs to
@@ -233,7 +235,10 @@ public class ProjectManagerController {
     @RequestMapping(value = "/editSprint", params = "action=finish", method = RequestMethod.POST)
     public String finishSprint(@RequestParam long sprintId,
                                @RequestParam long sprintProjectId) {
-        sprintService.finishSprint(sprintId);
+        Optional<Sprint> oldSprintOptional = sprintService.finishSprint(sprintId);
+        if (oldSprintOptional.isPresent()) {
+            itemSprintHistoryService.transferUnfinishedItemsFromOldSprint(oldSprintOptional.get());
+        }
         return "redirect:/user/project/" + sprintProjectId;
     }
 }

@@ -24,20 +24,24 @@
                                             <!--                            if the child story has any children on its own-->
                                                 <span th:if="${item.children}">
                                                     <span th:each="item: ${item.children}">
+                                                        <span th:if="${item.status != 4}">
                                                         <ul>
                                                             <span th:insert="include/task :: updateForm"
                                                                   th:style="'border-style:solid;border-color:lightblue;display:block;'"></span>
                                                         </ul>
+                                                         </span>
                                                     </span>
                                                 </span>
                                         </ul>
                                     </span>
                                     <!--                        if the child is a task/bug etc.-->
                                     <span th:unless="${item.type == 2}">
+                                        <span th:if="${item.status != 4}">
                                         <ul>
                                             <span th:insert="include/task :: updateForm"
                                                   th:style="'border-style:solid;border-color:lightblue;display:block;'"></span>
                                         </ul>
+                                        </span>
                                     </span>
                                 </span>
 
@@ -49,12 +53,16 @@
                                   th:style="'border-style:solid;border-color:green;display:block;'"></span>
                             <!--                if the story has children-->
                                 <span th:if="${item.children}">
-                                    <ul>
+
                                         <span th:each="item : ${item.children}">
+                                            <span th:if="${item.status != 4}">
+                                                <ul>
                                         <span th:insert="include/task :: updateForm"
-                                              th:style="'border-style:solid;border-color:lightblue;display:block;'"></span>
+                                              th:style="'border-style:solid;border-color:lightblue;display:block;'">
                                         </span>
-                                    </ul>
+                                                </ul>
+                                            </span>
+                                        </span>
                                 </span>
                         </span>
                     </span>

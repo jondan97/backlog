@@ -29,6 +29,14 @@
     <label for="itemOwner">Date</label>
     <input id="itemDate" readonly th:value="${item.date_created}">
 </form>
+<span th:if="${item.parent}">
+    <h4>Belongs to</h4>
+    <span th:text="${parentItemType + ': ' + item.parent.title}"></span>
+    <button name="action"
+            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${item.parent.id}} + '\''"
+            type="button" value="view">View
+    </button>
+</span>
 <h4>Comments</h4>
 <div th:each="comment : ${item.getComments()}" th:style="'border-style: solid'">
     <form method="post" th:action="@{/user/editComment}">

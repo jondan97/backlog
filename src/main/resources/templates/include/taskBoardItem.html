@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<form method="post" th:action="@{/user/editAssociation}" th:fragment="item">
+        <span th:text="${association.item.title + ' ' + association.status}">
+
+        </span>
+    <select id="itemAssigneeId" name="itemAssigneeId"
+            th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') or (session.userId == association.item.assignee.id) ? 'false' : 'true'}">
+                    <span th:each="user : ${allUsers}">
+                        <option th:selected="${association.item.assignee.id == user.id ? true : false}"
+                                th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                                th:value="${user.id}">
+                        </option>
+                </span>
+    </select>
+    <button name="action"
+            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${association.item.id}} + '\''"
+            type="button" value="view">View
+    </button>
+    <button name="action"
+            th:hidden="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
+            type="submit"
+            value="previousStatus">
+        Previous
+    </button>
+    <button name="action"
+            th:hidden="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
+            type="submit"
+            value="nextStatus">
+        Next
+    </button>
+    <input hidden id="sprintId" name="sprintId" th:value="${association.sprint.id}">
+    <input hidden id="itemId" name="itemId" readonly th:value="${association.item.id}">
+    <input hidden id="associationStatus" name="associationStatus" readonly th:value="${association.status}">
+    <input hidden id="itemProjectId" name="itemProjectId" readonly th:value="${projectId}">
+    <input formaction="/user/updateAssignee" hidden id="updateAssignee" name="updateAssigneeButton"
+           type="submit" value="taskBoardPage">
+</form>
+</body>
+</html>

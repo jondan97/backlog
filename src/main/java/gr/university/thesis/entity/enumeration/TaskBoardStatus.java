@@ -26,6 +26,20 @@ public enum TaskBoardStatus {
     }
 
     /**
+     * this method takes as input a repository id and returns the task board status that this id belongs to
+     *
+     * @param id: the repository id of the task board status the user requested
+     * @return: returns the task board status with that certain id
+     */
+    public static TaskBoardStatus findTaskBoardStatusByRepositoryId(int id) {
+        for (TaskBoardStatus taskBoardStatus : TaskBoardStatus.values()) {
+            if (taskBoardStatus.repositoryId == id)
+                return taskBoardStatus;
+        }
+        return TaskBoardStatus.NONE;
+    }
+
+    /**
      * @return returns the repository of the wanted enum
      */
     public int getRepositoryId() {

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 /**
  * this class tracks the status of an item for every sprint that it was associated with
@@ -57,5 +58,45 @@ public class ItemSprintHistory {
         this.sprint = sprint;
         this.status = status;
         sprintItemId = new SprintItemId();
+    }
+
+    /**
+     * this method compares if two associations are equal by comparing their items and sprints (which in turn compare
+     * with their ids)
+     *
+     * @param o: object that the user requested to compare this with
+     * @return: returns true if associations are equal, false if not
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof ItemSprintHistory)) return false;
+        ItemSprintHistory that = (ItemSprintHistory) o;
+        return getSprint().equals(that.getSprint()) &&
+                getItem().equals(that.getItem());
+    }
+
+    /**
+     * this method converts the association to a set of numbers, mainly used for integrity reasons
+     *
+     * @return: returns the hashcode of the association which is an int
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSprint(), getItem());
+    }
+
+    /**
+     * this method is mainly used for debugging reasons
+     *
+     * @return: returns a string with a set of attributes of an association
+     */
+    @Override
+    public String toString() {
+        return "ItemSprintHistory{" +
+                "sprint=" + sprint +
+                ", item=" + item +
+                ", status=" + status +
+                '}';
     }
 }

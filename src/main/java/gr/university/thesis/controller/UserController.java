@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -107,12 +108,17 @@ public class UserController {
                            Model model) {
         Optional<Item> itemOptional = itemService.findItemInProject(itemId, projectId);
         if (itemOptional.isPresent()) {
-            //we want the most recent one shown first, we sort our item comments using lambda, and then we reverse it
-            Collections.sort(itemOptional.get().getComments(), Collections.reverseOrder((o1, o2) -> o1.getDate_created().compareTo(o2.getDate_created())));
+            //we want the most recent one shown first, we sort our item comments using a comparator, and then we reverse it
+            Collections.sort(itemOptional.get().getComments(), Collections.reverseOrder(Comparator.comparing(Comment::getDate_created)));
             model.addAttribute("item", itemOptional.get());
             //the following two help in finding the enums associated with the item
             model.addAttribute("itemType", ItemType.findItemTypeByRepositoryId(itemOptional.get().getType()));
             model.addAttribute("itemPriority", ItemPriority.findItemTypeByRepositoryId(itemOptional.get().getPriority()));
+            //we also need to show the parent of the child, for usability issues
+            if (itemOptional.get().getParent() != null) {
+                model.addAttribute("projectId", projectId);
+                model.addAttribute("parentItemType", ItemType.findItemTypeByRepositoryId(itemOptional.get().getParent().getType()).getName());
+            }
         }
         return "item";
     }
@@ -237,6 +243,40 @@ public class UserController {
             }
         }
         return "taskboard";
+    }
+
+    /**
+     * this method calls the itemSprintHistory service in order to move an association
+     * to the next status and store it in the repository
+     *
+     * @param sprintId:      the sprint id of the association
+     * @param itemId:        the item id of the assoication
+     * @param itemProjectId: the project id that this association belongs to
+     * @returnL returns a redirection to the task board page of the sprint
+     */
+    @RequestMapping(value = "/editAssociation", params = "action=nextStatus", method = RequestMethod.POST)
+    public String moveAssociationStatusToNext(@RequestParam long sprintId,
+                                              @RequestParam long itemId,
+                                              @RequestParam long itemProjectId) {
+        itemSprintHistoryService.changeStatusOfAssociationByOne(new Sprint(sprintId), new Item(itemId), 1);
+        return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
+    }
+
+    /**
+     * this method calls the itemSprintHistory service in order to move an association
+     * to the previous status and store it in the repository
+     *
+     * @param sprintId:      the sprint id of the association
+     * @param itemId:        the item id of the assoication
+     * @param itemProjectId: the project id that this association belongs to
+     * @returnL returns a redirection to the task board page of the sprint
+     */
+    @RequestMapping(value = "/editAssociation", params = "action=previousStatus", method = RequestMethod.POST)
+    public String moveAssociationStatusToPrevious(@RequestParam long sprintId,
+                                                  @RequestParam long itemId,
+                                                  @RequestParam long itemProjectId) {
+        itemSprintHistoryService.changeStatusOfAssociationByOne(new Sprint(sprintId), new Item(itemId), -1);
+        return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
     }
 
 }

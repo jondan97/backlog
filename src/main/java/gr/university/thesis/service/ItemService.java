@@ -4,6 +4,7 @@ import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.ItemPriority;
+import gr.university.thesis.entity.enumeration.ItemStatus;
 import gr.university.thesis.entity.enumeration.ItemType;
 import gr.university.thesis.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -136,7 +137,7 @@ public class ItemService {
             else {
                 Optional<Item> parentOptional = itemRepository.findById(parent.getId());
                 if (parentOptional.isPresent()) {
-                    setStatusToItemAndChildren(item, parentOptional.get().getStatus());
+                    setStatusToItemAndChildren(item, ItemStatus.findItemTypeByRepositoryId(parentOptional.get().getStatus()));
                     item.setParent(parentOptional.get());
                 }
             }
@@ -193,25 +194,93 @@ public class ItemService {
     }
 
     /**
-     * this method updates the status of the item and all its children to a new one, for status information
-     * please check the Item Class
+     * this method changes the status of an item and then saves it to the repository
+     *
+     * @param item:       the item that the user requested to change the status of
+     * @param itemStatus: the new item status the user requested to have
+     */
+    public Item changeItemStatus(Item item, ItemStatus itemStatus) {
+        item.setStatus((byte) itemStatus.getRepositoryId());
+        return itemRepository.save(item);
+    }
+
+    /**
+     * this method updates the status of an item and all its children (but the finished ones) to a new one,
+     * for status information please check the Item Class
      *
      * @param item:   the item (perhaps parent) that the user requested to update the status of
      * @param status: the new status that the user wants this item to have
      */
-    public void setStatusToItemAndChildren(Item item, byte status) {
-        //if it's a story or an epic, then set the same status for the children
-        if (item.getType() == ItemType.EPIC.getRepositoryId() || item.getType() == ItemType.STORY.getRepositoryId()) {
-            item.setStatus(status);
-            for (Item child : item.getChildren()) {
-                child.setStatus(status);
-                //if the parent is an epic and the child a story, then set the same status for the children of the story
+    public void setStatusToItemAndChildren(Item item, ItemStatus status) {
+        if (item.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
+            //if it's a story or an epic, then set the same status for the children
+            if ((item.getType() == ItemType.EPIC.getRepositoryId() || item.getType() == ItemType.STORY.getRepositoryId())) {
+                item.setStatus((byte) status.getRepositoryId());
+                for (Item child : item.getChildren()) {
+                    if (child.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
+                        child.setStatus((byte) status.getRepositoryId());
+                    }
+                    //if the parent is an epic and the child a story, then set the same status for the children of the story
+                    for (Item childOfChild : child.getChildren()) {
+                        if (childOfChild.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
+                            childOfChild.setStatus((byte) status.getRepositoryId());
+                        }
+                    }
+                }
+            } else {
+                item.setStatus((byte) status.getRepositoryId());
+            }
+        }
+    }
+
+    /**
+     * this method checks if the parent of an item is finished, this is done by checking all the children of the parent
+     * and if all the children have a status of 'FINISHED', then the parent is also finished
+     *
+     * @param item: the item we want to check the parent of
+     * @return: returns true if parent has all its children finished, false if any of its children is not finished
+     */
+    public boolean checkIfParentIsComplete(Item item) {
+        boolean finished = false;
+        boolean childHasUnfinishedItems = false;
+        Item parent;
+        //need to check if the item is an epic, as epics will never have a parent
+        if (item.getType() != ItemType.EPIC.getRepositoryId()) {
+            parent = item.getParent();
+        } else {
+            parent = item;
+        }
+        //counter inside the iteration
+        int i = 0;
+        for (Item child : parent.getChildren()) {
+            //if its an epic and it has a story child
+            if (child.getType() == ItemType.STORY.getRepositoryId()) {
+                //if the story has children on its own (that are not finished)
                 for (Item childOfChild : child.getChildren()) {
-                    childOfChild.setStatus(status);
+                    if (childOfChild.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
+                        childHasUnfinishedItems = true;
+                        break;
+                    }
+                }
+            } else {
+                //if the child is a task/bug
+                if (child.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
+                    break;
                 }
             }
-        } else {
-            item.setStatus(status);
+            //in each iteration, we need to check if any of the children, has a set of children that might be
+            //unfinished, for example if an epic has a story as a child, and the story has its own set of
+            //children, then we need to also check if any of the story children are unfinished
+            if (childHasUnfinishedItems) {
+                break;
+            }
+            i++;
         }
+        //if the number of the children is the same as the counter, it means that we have checked all the children
+        //of this parent
+        if (parent.getChildren().size() == i) {
+            finished = true;
+        }
+        return finished;
     }
 }

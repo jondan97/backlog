@@ -25,6 +25,12 @@ public enum ItemPriority {
         this.repositoryId = repositoryId;
     }
 
+    /**
+     * this method takes as input a repository id and returns the item priority that the id belongs to
+     *
+     * @param id: the repository id of the item priority the user requested
+     * @return: returns the item priority with that certain id
+     */
     public static ItemPriority findItemTypeByRepositoryId(int id) {
         for (ItemPriority itemPriority : ItemPriority.values()) {
             if (itemPriority.repositoryId == id)

@@ -4,7 +4,9 @@ import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.ItemSprintHistory;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.Sprint;
+import gr.university.thesis.entity.enumeration.ItemStatus;
 import gr.university.thesis.entity.enumeration.ItemType;
+import gr.university.thesis.entity.enumeration.SprintStatus;
 import gr.university.thesis.repository.SprintRepository;
 import gr.university.thesis.util.Time;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,14 +36,15 @@ public class SprintService {
     }
 
     /**
-     * this method initialises the first sprint of every project that is created
+     * this method creates a sprint whenever it is called for a certain project,
      * and sets the sprint status to 2 (ready to be filled with items)
      *
      * @param project: the project that this sprint belongs to
+     * @return: returns the sprint that was saved in the repository
      */
-    public void firstSprint(Project project) {
-        Sprint sprint = new Sprint(project, (byte) 2);
-        sprintRepository.save(sprint);
+    public Sprint createSprint(Project project) {
+        Sprint sprint = new Sprint(project, (byte) SprintStatus.READY.getRepositoryId());
+        return sprintRepository.save(sprint);
     }
 
     /**
@@ -61,7 +64,7 @@ public class SprintService {
      * @return: returns an optional that may contain the requested sprint
      */
     public Optional<Sprint> findActiveSprintInProject(Project project) {
-        Optional<Sprint> readySprintOptional = sprintRepository.findFirstByProjectAndStatus(project, (byte) 2);
+        Optional<Sprint> readySprintOptional = sprintRepository.findFirstByProjectAndStatus(project, (byte) SprintStatus.READY.getRepositoryId());
         //if there is a sprint ready to be filled with items
         if (readySprintOptional.isPresent()) {
             Sprint sprint = readySprintOptional.get();
@@ -69,7 +72,7 @@ public class SprintService {
             return readySprintOptional;
             //if there's no ready sprint but instead, an active one
         } else {
-            Optional<Sprint> activeSprintOptional = sprintRepository.findFirstByProjectAndStatus(project, (byte) 1);
+            Optional<Sprint> activeSprintOptional = sprintRepository.findFirstByProjectAndStatus(project, (byte) SprintStatus.ACTIVE.getRepositoryId());
             //if there is an active running sprint
             if (activeSprintOptional.isPresent()) {
                 Sprint sprint = activeSprintOptional.get();
@@ -91,15 +94,16 @@ public class SprintService {
     /**
      * this methods starts a sprint and moves it to an active state
      *
-     * @param sprintId       : the sprint that the user wants to start
-     * @param sprintGoal
-     * @param sprintDuration
+     * @param sprintId        : the sprint that the user wants to start
+     * @param sprintGoal:     the goal of the sprint, what do the users want to achieve by the time this sprint has
+     *                        finished?
+     * @param sprintDuration: the duration of the sprint, counted in weeks
      */
     public void startSprint(long sprintId, String sprintGoal, int sprintDuration) {
         Optional<Sprint> sprintOptional = findSprintById(new Sprint(sprintId));
         if (sprintOptional.isPresent()) {
             Sprint sprint = sprintOptional.get();
-            sprint.setStatus((byte) 1);
+            sprint.setStatus((byte) SprintStatus.ACTIVE.getRepositoryId());
             Date now = new Date();
             sprint.setStart_date(now);
             Date endDate = Time.calculateEndDate(now, sprintDuration);
@@ -107,7 +111,7 @@ public class SprintService {
             sprint.setGoal(sprintGoal);
             sprint.setDuration(sprintDuration);
             for (Item item : getAssociatedItemsList(sprint.getAssociatedItems())) {
-                itemService.setStatusToItemAndChildren(item, (byte) 3);
+                itemService.setStatusToItemAndChildren(item, ItemStatus.ACTIVE);
             }
             sprintRepository.save(sprint);
         }
@@ -117,18 +121,17 @@ public class SprintService {
      * this methods finishes a sprint and moves it to a finish state
      *
      * @param sprintId: the sprint that the user wants to finish
+     * @return: returns an optional with the new sprint (if everything went successfully)
      */
-    public void finishSprint(long sprintId) {
+    public Optional<Sprint> finishSprint(long sprintId) {
         Optional<Sprint> sprintOptional = findSprintById(new Sprint(sprintId));
         if (sprintOptional.isPresent()) {
             Sprint sprint = sprintOptional.get();
-            sprint.setStatus((byte) 2);
-            sprint.setEnd_date(new Date());
-            for (Item item : getAssociatedItemsList(sprint.getAssociatedItems())) {
-                itemService.setStatusToItemAndChildren(item, (byte) 2);
-            }
-            sprintRepository.save(sprint);
+            sprint.setStatus((byte) SprintStatus.FINISHED.getRepositoryId());
+            sprintOptional = Optional.ofNullable(sprintRepository.save(sprint));
+            return sprintOptional;
         }
+        return sprintOptional;
     }
 
     /**
@@ -148,7 +151,6 @@ public class SprintService {
 
     /**
      * this method finds a sprint in a certain project
-     * in the project
      *
      * @param sprintId:  the sprint that the user wants to find
      * @param projectId: the project that the sprint belongs to

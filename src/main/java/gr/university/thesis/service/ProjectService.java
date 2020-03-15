@@ -89,7 +89,7 @@ public class ProjectService {
         Project project = new Project(title, description, owner);
         //saving it to get the id from the DB
         project = projectRepository.save(project);
-        sprintService.firstSprint(project);
+        sprintService.createSprint(project);
     }
 
     /**

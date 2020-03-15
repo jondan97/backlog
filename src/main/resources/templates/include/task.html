@@ -33,10 +33,12 @@
 
     <label for="itemParentId">Parent</label>
     <select id="itemParentId" name="itemParentId" th:disabled="
-        ${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') ? 'false' : 'true'}">
+        ${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+        and item.status != 3
+        ? 'false' : 'true'}">
         <option selected value="0">No parent</option>
         <span th:each="parent : ${backlog}">
-            <span th:if="${parent.type == 1 or parent.type == 2}">
+            <span th:if="${parent.type == 1 or parent.type == 2 and parent.status != 4}">
                 <!-- if the item is in an active sprint, show only its parent            -->
                 <span th:if="${item.status == 3 and parent.status == 3}">
                     <span th:if="${item.parent}">
@@ -78,6 +80,10 @@
 
                                         </span>
     </select>
+    <!--in case the above select element is disabled-->
+    <span th:if="${item.status == 3}">
+        <input name="itemParentId" th:value="${item.parent.id}" type="hidden">
+    </span>
 
     <label for="itemPriority">Priority</label>
     <select id="itemPriority" name="itemPriority"
@@ -148,7 +154,7 @@
         </span>
      </span>
 
-    <span th:if="${sprint.status != 1}">
+    <span th:if="${sprint.status != 2}">
         <span th:if="${item.status == 1}">
             <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
                     value="move">

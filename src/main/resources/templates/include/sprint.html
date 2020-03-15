@@ -21,10 +21,9 @@
 
         <label for="sprintDuration">Duration</label>
         <select id="sprintDuration" name="sprintDuration"
-                th:disabled="${not #authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
-                and sprint.status == 2
-                or sprint.status == 1
-                ? 'true' : 'false'}">
+                th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+                and sprint.status == 1
+                ? 'false' : 'true'}">
                 <option th:selected="${sprint.duration == 1 ? 'true' : 'false'}" value="1">
                     1 week
                 </option>
@@ -43,10 +42,9 @@
         <input id="sprintDaysRemaining" name="sprintDaysRemaining" readonly th:value="${sprint.days_remaining}">
 
         <label for="sprintGoal">Goal</label>
-        <input id="sprintGoal" name="sprintGoal" th:readonly="${not #authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
-               and sprint.status == 2
-               or sprint.status == 1
-               ? 'true' : 'false'}"
+        <input id="sprintGoal" name="sprintGoal" th:readonly="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+               and sprint.status == 1
+               ? 'false' : 'true'}"
                th:value="${sprint.goal}"
         >
 
@@ -59,22 +57,23 @@
         <input hidden id="sprintProjectId" name="sprintProjectId" th:value="${project.id}">
 
         <span th:if="${sprint.status == 1}">
-
-            <button name="action"
-                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/sprint/' + ${sprint.id}} + '\''"
-                    type="button" value="view">View Board
-            </button>
-
-            <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
-                    value="finish">
-                Finish
-            </button>           </span>
-        <span th:if="${sprint.status == 2}">
             <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
                     value="start">
                 Start
             </button>
         </span>
+
+        <span th:if="${sprint.status == 2}">
+            <button name="action"
+                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/sprint/' + ${sprint.id}} + '\''"
+                    type="button" value="view">View Board
+            </button>
+            <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+                    value="finish">
+                Finish
+            </button>
+        </span>
+
     </form>
 </span>
 </body>
