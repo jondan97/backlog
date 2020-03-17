@@ -36,7 +36,13 @@ public class Project {
     private String description;
 
     /**
-     * the total effort of the project calculated every time the user wants to see this project in the project panel
+     * estimated sprints needed in order for the project to finish (rough estimation)
+     */
+    @Column
+    private int estimated_sprints_needed;
+
+    /**
+     * the total effort of the project calculated every time the user wants to see this project in the project panel etc.
      */
     @Transient
     private long total_effort;

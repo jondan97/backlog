@@ -17,6 +17,10 @@
 <button th:onclick="'window.location.href=\'' + @{/} + '\''"
         type="button">Home
 </button>
+<button
+        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId}} + '\''"
+        type="button">Project
+</button>
 <span th:if="${todoAssociations}">
   <span th:each="association: ${todoAssociations}">
       <span th:insert="include/taskBoardItem :: item"></span>

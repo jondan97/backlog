@@ -8,6 +8,10 @@
 <button th:onclick="'window.location.href=\'' + @{/} + '\''"
         type="button">Home
 </button>
+<button
+        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId}} + '\''"
+        type="button">Project
+</button>
 <h3>Item Details</h3>
 <form method="post">
     <label for="itemId">ID</label>

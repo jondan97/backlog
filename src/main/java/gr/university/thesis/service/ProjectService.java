@@ -1,5 +1,6 @@
 package gr.university.thesis.service;
 
+import gr.university.thesis.dto.BurnDownChartData;
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.Sprint;
@@ -9,6 +10,8 @@ import gr.university.thesis.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -129,5 +132,62 @@ public class ProjectService {
      */
     public Optional<Sprint> findSprintInProject(long projectId, long sprintId) {
         return sprintService.findSprintByProjectId(projectId, sprintId);
+    }
+
+    /**
+     * this method calculates all the necessary data for the burn down chart in the history page
+     * it calculates the number of sprints and puts them in a ordered array named categories
+     * it calculates the ideal burn of effort by dividing the total project effort with the estimated sprints
+     * needed to finish the project, and puts every ideal burn of effort per sprint in an array
+     * it calculates the actual burn of effort by calculating the effort finished per sprint and puts it in an array
+     *
+     * @param projectId:       the project that the user requested to see the data of
+     * @param finishedSprints: the set of the finished sprints in the project
+     * @return: returns a DTO that contains all the data needed in the burn down chart
+     */
+    public BurnDownChartData calculateBurnDownChartData(long projectId, List<Sprint> finishedSprints) {
+        //setting up a new array list because we want the list to be shown to the user NOT reversed
+        List<Sprint> reversedSprints = new ArrayList<>(finishedSprints);
+        //reversing it because the real order is needed to ease the calculations
+        Collections.reverse(reversedSprints);
+        //supposedly, the project is never null
+        Project project = null;
+        Optional<Project> projectOptional = findProjectById(projectId);
+        if (projectOptional.isPresent()) {
+            project = projectOptional.get();
+        }
+        calculateTotalEffort(project);
+
+        //here, the sprint names (in order) are written in an array called categories
+        String[] categories = new String[reversedSprints.size() + 1];
+        categories[0] = "Start";
+        for (int i = 1; i < categories.length; i++) {
+            categories[i] = "Sprint " + (i);
+        }
+
+        //here, the ideal burn for each sprint is calculated
+        int[] ideal_burn = new int[reversedSprints.size() + 1];
+        ideal_burn[0] = (int) project.getTotal_effort();
+        long nextEffort = (int) project.getTotal_effort();
+        //double needed because the division might be a decimal, and an accurate representation is needed
+        double ideal_effort_burn = (double) project.getTotal_effort() / project.getEstimated_sprints_needed();
+        for (int i = 1; i < ideal_burn.length; i++) {
+            ideal_burn[i] = (int) (nextEffort - ideal_effort_burn);
+            if (ideal_burn[i] < 0) {
+                ideal_burn[i] = 0;
+            }
+            nextEffort = ideal_burn[i];
+        }
+
+        //here, the actual burn for each sprint is calculated
+        int[] actual_burn = new int[reversedSprints.size() + 1];
+        actual_burn[0] = (int) project.getTotal_effort();
+        nextEffort = (int) project.getTotal_effort();
+        for (int i = 1; i < actual_burn.length; i++) {
+            actual_burn[i] = (int) (nextEffort - reversedSprints.get(i - 1).getVelocity());
+            nextEffort = actual_burn[i];
+        }
+
+        return new BurnDownChartData(categories, ideal_burn, actual_burn);
     }
 }

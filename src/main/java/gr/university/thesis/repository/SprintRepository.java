@@ -26,14 +26,14 @@ public interface SprintRepository extends JpaRepository<Sprint, Long> {
     Optional<Sprint> findFirstByProjectAndStatus(Project project, byte status);
 
     /**
-     * this method searches the repository for all the sprints with a certain status, will mainly be used to fetch
-     * the finished sprints in each project (history)
+     * this method searches the repository for all the sprints with a certain status in reverse order (most recent
+     * to oldest), will mainly be used to fetch the finished sprints in each project (history)
      *
      * @param status: the status of the sprint, read 'status' attribute in Sprint class for more info
      * @return: returns an optional that contains the list of sprints that was requested or returns an empty optional if
      * no sprint with the requested status doesn't exist
      */
-    Optional<List<Sprint>> findByProjectAndStatus(Project project, byte status);
+    Optional<List<Sprint>> findSprintsByProjectAndStatusOrderByIdDesc(Project project, byte status);
 
     /**
      * this method returns a unique sprint that belongs to a project

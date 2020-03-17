@@ -19,6 +19,9 @@
         <input id="projectDescription" name="projectDescription" th:value="${project.description}">
         <label for="projectTotalEffort">Total Effort</label>
         <input id="projectTotalEffort" name="projectTotalEffort" readonly th:value="${project.total_effort}">
+        <label for="projectEstimatedSprintsNeeded">Sprints Needed</label>
+        <input id="projectEstimatedSprintsNeeded" name="projectEstimatedSprintsNeeded" readonly
+               th:value="${project.estimated_sprints_needed}">
         <button name="action" th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id}} + '\''"
                 type="button" value="view">View
         </button>
@@ -38,6 +41,8 @@
     <input id="title" name="title">
     <label for="description">Description</label>
     <input id="description" name="description">
+    <label for="estimatedSprintsNeeded">Sprints Needed</label>
+    <input id="estimatedSprintsNeeded" name="estimatedSprintsNeeded">
     <button type="submit">Submit</button>
 </form>
 </span>

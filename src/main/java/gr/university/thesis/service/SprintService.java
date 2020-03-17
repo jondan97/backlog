@@ -7,6 +7,7 @@ import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.enumeration.ItemStatus;
 import gr.university.thesis.entity.enumeration.ItemType;
 import gr.university.thesis.entity.enumeration.SprintStatus;
+import gr.university.thesis.entity.enumeration.TaskBoardStatus;
 import gr.university.thesis.repository.SprintRepository;
 import gr.university.thesis.util.Time;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,6 +85,7 @@ public class SprintService {
                     finishSprint(sprint.getId());
                 }
                 sprint.setDays_remaining(daysRemaining);
+                calculateVelocity(sprint);
                 return activeSprintOptional;
             }
         }
@@ -172,12 +174,53 @@ public class SprintService {
         itemService.calculatedCombinedEffort(getAssociatedItemsList(sprint.getAssociatedItems()));
         int totalEffort = 0;
         for (Item item : getAssociatedItemsList(sprint.getAssociatedItems())) {
-            if (item.getType() == ItemType.EPIC.getRepositoryId() || (item.getType() == ItemType.STORY.getRepositoryId() && item.getParent() == null)
+            if (item.getType() == ItemType.EPIC.getRepositoryId()
+                    || (item.getType() == ItemType.STORY.getRepositoryId() && item.getParent() == null)
                     || (item.getParent() == null)) {
                 totalEffort += item.getEffort();
             }
         }
         sprint.setTotal_effort(totalEffort);
+    }
+
+    /**
+     * this method takes as input a project and a sprint status, and searches the repository for all the
+     * sprints with that certain status, mainly used to fetch all the finished sprints
+     *
+     * @param project:      the project that the user requested to see the sprints of
+     * @param sprintStatus: the status of the sprints the user is looking for
+     * @return: returns an optional that may contain a list of sprints with a certain status
+     */
+    public Optional<List<Sprint>> findSprintsByProjectAndStatus(Project project, SprintStatus sprintStatus) {
+        Optional<List<Sprint>> finishedSprintsOptionals =
+                sprintRepository.findSprintsByProjectAndStatusOrderByIdDesc(project, (byte) sprintStatus.getRepositoryId());
+        if (finishedSprintsOptionals.isPresent()) {
+            List<Sprint> finishedSprints = finishedSprintsOptionals.get();
+            for (Sprint sprint : finishedSprints) {
+                calculateTotalEffort(sprint);
+                calculateVelocity(sprint);
+            }
+        }
+        return finishedSprintsOptionals;
+    }
+
+    /**
+     * this method takes as input a sprint, and by adding all the effort from the items with type task or bug and
+     * task board status of 'Done', it calculates the velocity of the sprint
+     *
+     * @param sprint: the sprint that the user requested to calculate the velocity of
+     * @return: returns the velocity for that certain sprint
+     */
+    public void calculateVelocity(Sprint sprint) {
+        int totalVelocity = 0;
+        for (ItemSprintHistory association : sprint.getAssociatedItems()) {
+            if ((association.getItem().getType() == ItemType.TASK.getRepositoryId()
+                    || association.getItem().getType() == ItemType.BUG.getRepositoryId())
+                    && (association.getStatus() == TaskBoardStatus.DONE)) {
+                totalVelocity += association.getItem().getEffort();
+            }
+        }
+        sprint.setVelocity(totalVelocity);
     }
 
 }

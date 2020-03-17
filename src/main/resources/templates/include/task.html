@@ -82,7 +82,12 @@
     </select>
     <!--in case the above select element is disabled-->
     <span th:if="${item.status == 3}">
-        <input name="itemParentId" th:value="${item.parent.id}" type="hidden">
+        <span th:if="${item.parent}">
+            <input name="itemParentId" th:value="${item.parent.id}" type="hidden">
+        </span>
+        <span th:unless="${item.parent}">
+            <input name="itemParentId" type="hidden" value="0">
+        </span>
     </span>
 
     <label for="itemPriority">Priority</label>

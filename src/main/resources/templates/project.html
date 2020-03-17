@@ -9,6 +9,11 @@
         type="button">Home
 </button>
 
+<button
+        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/history'} + '\''"
+        type="button">History
+</button>
+
 <h3>Active Sprint:</h3>
 <span th:insert="include/sprint :: sprintForm"></span>
 <h4>Items in Sprint:</h4>

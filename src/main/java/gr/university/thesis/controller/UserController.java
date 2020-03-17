@@ -1,9 +1,11 @@
 package gr.university.thesis.controller;
 
 
+import gr.university.thesis.dto.BurnDownChartData;
 import gr.university.thesis.entity.*;
 import gr.university.thesis.entity.enumeration.ItemPriority;
 import gr.university.thesis.entity.enumeration.ItemType;
+import gr.university.thesis.entity.enumeration.SprintStatus;
 import gr.university.thesis.entity.enumeration.TaskBoardStatus;
 import gr.university.thesis.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,10 +14,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpSession;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * This is the user controller, here requests are coming from authorized users, for example create project
@@ -223,6 +222,7 @@ public class UserController {
             if (todoAssociations.isPresent()) {
                 model.addAttribute("todoAssociations", todoAssociations.get());
             }
+            //todo methods:
             Optional<List<ItemSprintHistory>> inProgressAssociations = itemSprintHistoryService.
                     findAllAssociationsByStatus(new Sprint(sprintId), TaskBoardStatus.IN_PROGRESS,
                             ItemType.TASK, ItemType.BUG);
@@ -277,6 +277,30 @@ public class UserController {
                                                   @RequestParam long itemProjectId) {
         itemSprintHistoryService.changeStatusOfAssociationByOne(new Sprint(sprintId), new Item(itemId), -1);
         return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
+    }
+
+    /**
+     * this method shows to the user the history of a project, which includes all the sprints that took place and
+     * the burn down chart
+     *
+     * @param projectId: the project that the user requested to see the history of
+     * @param model:     the interface that the user sees
+     * @return: returns the projectHistory template
+     */
+    @RequestMapping(value = "/project/{projectId}/history")
+    public String viewProjectHistory(@PathVariable long projectId,
+                                     Model model) {
+        Optional<List<Sprint>> finishedSprintsOptional =
+                sprintService.findSprintsByProjectAndStatus(new Project(projectId), SprintStatus.FINISHED);
+        if (finishedSprintsOptional.isPresent()) {
+            //thymeleaf doesn't recognise 'List' so we have to move it to an ArrayList
+            ArrayList<Sprint> finishedSprints = (ArrayList<Sprint>) finishedSprintsOptional.get();
+            model.addAttribute("finishedSprints", finishedSprints);
+            BurnDownChartData burnDownChartData = projectService.calculateBurnDownChartData(projectId, finishedSprints);
+            model.addAttribute("burnDownChartData", burnDownChartData);
+
+        }
+        return "projectHistory";
     }
 
 }
