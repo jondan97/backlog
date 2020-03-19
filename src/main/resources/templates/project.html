@@ -8,10 +8,13 @@
 <button th:onclick="'window.location.href=\'' + @{/} + '\''"
         type="button">Home
 </button>
-
 <button
-        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/history'} + '\''"
-        type="button">History
+        th:onclick="'window.location.href=\'' + @{'/user/projectPanel'} + '\''"
+        type="button">Project Panel
+</button>
+<button
+        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/projectProgress'} + '\''"
+        type="button">Project Progress
 </button>
 
 <h3>Active Sprint:</h3>

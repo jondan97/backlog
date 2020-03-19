@@ -4,7 +4,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://code.highcharts.com/stock/highstock.js"></script>
     <meta charset="UTF-8">
-    <title>Project History</title>
+    <title>Sprint History</title>
     <style>
         #burndown {
             width: 100%;
@@ -15,9 +15,6 @@
     </style>
 </head>
 <body>
-<!--<span th:text="${burnDownChartCategories}"></span>-->
-<!--<span th:text="${burnDownChartIdeal_burn}"></span>-->
-<!--<span th:text="${burnDownChartActual_burn}"></span>-->
 <script th:inline="javascript">
     const categories = [[${burnDownChartData.categories}]];
     const ideal_burn = [[${burnDownChartData.ideal_burn}]];
@@ -38,7 +35,7 @@
                 }
             },
             subtitle: {
-                text: 'All Sprints',
+                text: 'This Sprint',
                 x: -20
             },
             xAxis: {
@@ -87,32 +84,21 @@
         th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId}} + '\''"
         type="button">Project
 </button>
+<button
+        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/sprint/' + ${sprintId}} + '\''"
+        type="button">Back to Task Board
+</button>
 <div id="burndown"></div>
-<br>
 
-<br>
-<h2>Sprint History</h2>
-<span th:if="${finishedSprints}">
-    <span th:each="sprint : ${finishedSprints}">
-<!--        <attributeName>Stat is something that thymeleaf offers, amongst those, we can use size and count-->
-        <span th:text="${'Sprint ' + ((sprintStat.size + 1) - sprintStat.count) + ': ' + sprint.start_date + ', Velocity: ' + sprint.velocity}"></span>
-        <button name="action"
-                th:onclick="'window.location.href=\'' + @{'/user/project/' + ${sprint.project.id} + '/sprint/' + ${sprint.id}} + '\''"
-                type="button" value="view">View Board
-        </button>
-        <br>
-            <div th:each="association: ${sprint.associatedItems}">
-                <ul>
-                    <span th:if="${association.item.type == 3 or association.item.type == 4}">
-                        <span th:text="${association.item.title + ': ' + association.status}"></span>
-                        <button
-                                th:onclick="'window.location.href=\'' + @{'/user/project/' + ${association.sprint.project.id} + '/item/' + ${association.item.id}} + '\''"
-                                type="button" value="view">View
-                        </button>
-                    </span>
-                </ul>
+<h3>Sprint History of Tasks Done</h3>
+
+<span th:if="${tasksDoneByDateList}">
+    <div th:each="tasksDoneByDate : ${tasksDoneByDateList}">
+        <div th:text="${tasksDoneByDate.date}"></div>
+        <div th:each="item : ${tasksDoneByDate.items}">
+            <span th:text="${item.title}"></span>
         </div>
-    </span>
+    </div>
 </span>
 </body>
 </html>

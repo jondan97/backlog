@@ -280,16 +280,16 @@ public class UserController {
     }
 
     /**
-     * this method shows to the user the history of a project, which includes all the sprints that took place and
-     * the burn down chart
+     * this method shows to the user the progress of a project, which includes all the sprints that took place and
+     * a burn down chart for all the project
      *
      * @param projectId: the project that the user requested to see the history of
      * @param model:     the interface that the user sees
      * @return: returns the projectHistory template
      */
-    @RequestMapping(value = "/project/{projectId}/history")
-    public String viewProjectHistory(@PathVariable long projectId,
-                                     Model model) {
+    @RequestMapping(value = "/project/{projectId}/projectProgress")
+    public String viewProjectProgress(@PathVariable long projectId,
+                                      Model model) {
         Optional<List<Sprint>> finishedSprintsOptional =
                 sprintService.findSprintsByProjectAndStatus(new Project(projectId), SprintStatus.FINISHED);
         if (finishedSprintsOptional.isPresent()) {
@@ -298,9 +298,30 @@ public class UserController {
             model.addAttribute("finishedSprints", finishedSprints);
             BurnDownChartData burnDownChartData = projectService.calculateBurnDownChartData(projectId, finishedSprints);
             model.addAttribute("burnDownChartData", burnDownChartData);
-
         }
-        return "projectHistory";
+        return "projectProgress";
+    }
+
+    /**
+     * this method shows to the user the history of a sprint, along with all the done tasks (per day), and a burn down
+     * chart
+     *
+     * @param projectId: the project that this sprint belongs to
+     * @param sprintId:  the sprint that the user requested to see the history of
+     * @return: returns the sprintHistory template
+     */
+    @RequestMapping(value = "/project/{projectId}/sprint/{sprintId}/history")
+    public String sprintHistory(@PathVariable long projectId,
+                                @PathVariable long sprintId,
+                                Model model) {
+        Optional<Sprint> sprintOptional =
+                sprintService.findSprintById(new Sprint(sprintId));
+        if (sprintOptional.isPresent()) {
+            Sprint sprint = sprintOptional.get();
+            model.addAttribute("tasksDoneByDateList", itemSprintHistoryService.sortTasksByDate(sprint));
+            model.addAttribute("burnDownChartData", itemSprintHistoryService.calculateBurnDownChartData(sprint));
+        }
+        return "sprintHistory";
     }
 
 }

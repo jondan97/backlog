@@ -36,6 +36,12 @@ public class Project {
     private String description;
 
     /**
+     * developers that will work on this project
+     */
+    @Column
+    private int developers_working;
+
+    /**
      * estimated sprints needed in order for the project to finish (rough estimation)
      */
     @Column
@@ -73,13 +79,17 @@ public class Project {
     private User owner;
 
     /**
-     * @param title:       the title of the project
-     * @param description: the description of the project
-     * @param owner:       the owner of tis project
+     * @param title:                  the title of the project
+     * @param description:            the description of the project
+     * @param developersWorking:      the number of developers working for that project
+     * @param estimatedSprintsNeeded: the number of sprints estimated in order to complete the project
+     * @param owner:                  the owner of tis project
      */
-    public Project(String title, String description, User owner) {
+    public Project(String title, String description, int developersWorking, int estimatedSprintsNeeded, User owner) {
         this.title = title;
         this.description = description;
+        this.developers_working = developersWorking;
+        this.estimated_sprints_needed = estimatedSprintsNeeded;
         this.owner = owner;
     }
 

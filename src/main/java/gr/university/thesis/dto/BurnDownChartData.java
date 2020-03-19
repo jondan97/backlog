@@ -23,8 +23,10 @@ public class BurnDownChartData {
     /**
      * ideal_burn is the array that contains the ideal burn of effort based on the project total effort divided by
      * the estimated sprints needed for that project to finish, for example [100(total project effort), 86, ...]
+     * it is represented as a double, as the division can result in a double, and if it not properly handled, it can
+     * be inaccurate
      */
-    int[] ideal_burn;
+    double[] ideal_burn;
 
     /**
      * actual_burn is the array that contains the actual burn of effort (velocity) that was done for each finished

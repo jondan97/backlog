@@ -21,6 +21,10 @@
         th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId}} + '\''"
         type="button">Project
 </button>
+<button
+        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/sprint/' + ${sprint.id} + '/history'} + '\''"
+        type="button">Sprint History
+</button>
 <span th:if="${todoAssociations}">
   <span th:each="association: ${todoAssociations}">
       <span th:insert="include/taskBoardItem :: item"></span>

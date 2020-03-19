@@ -222,5 +222,4 @@ public class SprintService {
         }
         sprint.setVelocity(totalVelocity);
     }
-
 }

@@ -10,6 +10,8 @@ import gr.university.thesis.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -84,12 +86,14 @@ public class ProjectService {
     /**
      * this method allows the creation of a project, and is stored in the repository
      *
-     * @param title:       title of the new project
-     * @param description: description of the new project
-     * @param owner:       the owner of this project
+     * @param title                  :       title of the new project
+     * @param description            : description of the new project
+     * @param developersWorking      : the number of developers working on this project, helps in estimating
+     * @param estimatedSprintsNeeded
+     * @param owner                  :       the owner of this project
      */
-    public void createProject(String title, String description, User owner) {
-        Project project = new Project(title, description, owner);
+    public void createProject(String title, String description, int developersWorking, int estimatedSprintsNeeded, User owner) {
+        Project project = new Project(title, description, developersWorking, estimatedSprintsNeeded, owner);
         //saving it to get the id from the DB
         project = projectRepository.save(project);
         sprintService.createSprint(project);
@@ -98,16 +102,20 @@ public class ProjectService {
     /**
      * this method updates a project in the repository (cannot update projectID or ownerID)
      *
-     * @param projectId:   the project id that is needed in order for the project to be found in the repository
-     * @param title:       the title that the admin has possibly updated
-     * @param description: the description that the admin has possibly updated
+     * @param projectId               :   the project id that is needed in order for the project to be found in the repository
+     * @param title                   :       the title that the admin has possibly updated
+     * @param description             : the description that the admin has possibly updated
+     * @param developersWorking       : the number of developers working on this project, helps in estimating
+     * @param estimatedSprintsNeeded: update to the estimation needed to finish the project might be needed
      */
-    public void updateProject(long projectId, String title, String description) {
+    public void updateProject(long projectId, String title, String description, int developersWorking, int estimatedSprintsNeeded) {
         Optional<Project> projectOptional = projectRepository.findById(projectId);
         if (projectOptional.isPresent()) {
             Project project = projectOptional.get();
             project.setTitle(title);
             project.setDescription(description);
+            project.setDevelopers_working(developersWorking);
+            project.setEstimated_sprints_needed(estimatedSprintsNeeded);
             projectRepository.save(project);
         }
     }
@@ -159,6 +167,7 @@ public class ProjectService {
         calculateTotalEffort(project);
 
         //here, the sprint names (in order) are written in an array called categories
+        //counting the Start cell
         String[] categories = new String[reversedSprints.size() + 1];
         categories[0] = "Start";
         for (int i = 1; i < categories.length; i++) {
@@ -166,13 +175,15 @@ public class ProjectService {
         }
 
         //here, the ideal burn for each sprint is calculated
-        int[] ideal_burn = new int[reversedSprints.size() + 1];
+        double[] ideal_burn = new double[reversedSprints.size() + 1];
         ideal_burn[0] = (int) project.getTotal_effort();
-        long nextEffort = (int) project.getTotal_effort();
+        double nextEffort = project.getTotal_effort();
         //double needed because the division might be a decimal, and an accurate representation is needed
         double ideal_effort_burn = (double) project.getTotal_effort() / project.getEstimated_sprints_needed();
+        DecimalFormat df = new DecimalFormat("#.##");
+        df.setRoundingMode(RoundingMode.HALF_EVEN);
         for (int i = 1; i < ideal_burn.length; i++) {
-            ideal_burn[i] = (int) (nextEffort - ideal_effort_burn);
+            ideal_burn[i] = Double.parseDouble(df.format(nextEffort - ideal_effort_burn));
             if (ideal_burn[i] < 0) {
                 ideal_burn[i] = 0;
             }

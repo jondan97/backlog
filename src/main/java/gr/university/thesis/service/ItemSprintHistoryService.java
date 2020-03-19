@@ -1,5 +1,7 @@
 package gr.university.thesis.service;
 
+import gr.university.thesis.dto.BurnDownChartData;
+import gr.university.thesis.dto.TasksDoneByDate;
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.ItemSprintHistory;
 import gr.university.thesis.entity.Sprint;
@@ -7,10 +9,14 @@ import gr.university.thesis.entity.enumeration.ItemStatus;
 import gr.university.thesis.entity.enumeration.ItemType;
 import gr.university.thesis.entity.enumeration.TaskBoardStatus;
 import gr.university.thesis.repository.ItemSprintHistoryRepository;
+import gr.university.thesis.util.Time;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * service that handles everything relating to the history between the items and the sprints stored in the repository
@@ -210,6 +216,7 @@ public class ItemSprintHistoryService {
                     (itemSprintHistory.getStatus().getRepositoryId() != 4 && index > 0)) {
                 TaskBoardStatus currentStatus = itemSprintHistory.getStatus();
                 itemSprintHistory.setStatus(TaskBoardStatus.findTaskBoardStatusByRepositoryId(currentStatus.getRepositoryId() + index));
+                itemSprintHistory.setLast_moved(new Date());
                 itemSprintHistoryRepository.save(itemSprintHistory);
             }
         }
@@ -308,5 +315,158 @@ public class ItemSprintHistoryService {
             }
         }
         return associations;
+    }
+
+    /**
+     * this method calculates all the necessary data for the burn down chart in the history page of every sprint
+     * it calculates the duration of the sprint in days and puts them in a ordered array named categories
+     * it calculates the ideal burn of effort by dividing the total sprint effort with the number of developers
+     * included in the project, and puts every ideal burn of effort per day in an array
+     * it calculates the actual burn of effort by calculating all the tasks done per day and puts them in an array
+     *
+     * @param sprint: the sprint that the user requested to calculate the burn down chart data of
+     * @return: returns a DTO that contains all the necessary data that need to be transferred to the user interface\
+     * and concern the burndown chart
+     */
+    public BurnDownChartData calculateBurnDownChartData(Sprint sprint) {
+        Optional<Sprint> sprintOptional = sprintService.findSprintById(sprint);
+        if (sprintOptional.isPresent()) {
+            sprint = sprintOptional.get();
+            sprintService.calculateTotalEffort(sprint);
+            int totalSprintEffort = (int) sprint.getTotal_effort();
+
+            //number of weeks * 7
+            int numberOfDays = (int) sprint.getDuration() * 7;
+            //for readability issues
+            Date startingDate = sprint.getStart_date();
+            Date nextDate = startingDate;
+
+            //+2 because the start and finish are included
+            Date[] dates = new Date[numberOfDays + 2];
+            dates[0] = startingDate;
+            //counting the Start string and the last Day (Wed)
+            String[] categories = new String[numberOfDays + 2];
+            //setting the starting cell manually
+            categories[0] = "Start";
+            for (int i = 1; i < categories.length; i++) {
+                String nextDay = Time.findDay(nextDate);
+                categories[i] = nextDay;
+                nextDate = Time.incrementDateByOne(nextDate);
+                dates[i] = nextDate;
+            }
+            //outside the loop, setting the last cell manually
+            categories[numberOfDays + 1] += "(Finish)";
+
+            List<ItemSprintHistory> associationsOrderedByDate =
+                    findAllAssociationsByStatus(sprint, TaskBoardStatus.DONE, ItemType.TASK, ItemType.BUG).get();
+            int currentActualBurn = 0;
+            int[] actualBurn = new int[numberOfDays + 2];
+            //for readability issues
+            actualBurn[0] = totalSprintEffort;
+            int previousEffort = totalSprintEffort;
+            // so that it is not instantiated every time inside the loop
+            Date today = new Date();
+            for (int i = 0; i < dates.length; i++) {
+                Date date = dates[i];
+                //if the date comparing is later than today
+                if (Time.compare(date, today) > 0) {
+                    //only take the burns of earlier dates and today
+                    actualBurn = Arrays.copyOfRange(actualBurn, 0, i + 1);
+                    break;
+                } else {
+                    for (ItemSprintHistory association : associationsOrderedByDate) {
+                        int difference = Time.compare(date, association.getLast_moved());
+                        //if the dates are equal
+                        if (difference == 0) {
+                            currentActualBurn += association.getItem().getEffort();
+                        }
+                        //if the association is later, then break as there is no need to check further in the list
+                        //as the associations are ordered by date: if the association date is later, then surely the
+                        //next date is also later and so on
+                        else if (difference < 0) {
+                            break;
+                        }
+                    }
+                }
+                //if the current actual burn is not zero, it means that finished associations were found for that day
+                if (currentActualBurn != 0) {
+                    actualBurn[i + 1] = previousEffort - currentActualBurn;
+                    //if the burn is below 0, then set it to 0, as the graph should never show below 0
+                    // (just making sure)
+                    if (actualBurn[i + 1] < 0) {
+                        actualBurn[i + 1] = 0;
+                    }
+                    //setting the effort, to the current iterated cell
+                    previousEffort = actualBurn[i + 1];
+                    //resetting it for next set of associations
+                    currentActualBurn = 0;
+                }
+                //if the date checked had no associations with actual burns for that day, for example Saturday/Sunday
+                else if (Time.compare(date, today) <= 0) {
+                    //set the effort for that cell, the same as the previous, for example the same as Friday (as not
+                    //tasks were completed during off days)
+                    actualBurn[i + 1] = previousEffort;
+                }
+            }
+
+            //here, the ideal burn for each sprint is calculated
+            double[] ideal_burn = new double[numberOfDays + 2];
+            ideal_burn[0] = totalSprintEffort;
+            double nextEffort = totalSprintEffort;
+            //double needed because the division might be a decimal, and an accurate representation is required
+            double ideal_effort_burn = (double) totalSprintEffort / (numberOfDays + 1);
+            //limiting decimals to two:
+            DecimalFormat df = new DecimalFormat("#.##");
+            df.setRoundingMode(RoundingMode.HALF_EVEN);
+
+            for (int i = 1; i < ideal_burn.length; i++) {
+                //formatting returns a String, so parsing is needed
+                ideal_burn[i] = Double.parseDouble(df.format(nextEffort - ideal_effort_burn));
+                //here, having a number below 0 is possible, so it should be avoided
+                if (ideal_burn[i] < 0) {
+                    ideal_burn[i] = 0;
+                }
+                //this should also be called previous effort (most likely), setting the effort calculated for the
+                // previous cell, for the next subtraction
+                nextEffort = ideal_burn[i];
+            }
+            return new BurnDownChartData(categories, ideal_burn, actualBurn);
+        }
+        return null;
+    }
+
+    /**
+     * this method takes as input a sprint, and collects all its item of every association, and groups it by
+     * date using a map, then the map is converted into a DTO containing the list of items grouped by date,
+     * and are then shown in the user interface during the sprint task history template
+     * the map could have been returned but for readability reasons, the author chose to translate it into a DTO
+     *
+     * @param sprint: the sprint that the user requested to sort the tasks of and show to the sprint history
+     * @return: returns a list of DTOs, that contain all the items, grouped by date
+     */
+    public List<TasksDoneByDate> sortTasksByDate(Sprint sprint) {
+        Optional<List<ItemSprintHistory>> associationsByStatusOptional = findAllAssociationsByStatus(sprint, TaskBoardStatus.DONE, ItemType.TASK, ItemType.BUG);
+        if (associationsByStatusOptional.isPresent()) {
+            List<ItemSprintHistory> associationsByStatus = associationsByStatusOptional.get();
+            //need to set all clocks to 00:00:00 so that it is easier to group by date
+            for (ItemSprintHistory association : associationsByStatus) {
+                Date newDate = Time.setClockToZero(association.getLast_moved());
+                association.setLast_moved(newDate);
+            }
+            //lambda expression is then used to group items by date, and store them into a map
+            Map<Date, List<ItemSprintHistory>> groupedByDate = associationsByStatus.stream()
+                    .collect(Collectors.groupingBy(ItemSprintHistory::getLast_moved));
+            List<TasksDoneByDate> tasksDoneByDatesList = new ArrayList<>(groupedByDate.size());
+            //converting the map into a DTO, mainly for readability issues during code review
+            for (Map.Entry<Date, List<ItemSprintHistory>> entry : groupedByDate.entrySet()) {
+                TasksDoneByDate tasksDoneByDate = new TasksDoneByDate();
+                tasksDoneByDate.setDate(entry.getKey());
+                List<Item> items = sprintService.getAssociatedItemsList(new HashSet<>(entry.getValue()));
+                tasksDoneByDate.setItems(items);
+                tasksDoneByDatesList.add(tasksDoneByDate);
+            }
+            return tasksDoneByDatesList;
+        }
+        return null;
     }
 }

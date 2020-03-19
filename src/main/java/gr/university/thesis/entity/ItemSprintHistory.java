@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -45,6 +46,12 @@ public class ItemSprintHistory {
      */
     @Column
     private TaskBoardStatus status;
+
+    /**
+     * when was the last time this item had its status changed?
+     */
+    @Column
+    private Date last_moved;
 
     /**
      * constructor that sets the association between an item and a sprint
@@ -97,6 +104,7 @@ public class ItemSprintHistory {
                 "sprint=" + sprint +
                 ", item=" + item +
                 ", status=" + status +
+                ", last_moved=" + last_moved +
                 '}';
     }
 }

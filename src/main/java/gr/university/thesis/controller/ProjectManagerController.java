@@ -54,32 +54,40 @@ public class ProjectManagerController {
     /**
      * this method calls the project service in order to create a new project and store it in the repository
      *
-     * @param title:       input for the title of the new project
-     * @param description: input for the description of the new project
-     * @param session:     the current session, needed to find the creator of the project
-     * @return: returns project panel template (redirects)
+     * @param title:                  input for the title of the new project
+     * @param description:            input for the description of the new project
+     * @param developersWorking:      the number of developers working on this project, helps in estimating
+     * @param estimatedSprintsNeeded: a rough estimation about how many sprints will be needed to finish this project
+     * @param session:                the current session, needed to find the creator of the project
+     * @return: returns a redirection to the project panel
      */
     @PostMapping("/createProject")
     public String createProject(@RequestParam String title,
                                 @RequestParam String description,
+                                @RequestParam int developersWorking,
+                                @RequestParam int estimatedSprintsNeeded,
                                 HttpSession session) {
-        projectService.createProject(title, description, sessionService.getUserWithSessionId(session));
+        projectService.createProject(title, description, developersWorking, estimatedSprintsNeeded, sessionService.getUserWithSessionId(session));
         return "redirect:/user/projectPanel";
     }
 
     /**
      * this method calls the project service in order to update an existing project and store it in the repository
      *
-     * @param projectId:          the project id in order to find it on the repository
-     * @param projectTitle:       the possibly updated title of the project
-     * @param projectDescription: the possibly updated description of the project
-     * @return: returns project panel template (redirects)
+     * @param projectId:                     the project id in order to find it on the repository
+     * @param projectTitle:                  the possibly updated title of the project
+     * @param projectDescription:            the possibly updated description of the project
+     * @param projectDevelopersWorking:      the number of developers that work on this project might change
+     * @param projectEstimatedSprintsNeeded: update to the estimation needed to finish the project might be needed
+     * @returns: a redirection to the project panel
      */
     @RequestMapping(value = "/editProject", params = "action=update", method = RequestMethod.POST)
     public String updateProject(@RequestParam long projectId,
                                 @RequestParam String projectTitle,
-                                @RequestParam String projectDescription) {
-        projectService.updateProject(projectId, projectTitle, projectDescription);
+                                @RequestParam String projectDescription,
+                                @RequestParam int projectDevelopersWorking,
+                                @RequestParam int projectEstimatedSprintsNeeded) {
+        projectService.updateProject(projectId, projectTitle, projectDescription, projectDevelopersWorking, projectEstimatedSprintsNeeded);
         return "redirect:/user/projectPanel";
     }
 

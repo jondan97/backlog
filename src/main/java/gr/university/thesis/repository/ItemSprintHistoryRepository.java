@@ -35,7 +35,11 @@ public interface ItemSprintHistoryRepository extends JpaRepository<ItemSprintHis
      * @param itemType2: type of the item2,
      * @return: returns an optional that may contain a list with items of two types (at max)
      */
-    @Query("SELECT ish FROM ItemSprintHistory ish WHERE ish.sprint.id=:sprintId AND ish.status=:statusId AND (ish.item.type=:itemType1 OR ish.item.type=:itemType2)")
+    @Query("SELECT ish FROM ItemSprintHistory ish WHERE ish.sprint.id=:sprintId " +
+            "AND ish.status=:statusId " +
+            "AND (ish.item.type=:itemType1 " +
+            "OR ish.item.type=:itemType2) " +
+            "ORDER BY ish.last_moved")
     Optional<List<ItemSprintHistory>> findAllBySprintAndStatusAndItemTypes(@Param("sprintId") long sprintId,
                                                                            @Param("statusId") TaskBoardStatus statusId,
                                                                            @Param("itemType1") int itemType1,
