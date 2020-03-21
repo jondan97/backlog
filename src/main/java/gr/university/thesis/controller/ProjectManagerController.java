@@ -1,5 +1,6 @@
 package gr.university.thesis.controller;
 
+import gr.university.thesis.Exceptions.*;
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.Sprint;
@@ -35,10 +36,11 @@ public class ProjectManagerController {
     /**
      * constructor of this class, correct way to set the autowired attributes
      *
-     * @param projectService: service that manages all the projects of the system
-     * @param sessionService: service that manages the current session
-     * @param itemService:    service that manages the items stored in the repository
-     * @param sprintService:  service that manages the sprints stored in the repository
+     * @param projectService:          service that manages all the projects of the system
+     * @param sessionService:          service that manages the current session
+     * @param itemService:             service that manages the items stored in the repository
+     * @param sprintService:           service that manages the sprints stored in the repository
+     * @param itemSprintHistoryService : services that manages all the associations between sprint and items
      */
     @Autowired
     public ProjectManagerController(ProjectService projectService, SessionService sessionService,
@@ -59,14 +61,18 @@ public class ProjectManagerController {
      * @param developersWorking:      the number of developers working on this project, helps in estimating
      * @param estimatedSprintsNeeded: a rough estimation about how many sprints will be needed to finish this project
      * @param session:                the current session, needed to find the creator of the project
-     * @return: returns a redirection to the project panel
+     * @return : returns a redirection to the project panel
+     * @throws ProjectAlreadyExistsException : if the user tries to create a project with a title of another project that already
+     *                                       exists
+     * @throws ProjectHasEmptyTitleException : the user cannot create a project with no title
+     *                                       working and estimated sprints needed
      */
     @PostMapping("/createProject")
     public String createProject(@RequestParam String title,
                                 @RequestParam String description,
-                                @RequestParam int developersWorking,
-                                @RequestParam int estimatedSprintsNeeded,
-                                HttpSession session) {
+                                @RequestParam String developersWorking,
+                                @RequestParam String estimatedSprintsNeeded,
+                                HttpSession session) throws ProjectAlreadyExistsException, ProjectHasEmptyTitleException {
         projectService.createProject(title, description, developersWorking, estimatedSprintsNeeded, sessionService.getUserWithSessionId(session));
         return "redirect:/user/projectPanel";
     }
@@ -79,14 +85,17 @@ public class ProjectManagerController {
      * @param projectDescription:            the possibly updated description of the project
      * @param projectDevelopersWorking:      the number of developers that work on this project might change
      * @param projectEstimatedSprintsNeeded: update to the estimation needed to finish the project might be needed
-     * @returns: a redirection to the project panel
+     * @return : a redirection to the project panel
+     * @throws ProjectAlreadyExistsException : if the user tries to update a project with a title of another project that already
+     *                                       exists
+     * @throws ProjectHasEmptyTitleException : the user cannot update a project and sets its title to blank
      */
     @RequestMapping(value = "/editProject", params = "action=update", method = RequestMethod.POST)
     public String updateProject(@RequestParam long projectId,
                                 @RequestParam String projectTitle,
                                 @RequestParam String projectDescription,
-                                @RequestParam int projectDevelopersWorking,
-                                @RequestParam int projectEstimatedSprintsNeeded) {
+                                @RequestParam String projectDevelopersWorking,
+                                @RequestParam String projectEstimatedSprintsNeeded) throws ProjectAlreadyExistsException, ProjectHasEmptyTitleException {
         projectService.updateProject(projectId, projectTitle, projectDescription, projectDevelopersWorking, projectEstimatedSprintsNeeded);
         return "redirect:/user/projectPanel";
     }
@@ -95,7 +104,7 @@ public class ProjectManagerController {
      * this method calls the project service in order to delete an existing project from the repository
      *
      * @param projectId: required id in order to delete the project from the repository
-     * @return: returns project panel template (redirects)
+     * @return : returns project panel template (redirects)
      */
     @RequestMapping(value = "/editProject", params = "action=delete", method = RequestMethod.POST)
     public String deleteProject(@RequestParam long projectId) {
@@ -113,19 +122,22 @@ public class ProjectManagerController {
      * @param effort:      input for the effort needed to complete the item
      * @param projectId:   project that this item belongs to
      * @param assigneeId:  id of the assigned user
+     * @param parentId     : the parent of the item
      * @param session:     current session, needed to find the creator of this item
-     * @return
+     * @return : returns a redirection to the project page
+     * @throws ItemAlreadyExistsException : user has tried to create an item with the same title
+     * @throws ItemHasEmptyTitleException : user has tried to create an item with no title
      */
     @PostMapping("/createItem")
     public String createItem(@RequestParam String title,
                              @RequestParam String description,
                              @RequestParam String type,
                              @RequestParam String priority,
-                             @RequestParam int effort,
+                             @RequestParam String effort,
                              @RequestParam long projectId,
                              @RequestParam long assigneeId,
                              @RequestParam long parentId,
-                             HttpSession session) {
+                             HttpSession session) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
         itemService.createItem(title, description, ItemType.valueOf(type),
                 ItemPriority.valueOf(priority), effort, new Project(projectId),
                 new User(assigneeId), sessionService.getUserWithSessionId(session),
@@ -144,7 +156,11 @@ public class ProjectManagerController {
      * @param itemPriority:    ItemPriority of the item
      * @param itemEffort:      effort required to finish this item
      * @param itemAssigneeId:  the user that thisitem is assigned to
-     * @return: returns a redirection to the current project backlog
+     * @param itemParentId    : the parent of the item
+     * @param sprintId : the sprint that this item belongs to
+     * @return : returns a redirection to the current project backlog
+     * @throws ItemAlreadyExistsException : user has tried to set the item's title to one that already exists
+     * @throws ItemHasEmptyTitleException : user has tried to set the item's title to blank
      */
     @RequestMapping(value = "/editItem", params = "action=update", method = RequestMethod.POST)
     public String updateItem(@RequestParam long itemProjectId,
@@ -153,12 +169,11 @@ public class ProjectManagerController {
                              @RequestParam String itemDescription,
                              @RequestParam String itemType,
                              @RequestParam String itemPriority,
-                             @RequestParam int itemEffort,
+                             @RequestParam String itemEffort,
                              @RequestParam long itemAssigneeId,
                              @RequestParam long itemParentId,
                              @RequestParam long sprintId
-    ) {
-
+    ) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
         //the associations need to be defined before the item is updated
         itemSprintHistoryService.manageItemSprintAssociation(new Item(itemId), new Sprint(sprintId), new Item(itemParentId));
         itemService.updateItem(itemId, itemTitle, itemDescription, itemType, itemPriority, itemEffort,
@@ -171,14 +186,15 @@ public class ProjectManagerController {
      *
      * @param itemId:        required id in order to delete the item from the repository
      * @param itemProjectId: required for the redirection to the project backlog
-     * @return: returns a redirection to the current project backlog
+     * @param sprintId      : the sprint that this item belongs to
+     * @return : returns a redirection to the current project backlog
      */
     @RequestMapping(value = "/editItem", params = "action=delete", method = RequestMethod.POST)
     public String deleteItem(@RequestParam long itemId,
                              @RequestParam long itemProjectId,
                              @RequestParam long sprintId) {
         //need to delete its associations first (if they exist)
-        itemSprintHistoryService.removeItemToSprint(new Item(itemId), new Sprint(sprintId), null);
+        itemSprintHistoryService.removeItemFromSprint(new Item(itemId), new Sprint(sprintId), null);
         itemService.deleteItem(itemId);
         return "redirect:/user/project/" + itemProjectId;
     }
@@ -189,7 +205,7 @@ public class ProjectManagerController {
      * @param itemId:        required id in order to know which item to move to the sprint
      * @param sprintId:      require id in order to know to which sprint it should move the item to
      * @param itemProjectId: required for the redirection to the project backlog
-     * @return: returns a redirection to the current project backlog
+     * @return : returns a redirection to the current project backlog
      */
     @RequestMapping(value = "/editItem", params = "action=move", method = RequestMethod.POST)
     public String moveItemToSprint(@RequestParam long itemId,
@@ -205,14 +221,14 @@ public class ProjectManagerController {
      * @param itemId:        required id in order to know which item to move to the sprint
      * @param sprintId:      require id in order to know to which sprint it should move the item to
      * @param itemProjectId: required for the redirection to the project backlog
-     * @return: returns a redirection to the current project backlog
+     * @return : returns a redirection to the current project backlog
      */
     @RequestMapping(value = "/editItem", params = "action=remove", method = RequestMethod.POST)
     public String removeItemFromSprint(@RequestParam long itemId,
                                        @RequestParam long sprintId,
                                        @RequestParam long itemProjectId) {
         System.out.println(itemId + " " + sprintId);
-        itemSprintHistoryService.removeItemToSprint(new Item(itemId), new Sprint(sprintId), null);
+        itemSprintHistoryService.removeItemFromSprint(new Item(itemId), new Sprint(sprintId), null);
         return "redirect:/user/project/" + itemProjectId;
     }
 
@@ -221,13 +237,17 @@ public class ProjectManagerController {
      *
      * @param sprintId:        the sprint that the user wants to start
      * @param sprintProjectId: the project that this sprint belongs to
-     * @return: redirection to project page
+     * @param sprintGoal       : the goal the users are trying to achieve by the end of this sprint
+     * @param sprintDuration   : how long will the sprint last (in weeks)
+     * @return : redirection to project page
+     * @throws SprintHasZeroEffortException : this exception is thrown when there are no tasks/bugs in the sprint, and the user
+     *                                      is trying to start it
      */
     @RequestMapping(value = "/editSprint", params = "action=start", method = RequestMethod.POST)
     public String startSprint(@RequestParam long sprintId,
                               @RequestParam long sprintProjectId,
                               @RequestParam String sprintGoal,
-                              @RequestParam int sprintDuration) {
+                              @RequestParam int sprintDuration) throws SprintHasZeroEffortException {
         sprintService.startSprint(sprintId, sprintGoal, sprintDuration);
         return "redirect:/user/project/" + sprintProjectId;
     }
@@ -238,15 +258,13 @@ public class ProjectManagerController {
      *
      * @param sprintId:        the sprint that the user wants to finish
      * @param sprintProjectId: the project that this sprint belongs to
-     * @return: redirection to project page
+     * @return : redirection to project page
      */
     @RequestMapping(value = "/editSprint", params = "action=finish", method = RequestMethod.POST)
     public String finishSprint(@RequestParam long sprintId,
                                @RequestParam long sprintProjectId) {
         Optional<Sprint> oldSprintOptional = sprintService.finishSprint(sprintId);
-        if (oldSprintOptional.isPresent()) {
-            itemSprintHistoryService.transferUnfinishedItemsFromOldSprint(oldSprintOptional.get());
-        }
+        oldSprintOptional.ifPresent(sprint -> itemSprintHistoryService.transferUnfinishedItemsFromOldSprint(sprint));
         return "redirect:/user/project/" + sprintProjectId;
     }
 }

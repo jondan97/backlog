@@ -149,7 +149,7 @@ public class Item {
      * this method compares if two items are equal by comparing their ids
      *
      * @param o: the object we want to compare it with
-     * @return: returns true if items are equal, false if not
+     * @return : returns true if items are equal, false if not
      */
     @Override
     public boolean equals(Object o) {
@@ -162,7 +162,7 @@ public class Item {
     /**
      * this method converts the item to a set of numbers, mainly used for integrity reasons
      *
-     * @return: returns the hashcode of the item which is an int
+     * @return : returns the hashcode of the item which is an int
      */
     @Override
     public int hashCode() {
@@ -172,7 +172,7 @@ public class Item {
     /**
      * this method is mainly used for debugging reasons
      *
-     * @return: returns a string with a set of attributes of an item
+     * @return : returns a string with a set of attributes of an item
      */
     @Override
     public String toString() {

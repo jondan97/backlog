@@ -29,7 +29,7 @@ public enum ItemStatus {
      * this method takes as input a repository id and returns the item status that the id belongs to
      *
      * @param id: the repository id of the status the user requested
-     * @return: returns the item status with that certain id
+     * @return : returns the item status with that certain id
      */
     public static ItemStatus findItemTypeByRepositoryId(int id) {
         for (ItemStatus itemStatus : ItemStatus.values()) {

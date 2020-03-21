@@ -18,7 +18,7 @@ public interface ItemSprintHistoryRepository extends JpaRepository<ItemSprintHis
     /**
      * @param item:   the item that is associated with the sprint
      * @param sprint: the sprint that is associated with the item
-     * @return: returns an optional that might contain the association between item and sprint
+     * @return : returns an optional that might contain the association between item and sprint
      */
     Optional<ItemSprintHistory> findFirstByItemAndSprint(Item item, Sprint sprint);
 
@@ -33,7 +33,7 @@ public interface ItemSprintHistoryRepository extends JpaRepository<ItemSprintHis
      * @param statusId:  the status that we are looking for (for example 'to_do',in_progress etc.)
      * @param itemType1: type of the item1, for example bug or task
      * @param itemType2: type of the item2,
-     * @return: returns an optional that may contain a list with items of two types (at max)
+     * @return : returns an optional that may contain a list with items of two types (at max)
      */
     @Query("SELECT ish FROM ItemSprintHistory ish WHERE ish.sprint.id=:sprintId " +
             "AND ish.status=:statusId " +
@@ -44,4 +44,25 @@ public interface ItemSprintHistoryRepository extends JpaRepository<ItemSprintHis
                                                                            @Param("statusId") TaskBoardStatus statusId,
                                                                            @Param("itemType1") int itemType1,
                                                                            @Param("itemType2") int itemType2);
+
+
+    /**
+     * this method is mainly used to calculate the total effort of a sprint, it takes all the items and sums the effort
+     * of all the tasks and bugs that are contained in this sprint
+     *
+     * @param sprintId   : the sprint that this association belongs to
+     * @param itemType1: type of the item1, for example bug or task
+     * @param itemType2: type of the item2,
+     * @return returns an optional that may contain a list with items of two types (at max)
+     */
+    @Query("SELECT ish FROM ItemSprintHistory ish WHERE ish.sprint.id=:sprintId " +
+            "AND (ish.item.type=:itemType1 " +
+            "OR ish.item.type=:itemType2) " +
+            "ORDER BY ish.last_moved")
+    Optional<List<ItemSprintHistory>> findAllBySprintAndItemTypes(@Param("sprintId") long sprintId,
+                                                                  @Param("itemType1") int itemType1,
+                                                                  @Param("itemType2") int itemType2);
+
 }
+
+

@@ -21,10 +21,10 @@
         <input id="projectTotalEffort" name="projectTotalEffort" readonly th:value="${project.total_effort}">
         <label for="projectDevelopersWorking">Developers Working</label>
         <input id="projectDevelopersWorking" name="projectDevelopersWorking"
-               th:value="${project.developers_working}">
+               th:value="${project.developers_working}" type="number">
         <label for="projectEstimatedSprintsNeeded">Estimated Sprints Needed</label>
         <input id="projectEstimatedSprintsNeeded" name="projectEstimatedSprintsNeeded"
-               th:value="${project.estimated_sprints_needed}">
+               th:value="${project.estimated_sprints_needed}" type="number">
         <button name="action" th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id}} + '\''"
                 type="button" value="view">View
         </button>
@@ -45,9 +45,9 @@
     <label for="description">Description</label>
     <input id="description" name="description">
     <label for="developersWorking">Developers Working</label>
-    <input id="developersWorking" name="developersWorking">
+    <input id="developersWorking" name="developersWorking" type="number">
     <label for="estimatedSprintsNeeded">Estimated Sprints Needed</label>
-    <input id="estimatedSprintsNeeded" name="estimatedSprintsNeeded">
+    <input id="estimatedSprintsNeeded" name="estimatedSprintsNeeded" type="number">
     <button type="submit">Submit</button>
 </form>
 </span>

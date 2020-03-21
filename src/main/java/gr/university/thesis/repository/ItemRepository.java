@@ -1,6 +1,7 @@
 package gr.university.thesis.repository;
 
 import gr.university.thesis.entity.Item;
+import gr.university.thesis.entity.Project;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,6 +20,16 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
      * @return return an iterable with all the items
      */
     Iterable<Item> findByProjectId(long projectId);
+
+    /**
+     * this method takes as input a title and a project, and returns an item that belongs to that project and has
+     * that certain title from the repository
+     *
+     * @param title:   the title that the item has
+     * @param project: the project that this item belongs to
+     * @return : returns an optional that may contain an item with that certain title
+     */
+    Optional<Item> findFirstByTitleAndProject(String title, Project project);
 
     /**
      * this method returns a unique item that belong to a project

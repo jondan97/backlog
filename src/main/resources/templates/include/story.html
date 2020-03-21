@@ -128,11 +128,12 @@
             value="update">
         Update
     </button>
-
-    <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
-            value="delete">
-        Delete
-    </button>
+    <span th:if="${item.status != 3}">
+        <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+                value="delete">
+            Delete
+        </button>
+    </span>
 
     <!--    if the user is not an admin nor a project manager, and needs to assigne the item to somebody else-->
     <button formaction="/user/updateAssignee" name="updateAssigneeButton" th:if="${item.assignee.id == session.userId

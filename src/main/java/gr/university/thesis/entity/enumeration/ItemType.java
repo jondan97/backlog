@@ -28,7 +28,7 @@ public enum ItemType {
      * this method takes as input a repository id and returns the type that the id belongs to
      *
      * @param id: the repository id of the type the user requested
-     * @return: returns the type with that certain id
+     * @return : returns the type with that certain id
      */
     public static ItemType findItemTypeByRepositoryId(int id) {
         for (ItemType itemType : ItemType.values()) {

@@ -22,7 +22,8 @@ public class AuthenticationSuccessListener implements ApplicationListener<Authen
     /**
      * constructor of this class, correct way to set the autowired attributes
      *
-     * @param session: the http session that is associated with the user
+     * @param session:       the http session that is associated with the user
+     * @param sessionService : service that manages the session with the user
      */
     @Autowired
     public AuthenticationSuccessListener(HttpSession session, SessionService sessionService) {

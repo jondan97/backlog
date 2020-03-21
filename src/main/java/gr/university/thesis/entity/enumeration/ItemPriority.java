@@ -29,7 +29,7 @@ public enum ItemPriority {
      * this method takes as input a repository id and returns the item priority that the id belongs to
      *
      * @param id: the repository id of the item priority the user requested
-     * @return: returns the item priority with that certain id
+     * @return : returns the item priority with that certain id
      */
     public static ItemPriority findItemTypeByRepositoryId(int id) {
         for (ItemPriority itemPriority : ItemPriority.values()) {

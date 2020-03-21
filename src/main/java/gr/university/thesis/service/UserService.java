@@ -1,5 +1,7 @@
 package gr.university.thesis.service;
 
+import gr.university.thesis.Exceptions.UserAlreadyExistsException;
+import gr.university.thesis.Exceptions.UserHasEmptyEmailException;
 import gr.university.thesis.entity.Role;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.RoleEnum;
@@ -38,7 +40,7 @@ public class UserService {
      * this method allows an admin to fetch all users with a certain role from the repo
      *
      * @param roleStr: String role that the user(admin) is looking for
-     * @return: returns the list of all the users with that certain role
+     * @return : returns the list of all the users with that certain role
      */
     public Set<User> findUsersByRole(String roleStr) {
         return userRepository.findByUserRole(roleStr);
@@ -47,7 +49,7 @@ public class UserService {
     /**
      * this method allows an admin to fetch all users from the repository
      *
-     * @return: returns the list of all the users
+     * @return : returns the list of all the users
      */
     public List<User> findAllUsers() {
         return userRepository.findAll();
@@ -60,15 +62,37 @@ public class UserService {
      * @param password:  password that the new user is required to login with
      * @param firstName: first name of the user
      * @param lastName:  last name of the user
+     * @param roleName   : the role that the user will have (admin/user etc.)
+     * @throws UserAlreadyExistsException : if the new email the user tried to update exists, then throw this exception
+     * @throws UserHasEmptyEmailException : if the user has no email
      */
-    public void createUser(String email, String password, String firstName, String lastName, String roleName) {
-        String encodedPassword = bCryptPasswordEncoder.encode(password);
-        User user = new User(email, encodedPassword, firstName, lastName);
-        List<Role> roles = new ArrayList<>();
-        Role role = new Role((long) RoleEnum.valueOf(roleName).getRepositoryId(), RoleEnum.valueOf(roleName).getName());
-        roles.add(role);
-        user.setRoles(roles);
-        userRepository.save(user);
+    public void createUser(String email, String password, String firstName, String lastName, String roleName)
+            throws UserAlreadyExistsException, UserHasEmptyEmailException {
+        if (email.isEmpty()) {
+            throw new UserHasEmptyEmailException("User cannot be created without an email.");
+        }
+        email = email.trim();
+        if (!userRepository.findFirstByEmail(email).isPresent()) {
+            String encodedPassword = bCryptPasswordEncoder.encode(password);
+            if (firstName.isEmpty()) {
+                firstName = "No first name";
+            } else {
+                firstName.trim();
+            }
+            if (lastName.isEmpty()) {
+                lastName = "No last name";
+            } else {
+                lastName.trim();
+            }
+            User user = new User(email, encodedPassword, firstName, lastName);
+            List<Role> roles = new ArrayList<>();
+            Role role = new Role((long) RoleEnum.valueOf(roleName).getRepositoryId(), RoleEnum.valueOf(roleName).getName());
+            roles.add(role);
+            user.setRoles(roles);
+            userRepository.save(user);
+        } else {
+            throw new UserAlreadyExistsException("E-mail '" + email + "' already exists.");
+        }
     }
 
     /**
@@ -76,13 +100,30 @@ public class UserService {
      *
      * @param userId:    the user id that is needed in order for the user to be found in the repository
      * @param email:     the email that the admin has possibly updated
+     * @param password   : the password that the admin has possibly updated
      * @param firstName: the first name that the admin has possibly updated
      * @param lastName:  the last name that the admin has possibly updated
+     * @param userRole:  the role that the admin has possibly changed
+     * @throws UserAlreadyExistsException : if the new email the user tried to update exists, then throw this exception
+     * @throws UserHasEmptyEmailException : if the user has no email
      */
-    public void updateUser(long userId, String email, String password, String firstName, String lastName, String userRole) {
+    public void updateUser(long userId, String email, String password, String firstName, String lastName, String userRole)
+            throws UserAlreadyExistsException, UserHasEmptyEmailException {
+        if (email.isEmpty()) {
+            throw new UserHasEmptyEmailException("User cannot be updated to have no email.");
+        }
         Optional<User> userOptional = userRepository.findById(userId);
+        email = email.trim();
+        Optional<User> userWithThatEmailOptional = userRepository.findFirstByEmail(email);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
+            //if the user has input a new email and that is already existent in the repository, throw an exception
+            if (userWithThatEmailOptional.isPresent()) {
+                User userWithThatEmail = userWithThatEmailOptional.get();
+                if (!userWithThatEmail.getEmail().equals(user.getEmail())) {
+                    throw new UserAlreadyExistsException("User with email '" + userWithThatEmail.getEmail() + "' already exists.");
+                }
+            }
             user.setEmail(email);
             if (!password.isEmpty()) {
                 String encodedPassword = bCryptPasswordEncoder.encode(password);
@@ -93,7 +134,17 @@ public class UserService {
                 user.getRoles().clear();
                 user.getRoles().add(newRole);
             }
+            if (firstName.isEmpty()) {
+                firstName = "No first name";
+            } else {
+                firstName = firstName.trim();
+            }
             user.setFirstName(firstName);
+            if (lastName.isEmpty()) {
+                lastName = "No last name";
+            } else {
+                lastName = lastName.trim();
+            }
             user.setLastName(lastName);
             userRepository.save(user);
         }

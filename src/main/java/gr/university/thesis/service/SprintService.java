@@ -1,5 +1,6 @@
 package gr.university.thesis.service;
 
+import gr.university.thesis.Exceptions.SprintHasZeroEffortException;
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.ItemSprintHistory;
 import gr.university.thesis.entity.Project;
@@ -41,7 +42,7 @@ public class SprintService {
      * and sets the sprint status to 2 (ready to be filled with items)
      *
      * @param project: the project that this sprint belongs to
-     * @return: returns the sprint that was saved in the repository
+     * @return : returns the sprint that was saved in the repository
      */
     public Sprint createSprint(Project project) {
         Sprint sprint = new Sprint(project, (byte) SprintStatus.READY.getRepositoryId());
@@ -52,7 +53,7 @@ public class SprintService {
      * this method finds a sprint in the repository and returns it to the user
      *
      * @param sprint: the sprint that the user requested to find
-     * @return: returns an optional that may contain a sprint
+     * @return : returns an optional that may contain a sprint
      */
     public Optional<Sprint> findSprintById(Sprint sprint) {
         return sprintRepository.findById(sprint.getId());
@@ -62,7 +63,7 @@ public class SprintService {
      * this method searches the repository for the active sprint of the project that the user requested
      *
      * @param project: the project that the user requested to find the active sprint in
-     * @return: returns an optional that may contain the requested sprint
+     * @return : returns an optional that may contain the requested sprint
      */
     public Optional<Sprint> findActiveSprintInProject(Project project) {
         Optional<Sprint> readySprintOptional = sprintRepository.findFirstByProjectAndStatus(project, (byte) SprintStatus.READY.getRepositoryId());
@@ -100,16 +101,28 @@ public class SprintService {
      * @param sprintGoal:     the goal of the sprint, what do the users want to achieve by the time this sprint has
      *                        finished?
      * @param sprintDuration: the duration of the sprint, counted in weeks
+     * @throws SprintHasZeroEffortException : this exception is thrown when there are no tasks/bugs in the sprint, and the user
+     *                                      * is trying to start it
      */
-    public void startSprint(long sprintId, String sprintGoal, int sprintDuration) {
+    public void startSprint(long sprintId, String sprintGoal, int sprintDuration) throws SprintHasZeroEffortException {
         Optional<Sprint> sprintOptional = findSprintById(new Sprint(sprintId));
         if (sprintOptional.isPresent()) {
             Sprint sprint = sprintOptional.get();
+            calculateTotalEffort(sprint);
+            if (sprint.getTotal_effort() == 0) {
+                throw new SprintHasZeroEffortException("The sprint cannot have 0 total effort.");
+            }
             sprint.setStatus((byte) SprintStatus.ACTIVE.getRepositoryId());
             Date now = new Date();
             sprint.setStart_date(now);
             Date endDate = Time.calculateEndDate(now, sprintDuration);
             sprint.setEnd_date(endDate);
+            //example of input handling, not in the scope of this project
+            if (sprintGoal.isEmpty()) {
+                sprintGoal = "No Goal";
+            } else {
+                sprintGoal = sprintGoal.trim();
+            }
             sprint.setGoal(sprintGoal);
             sprint.setDuration(sprintDuration);
             for (Item item : getAssociatedItemsList(sprint.getAssociatedItems())) {
@@ -123,14 +136,14 @@ public class SprintService {
      * this methods finishes a sprint and moves it to a finish state
      *
      * @param sprintId: the sprint that the user wants to finish
-     * @return: returns an optional with the new sprint (if everything went successfully)
+     * @return : returns an optional with the new sprint (if everything went successfully)
      */
     public Optional<Sprint> finishSprint(long sprintId) {
         Optional<Sprint> sprintOptional = findSprintById(new Sprint(sprintId));
         if (sprintOptional.isPresent()) {
             Sprint sprint = sprintOptional.get();
             sprint.setStatus((byte) SprintStatus.FINISHED.getRepositoryId());
-            sprintOptional = Optional.ofNullable(sprintRepository.save(sprint));
+            sprintOptional = Optional.of(sprintRepository.save(sprint));
             return sprintOptional;
         }
         return sprintOptional;
@@ -141,7 +154,7 @@ public class SprintService {
      * from all the associations
      *
      * @param associations: the set of item-sprint history records that each one contains an item
-     * @return: returns a list of items
+     * @return : returns a list of items
      */
     public List<Item> getAssociatedItemsList(Set<ItemSprintHistory> associations) {
         List<Item> associatedItems = new ArrayList<>();
@@ -154,9 +167,9 @@ public class SprintService {
     /**
      * this method finds a sprint in a certain project
      *
-     * @param sprintId:  the sprint that the user wants to find
      * @param projectId: the project that the sprint belongs to
-     * @return: returns an optional that may contain the sprint requested
+     * @param sprintId:  the sprint that the user wants to find
+     * @return : returns an optional that may contain the sprint requested
      */
     public Optional<Sprint> findSprintByProjectId(long projectId, long sprintId) {
         return sprintRepository.findDistinctSprintByProjectId(projectId, sprintId);
@@ -174,9 +187,8 @@ public class SprintService {
         itemService.calculatedCombinedEffort(getAssociatedItemsList(sprint.getAssociatedItems()));
         int totalEffort = 0;
         for (Item item : getAssociatedItemsList(sprint.getAssociatedItems())) {
-            if (item.getType() == ItemType.EPIC.getRepositoryId()
-                    || (item.getType() == ItemType.STORY.getRepositoryId() && item.getParent() == null)
-                    || (item.getParent() == null)) {
+            if (item.getType() == ItemType.TASK.getRepositoryId()
+                    || item.getType() == ItemType.BUG.getRepositoryId()) {
                 totalEffort += item.getEffort();
             }
         }
@@ -189,7 +201,7 @@ public class SprintService {
      *
      * @param project:      the project that the user requested to see the sprints of
      * @param sprintStatus: the status of the sprints the user is looking for
-     * @return: returns an optional that may contain a list of sprints with a certain status
+     * @return : returns an optional that may contain a list of sprints with a certain status
      */
     public Optional<List<Sprint>> findSprintsByProjectAndStatus(Project project, SprintStatus sprintStatus) {
         Optional<List<Sprint>> finishedSprintsOptionals =
@@ -209,7 +221,6 @@ public class SprintService {
      * task board status of 'Done', it calculates the velocity of the sprint
      *
      * @param sprint: the sprint that the user requested to calculate the velocity of
-     * @return: returns the velocity for that certain sprint
      */
     public void calculateVelocity(Sprint sprint) {
         int totalVelocity = 0;

@@ -126,7 +126,7 @@ public class Sprint {
     /**
      * this method converts the sprint to a set of numbers, mainly used for integrity reasons
      *
-     * @return: returns the hashcode of the sprint which is an int
+     * @return : returns the hashcode of the sprint which is an int
      */
     @Override
     public int hashCode() {
@@ -136,7 +136,7 @@ public class Sprint {
     /**
      * this method is mainly used for debugging reasons
      *
-     * @return: returns a string with a set of attributes of an sprint
+     * @return : returns a string with a set of attributes of an sprint
      */
     @Override
     public String toString() {

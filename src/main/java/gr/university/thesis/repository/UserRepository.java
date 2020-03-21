@@ -16,7 +16,7 @@ import java.util.Set;
 public interface UserRepository extends JpaRepository<User, Long> {
     /**
      * @param email: unique identifier for each user
-     * @return: returns an optional that contains a unique user
+     * @return : returns an optional that contains a unique user
      */
     Optional<User> findFirstByEmail(String email);
 
@@ -25,7 +25,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
      *
      * @param roleName: role of the required users, could be something like: "fetch me all the users with role ADMIN"
      *                  for example
-     * @return: a set of all users fulfilling the requirements specified above
+     * @return : a set of all users fulfilling the requirements specified above
      */
     @Query("SELECT user FROM User user JOIN user.roles role WHERE role.role=:roleName")
     Set<User> findByUserRole(@Param("roleName") String roleName);

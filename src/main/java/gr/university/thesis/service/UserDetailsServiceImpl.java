@@ -33,7 +33,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     /**
      * constructor of this class, correct way to set the autowired attributes
+     *
      * @param userRepository: repository that has access to all the users of the system
+     * @param roleRepository  : repository that has access to all the roles of the system
      */
     @Autowired
     public UserDetailsServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {

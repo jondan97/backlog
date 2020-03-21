@@ -42,8 +42,8 @@ public class CommentService {
     /**
      * this method update an existing comment in the repository and saves it
      *
-     * @param body:      body of the comment, what is says
      * @param commentId: the id of the comment that is going to be updated
+     * @param body:      body of the comment, what is says
      */
     public void updateComment(long commentId, String body) {
         Optional<Comment> commentOptional = commentRepository.findById(commentId);

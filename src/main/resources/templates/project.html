@@ -40,6 +40,40 @@
     <h3>Create New Item</h3>
     <span th:insert="include/createItem :: createForm"></span>
 
-    </span>
+</span>
+<script>
+    function toggleInputs() {
+        const x = document.getElementById("type").value;
+        if (x === "BUG" || x === "TASK") {
+            document.getElementById("fakeEffort").disabled = false;
+            document.getElementById("fakeParentId").disabled = false;
+            const x = document.getElementById("fakeParentId");
+            document.getElementById("disabledParentInput").remove();
+
+        } else if (x === "STORY") {
+            document.getElementById("fakeEffort").disabled = true;
+            document.getElementById("fakeParentId").disabled = false;
+            const x = document.getElementById("fakeParentId");
+            document.getElementById("disabledParentInput").remove();
+        } else if (x === "EPIC") {
+            document.getElementById("fakeEffort").disabled = true;
+            const x = document.getElementById("fakeParentId");
+            const option = document.createElement("option");
+            option.text = "Disabled";
+            option.id = "disabledParentInput";
+            option.setAttribute('selected', 'selected');
+            x.add(option);
+            document.getElementById("fakeParentId").disabled = true;
+        }
+    }
+
+    function checkInputs() {
+        const x = document.getElementById("type").value;
+        if (x === "BUG" || x === "TASK") {
+            document.getElementById("effort").value = document.getElementById("fakeEffort").value;
+            document.getElementById("parentId").value = document.getElementById("fakeParentId").value;
+        }
+    }
+</script>
 </body>
 </html>

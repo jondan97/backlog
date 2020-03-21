@@ -72,7 +72,7 @@ public class ItemSprintHistory {
      * with their ids)
      *
      * @param o: object that the user requested to compare this with
-     * @return: returns true if associations are equal, false if not
+     * @return : returns true if associations are equal, false if not
      */
     @Override
     public boolean equals(Object o) {
@@ -86,7 +86,7 @@ public class ItemSprintHistory {
     /**
      * this method converts the association to a set of numbers, mainly used for integrity reasons
      *
-     * @return: returns the hashcode of the association which is an int
+     * @return : returns the hashcode of the association which is an int
      */
     @Override
     public int hashCode() {
@@ -96,7 +96,7 @@ public class ItemSprintHistory {
     /**
      * this method is mainly used for debugging reasons
      *
-     * @return: returns a string with a set of attributes of an association
+     * @return : returns a string with a set of attributes of an association
      */
     @Override
     public String toString() {

@@ -38,7 +38,7 @@
         ? 'false' : 'true'}">
         <option selected value="0">No parent</option>
         <span th:each="parent : ${backlog}">
-            <span th:if="${parent.type == 1 or parent.type == 2 and parent.status != 4}">
+            <span th:if="${(parent.type == 1 or parent.type == 2) and parent.status != 4}">
                 <!-- if the item is in an active sprint, show only its parent            -->
                 <span th:if="${item.status == 3 and parent.status == 3}">
                     <span th:if="${item.parent}">
@@ -105,7 +105,9 @@
     <label for="itemEffort">Effort</label>
     <input id="itemEffort" name="itemEffort"
            th:readonly="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') ? 'false' : 'true'}"
-           th:value="${item.effort}">
+           placeholder="1 to 10"
+           th:value="${item.effort}"
+           type="number">
 
     <label for="itemAssigneeId">Assignee</label>
     <select id="itemAssigneeId" name="itemAssigneeId"
@@ -136,10 +138,12 @@
         Update
     </button>
 
-    <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
-            value="delete">
-        Delete
-    </button>
+    <span th:if="${item.status != 3}">
+        <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+                value="delete">
+            Delete
+        </button>
+    </span>
 
     <!--    if the user is not an admin nor a project manager, and needs to assigne the item to somebody else-->
     <button formaction="/user/updateAssignee" name="updateAssigneeButton"

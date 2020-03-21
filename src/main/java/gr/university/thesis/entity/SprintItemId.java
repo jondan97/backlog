@@ -36,6 +36,12 @@ public class SprintItemId implements Serializable {
     //maybe an equals is needed to check for both ids (reminder to check later if it works) ----> UPDATE: 1 month later,
     // yes I needed a hashCode method...
 
+    /**
+     * this method compares if two sprint-item are equal by comparing both of their ids
+     *
+     * @param o: object the user requested to compare this with
+     * @return returns true if the composite keys are equal, false if not
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -45,6 +51,11 @@ public class SprintItemId implements Serializable {
                 Objects.equals(itemId, that.itemId);
     }
 
+    /**
+     * this method converts the composite key to a set of numbers, mainly used for integrity reasons
+     *
+     * @return : returns the hashcode of the sprint-item id which is an int
+     */
     @Override
     public int hashCode() {
         return Objects.hash(sprintId, itemId);

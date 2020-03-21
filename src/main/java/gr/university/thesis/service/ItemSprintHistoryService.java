@@ -80,7 +80,7 @@ public class ItemSprintHistoryService {
      * @param sprint: the sprint that the user wants to remove an item from
      * @param parent: the parent of the item, needed to define whether new associations should be created or removed
      */
-    public void removeItemToSprint(Item item, Sprint sprint, Item parent) {
+    public void removeItemFromSprint(Item item, Sprint sprint, Item parent) {
         Optional<Item> itemOptional = itemService.findItemById(item);
         Optional<Sprint> sprintOptional = sprintService.findSprintById(sprint);
         if (itemOptional.isPresent() && sprintOptional.isPresent()) {
@@ -112,7 +112,7 @@ public class ItemSprintHistoryService {
      *
      * @param item:   the item(possibly parent) that we want to create an association for
      * @param sprint: the sprint that belongs to the assocation
-     * @return: returns a list with all the associations created in this method
+     * @return : returns a list with all the associations created in this method
      */
     private List<ItemSprintHistory> createAssociationForItemAndChildren(Item item, Sprint sprint) {
         List<ItemSprintHistory> associations = new ArrayList<>();
@@ -175,7 +175,7 @@ public class ItemSprintHistoryService {
             } else if (item.getStatus() == 1 && parent.getStatus() == 2) {
                 moveItemToSprint(item, sprint, parent);
             } else if (item.getStatus() == 2 && parent.getStatus() == 1) {
-                removeItemToSprint(item, sprint, parent);
+                removeItemFromSprint(item, sprint, parent);
             }
         }
     }
@@ -190,7 +190,7 @@ public class ItemSprintHistoryService {
      * @param taskBoardStatus: the task board status of the requested items (for example 'done')
      * @param itemType1:       item type 1 (for example bug)
      * @param itemType2:       item type 2 (for example task)
-     * @return: returns an optional that may contain a list with all the items requested
+     * @return : returns an optional that may contain a list with all the items requested
      */
     public Optional<List<ItemSprintHistory>> findAllAssociationsByStatus(Sprint sprint, TaskBoardStatus taskBoardStatus, ItemType itemType1, ItemType itemType2) {
         return itemSprintHistoryRepository.findAllBySprintAndStatusAndItemTypes(sprint.getId(),
@@ -284,7 +284,7 @@ public class ItemSprintHistoryService {
      * @param item:      the item that the user requested to create an association for it and its parents
      * @param newSprint: the new sprint that these items are going to be associated with
      * @param oldStatus: the old status, from when the previous sprint ended, for the item to inherit
-     * @return: returns a set with the unique associations that were created
+     * @return : returns a set with the unique associations that were created
      */
     public Set<ItemSprintHistory> createAssociationForItemAndParents(Item item, Sprint newSprint, TaskBoardStatus oldStatus) {
         //the developer chose Set as their data structure here, because they want to avoid having duplicates
@@ -325,7 +325,7 @@ public class ItemSprintHistoryService {
      * it calculates the actual burn of effort by calculating all the tasks done per day and puts them in an array
      *
      * @param sprint: the sprint that the user requested to calculate the burn down chart data of
-     * @return: returns a DTO that contains all the necessary data that need to be transferred to the user interface\
+     * @return : returns a DTO that contains all the necessary data that need to be transferred to the user interface\
      * and concern the burndown chart
      */
     public BurnDownChartData calculateBurnDownChartData(Sprint sprint) {
@@ -357,56 +357,67 @@ public class ItemSprintHistoryService {
             //outside the loop, setting the last cell manually
             categories[numberOfDays + 1] += "(Finish)";
 
-            List<ItemSprintHistory> associationsOrderedByDate =
-                    findAllAssociationsByStatus(sprint, TaskBoardStatus.DONE, ItemType.TASK, ItemType.BUG).get();
-            int currentActualBurn = 0;
             int[] actualBurn = new int[numberOfDays + 2];
-            //for readability issues
             actualBurn[0] = totalSprintEffort;
-            int previousEffort = totalSprintEffort;
-            // so that it is not instantiated every time inside the loop
-            Date today = new Date();
-            for (int i = 0; i < dates.length; i++) {
-                Date date = dates[i];
-                //if the date comparing is later than today
-                if (Time.compare(date, today) > 0) {
-                    //only take the burns of earlier dates and today
-                    actualBurn = Arrays.copyOfRange(actualBurn, 0, i + 1);
-                    break;
-                } else {
-                    for (ItemSprintHistory association : associationsOrderedByDate) {
-                        int difference = Time.compare(date, association.getLast_moved());
-                        //if the dates are equal
-                        if (difference == 0) {
-                            currentActualBurn += association.getItem().getEffort();
-                        }
-                        //if the association is later, then break as there is no need to check further in the list
-                        //as the associations are ordered by date: if the association date is later, then surely the
-                        //next date is also later and so on
-                        else if (difference < 0) {
-                            break;
+            Optional<List<ItemSprintHistory>> associationsOrderedByDateOptional =
+                    findAllAssociationsByStatus(sprint, TaskBoardStatus.DONE, ItemType.TASK, ItemType.BUG);
+            if (associationsOrderedByDateOptional.isPresent()) {
+                List<ItemSprintHistory> associationsOrderedByDate = associationsOrderedByDateOptional.get();
+
+                int currentActualBurn = 0;
+
+                //for readability issues
+                int previousEffort = totalSprintEffort;
+                // so that it is not instantiated every time inside the loop
+                Date today = new Date();
+                for (int i = 0; i < dates.length; i++) {
+                    Date date = dates[i];
+                    //if the date comparing is later than today
+                    if (Time.compare(date, today) > 0) {
+                        //only take the burns of earlier dates and today
+                        actualBurn = Arrays.copyOfRange(actualBurn, 0, i + 1);
+                        break;
+                    } else {
+                        for (ItemSprintHistory association : associationsOrderedByDate) {
+//                            if(association.getItem().get)
+                            int difference = Time.compare(date, association.getLast_moved());
+                            //if the dates are equal
+                            if (difference == 0) {
+                                currentActualBurn += association.getItem().getEffort();
+                            }
+                            //if the association is later, then break as there is no need to check further in the list
+                            //as the associations are ordered by date: if the association date is later, then surely the
+                            //next date is also later and so on
+                            else if (difference < 0) {
+                                break;
+                            }
                         }
                     }
-                }
-                //if the current actual burn is not zero, it means that finished associations were found for that day
-                if (currentActualBurn != 0) {
-                    actualBurn[i + 1] = previousEffort - currentActualBurn;
-                    //if the burn is below 0, then set it to 0, as the graph should never show below 0
-                    // (just making sure)
-                    if (actualBurn[i + 1] < 0) {
-                        actualBurn[i + 1] = 0;
+                    //if the current actual burn is not zero, it means that finished associations were found for that day
+                    if (currentActualBurn != 0) {
+                        actualBurn[i + 1] = previousEffort - currentActualBurn;
+                        //if the burn is below 0, then set it to 0, as the graph should never show below 0
+                        // (just making sure)
+                        if (actualBurn[i + 1] < 0) {
+                            actualBurn[i + 1] = 0;
+                        }
+                        //setting the effort, to the current iterated cell
+                        previousEffort = actualBurn[i + 1];
+                        //resetting it for next set of associations
+                        currentActualBurn = 0;
                     }
-                    //setting the effort, to the current iterated cell
-                    previousEffort = actualBurn[i + 1];
-                    //resetting it for next set of associations
-                    currentActualBurn = 0;
+                    //if the date checked had no associations with actual burns for that day, for example Saturday/Sunday
+                    else if (Time.compare(date, today) <= 0) {
+                        //set the effort for that cell, the same as the previous, for example the same as Friday (as not
+                        //tasks were completed during off days)
+                        actualBurn[i + 1] = previousEffort;
+                    }
                 }
-                //if the date checked had no associations with actual burns for that day, for example Saturday/Sunday
-                else if (Time.compare(date, today) <= 0) {
-                    //set the effort for that cell, the same as the previous, for example the same as Friday (as not
-                    //tasks were completed during off days)
-                    actualBurn[i + 1] = previousEffort;
-                }
+            }
+            //if there are no tasks with status done, just take the first cell, which is the total effort of
+            //the sprint
+            else {
+                actualBurn = Arrays.copyOfRange(actualBurn, 0, 1);
             }
 
             //here, the ideal burn for each sprint is calculated
@@ -442,7 +453,7 @@ public class ItemSprintHistoryService {
      * the map could have been returned but for readability reasons, the author chose to translate it into a DTO
      *
      * @param sprint: the sprint that the user requested to sort the tasks of and show to the sprint history
-     * @return: returns a list of DTOs, that contain all the items, grouped by date
+     * @return : returns a list of DTOs, that contain all the items, grouped by date
      */
     public List<TasksDoneByDate> sortTasksByDate(Sprint sprint) {
         Optional<List<ItemSprintHistory>> associationsByStatusOptional = findAllAssociationsByStatus(sprint, TaskBoardStatus.DONE, ItemType.TASK, ItemType.BUG);

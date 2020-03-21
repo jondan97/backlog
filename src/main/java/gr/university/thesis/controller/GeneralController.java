@@ -22,6 +22,7 @@ public class GeneralController {
      * constructor of this class, correct way to set the autowired attributes
      *
      * @param userDetailsServiceImpl class used to load users into the user and role repositories
+     * @param sessionService         : service that manages the user session
      */
     @Autowired
     public GeneralController(UserDetailsServiceImpl userDetailsServiceImpl, SessionService sessionService) {

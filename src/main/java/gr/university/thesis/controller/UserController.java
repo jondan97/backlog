@@ -1,6 +1,9 @@
 package gr.university.thesis.controller;
 
 
+import gr.university.thesis.Exceptions.ItemDoesNotExistException;
+import gr.university.thesis.Exceptions.ProjectDoesNotExistException;
+import gr.university.thesis.Exceptions.SprintDoesNotExistException;
 import gr.university.thesis.dto.BurnDownChartData;
 import gr.university.thesis.entity.*;
 import gr.university.thesis.entity.enumeration.ItemPriority;
@@ -61,7 +64,7 @@ public class UserController {
      * @param model:   user interface that is shown to user
      * @param session: session required to get the current's admin ID (only the admin can access this method so we
      *                 find the session's userId attribute
-     * @return: returns the manageUsers template
+     * @return : returns the manageUsers template
      */
     @GetMapping("/projectPanel")
     public String viewProjectsPanel(Model model, HttpSession session) {
@@ -75,11 +78,13 @@ public class UserController {
      *
      * @param projectId: the project id that was requested by the user to view
      * @param model:     the user interface that will be shown in the front-end
-     * @return
+     * @return : returns the project template
+     * @throws ProjectDoesNotExistException: throws this exception when the user tries to access a project that does
+     *                                       not exist
      */
     @RequestMapping(value = "/project/{projectId}")
     public String viewProject(@PathVariable long projectId,
-                              Model model) {
+                              Model model) throws ProjectDoesNotExistException {
         Optional<Project> projectOptional = projectService.findProjectById(projectId);
         if (projectOptional.isPresent()) {
             Project project = projectOptional.get();
@@ -90,6 +95,8 @@ public class UserController {
             model.addAttribute("backlog", itemService.findAllItemsByProjectId(projectId));
             model.addAttribute("itemTypes", ItemType.values());
             model.addAttribute("itemPriorities", ItemPriority.values());
+        } else {
+            throw new ProjectDoesNotExistException("Project with id '" + projectId + "' does not exist.");
         }
         return "project";
     }
@@ -98,13 +105,15 @@ public class UserController {
      * this method shows to the user, the backlog and the sprints of a certain project
      *
      * @param projectId: the project id that was requested by the user to view
+     * @param itemId     : the id of the item that the user requested to see
      * @param model:     the user interface that will be shown in the front-end
-     * @return
+     * @return : returns the item template
+     * @throws ItemDoesNotExistException : exception thrown when item does not exist in the project
      */
     @RequestMapping(value = "/project/{projectId}/item/{itemId}")
     public String viewItem(@PathVariable long projectId,
                            @PathVariable long itemId,
-                           Model model) {
+                           Model model) throws ItemDoesNotExistException {
         Optional<Item> itemOptional = itemService.findItemInProject(itemId, projectId);
         if (itemOptional.isPresent()) {
             //we want the most recent one shown first, we sort our item comments using a comparator, and then we reverse it
@@ -118,6 +127,8 @@ public class UserController {
                 model.addAttribute("projectId", projectId);
                 model.addAttribute("parentItemType", ItemType.findItemTypeByRepositoryId(itemOptional.get().getParent().getType()).getName());
             }
+        } else {
+            throw new ItemDoesNotExistException("Item with id '" + itemId + "' does not exist in this project.");
         }
         return "item";
     }
@@ -129,7 +140,10 @@ public class UserController {
      * @param itemId:         the id of the item that we want the new assignee to 'own'
      * @param itemAssigneeId: the new assignee
      * @param itemProjectId:  the project that this item belongs to
-     * @return: redirection to project page if assignment was done in project page, taskBoard page if assignment
+     * @param sprintId             : the sprint that this assignee belongs to
+     * @param updateAssigneeButton : the source that this request comes from, is it from the project page or the
+     *                             task board page
+     * @return : redirection to project page if assignment was done in project page, taskBoard page if assignment
      * was done in taskBoard page or home page if assignment failed to be recognised where it came from
      */
     @RequestMapping(value = "/updateAssignee")
@@ -152,8 +166,9 @@ public class UserController {
      *
      * @param commentBody:   body of the comment, what is says
      * @param commentItemId: item that this belongs to
+     * @param commentProjectId : the project that this comment belongs to
      * @param session:       the current session, needed to find the creator of the comment
-     * @return: returns a redirection to the item of a project
+     * @return : returns a redirection to the item of a project
      */
     @PostMapping("/createComment")
     public String createComment(@RequestParam String commentBody,
@@ -168,10 +183,10 @@ public class UserController {
      * this method calls the comment service in order to update an existing comment and store it in the repository
      *
      * @param commentIdView:     the comment id in order to find it on the repository
-     * @param commentBodyView:   body of the comment, what is says
      * @param commentItemIdView: required for the redirection
-     * @param commentBodyView:   required for the redirection
-     * @return: returns a redirection to the item of a project
+     * @param commentProjectIdView : required for the redirection
+     * @param commentBodyView:   body of the comment, what is says
+     * @return : returns a redirection to the item of a project
      */
     @RequestMapping(value = "/editComment", params = "action=update", method = RequestMethod.POST)
     public String updateComment(@RequestParam long commentIdView,
@@ -188,7 +203,7 @@ public class UserController {
      * @param commentIdView:        required id in order to delete the comment from the repository
      * @param commentItemIdView:    required for the redirection
      * @param commentProjectIdView: required for the redirection
-     * @return: returns a redirection to the item of a project
+     * @return : returns a redirection to the item of a project
      */
     @RequestMapping(value = "/editComment", params = "action=delete", method = RequestMethod.POST)
     public String deleteComment(@RequestParam long commentIdView,
@@ -202,15 +217,16 @@ public class UserController {
     /**
      * this method shows to the user, the task board of a sprint that belongs to a certain project
      *
-     * @param sprintId:  the sprint that contains the tasks the user has requested to see
      * @param projectId: the project that this sprint belongs to
+     * @param sprintId:  the sprint that contains the tasks the user has requested to see
      * @param model:     the user interface
-     * @return: the task board of the sprint requested
+     * @return : the task board of the sprint requested
+     * @throws SprintDoesNotExistException: this is thrown when the sprint requested does not exist in this project
      */
     @RequestMapping(value = "/project/{projectId}/sprint/{sprintId}")
     public String viewTaskBoard(@PathVariable long projectId,
                                 @PathVariable long sprintId,
-                                Model model) {
+                                Model model) throws SprintDoesNotExistException {
         Optional<Sprint> sprintOptional = projectService.findSprintInProject(projectId, sprintId);
         if (sprintOptional.isPresent()) {
             model.addAttribute("allUsers", userService.findAllUsers());
@@ -219,28 +235,25 @@ public class UserController {
             Optional<List<ItemSprintHistory>> todoAssociations = itemSprintHistoryService.
                     findAllAssociationsByStatus(new Sprint(sprintId), TaskBoardStatus.TO_DO,
                             ItemType.TASK, ItemType.BUG);
-            if (todoAssociations.isPresent()) {
-                model.addAttribute("todoAssociations", todoAssociations.get());
-            }
-            //todo methods:
+            todoAssociations.ifPresent(itemSprintHistories -> model.addAttribute("todoAssociations",
+                    itemSprintHistories));
             Optional<List<ItemSprintHistory>> inProgressAssociations = itemSprintHistoryService.
                     findAllAssociationsByStatus(new Sprint(sprintId), TaskBoardStatus.IN_PROGRESS,
                             ItemType.TASK, ItemType.BUG);
-            if (inProgressAssociations.isPresent()) {
-                model.addAttribute("inProgressAssociations", inProgressAssociations.get());
-            }
+            inProgressAssociations.ifPresent(itemSprintHistories -> model.addAttribute("inProgressAssociations",
+                    itemSprintHistories));
             Optional<List<ItemSprintHistory>> forReviewAssociations = itemSprintHistoryService.
                     findAllAssociationsByStatus(new Sprint(sprintId), TaskBoardStatus.FOR_REVIEW,
                             ItemType.TASK, ItemType.BUG);
-            if (forReviewAssociations.isPresent()) {
-                model.addAttribute("forReviewAssociations", forReviewAssociations.get());
-            }
+            forReviewAssociations.ifPresent(itemSprintHistories -> model.addAttribute("forReviewAssociations",
+                    itemSprintHistories));
             Optional<List<ItemSprintHistory>> doneAssociations = itemSprintHistoryService.
                     findAllAssociationsByStatus(new Sprint(sprintId), TaskBoardStatus.DONE,
                             ItemType.TASK, ItemType.BUG);
-            if (doneAssociations.isPresent()) {
-                model.addAttribute("doneAssociations", doneAssociations.get());
-            }
+            doneAssociations.ifPresent(itemSprintHistories -> model.addAttribute("doneAssociations",
+                    itemSprintHistories));
+        } else {
+            throw new SprintDoesNotExistException("Sprint with id '" + sprintId + "' does not exist in this project");
         }
         return "taskboard";
     }
@@ -252,7 +265,7 @@ public class UserController {
      * @param sprintId:      the sprint id of the association
      * @param itemId:        the item id of the assoication
      * @param itemProjectId: the project id that this association belongs to
-     * @returnL returns a redirection to the task board page of the sprint
+     * @return : returns a redirection to the task board page of the sprint
      */
     @RequestMapping(value = "/editAssociation", params = "action=nextStatus", method = RequestMethod.POST)
     public String moveAssociationStatusToNext(@RequestParam long sprintId,
@@ -269,7 +282,7 @@ public class UserController {
      * @param sprintId:      the sprint id of the association
      * @param itemId:        the item id of the assoication
      * @param itemProjectId: the project id that this association belongs to
-     * @returnL returns a redirection to the task board page of the sprint
+     * @return : returns a redirection to the task board page of the sprint
      */
     @RequestMapping(value = "/editAssociation", params = "action=previousStatus", method = RequestMethod.POST)
     public String moveAssociationStatusToPrevious(@RequestParam long sprintId,
@@ -285,20 +298,32 @@ public class UserController {
      *
      * @param projectId: the project that the user requested to see the history of
      * @param model:     the interface that the user sees
-     * @return: returns the projectHistory template
+     * @return : returns the projectHistory template
+     * @throws ProjectDoesNotExistException: this is thrown when a user tries to access the history of a
+     *                                       project that does not exist
      */
     @RequestMapping(value = "/project/{projectId}/projectProgress")
     public String viewProjectProgress(@PathVariable long projectId,
-                                      Model model) {
-        Optional<List<Sprint>> finishedSprintsOptional =
-                sprintService.findSprintsByProjectAndStatus(new Project(projectId), SprintStatus.FINISHED);
-        if (finishedSprintsOptional.isPresent()) {
-            //thymeleaf doesn't recognise 'List' so we have to move it to an ArrayList
-            ArrayList<Sprint> finishedSprints = (ArrayList<Sprint>) finishedSprintsOptional.get();
-            model.addAttribute("finishedSprints", finishedSprints);
-            BurnDownChartData burnDownChartData = projectService.calculateBurnDownChartData(projectId, finishedSprints);
+                                      Model model) throws ProjectDoesNotExistException {
+        if (projectService.findProjectById(projectId).isPresent()) {
+            Optional<List<Sprint>> finishedSprintsOptional =
+                    sprintService.findSprintsByProjectAndStatus(new Project(projectId), SprintStatus.FINISHED);
+            BurnDownChartData burnDownChartData;
+            if (finishedSprintsOptional.isPresent()) {
+                //thymeleaf doesn't recognise 'List' so we have to move it to an ArrayList
+                ArrayList<Sprint> finishedSprints = (ArrayList<Sprint>) finishedSprintsOptional.get();
+                model.addAttribute("finishedSprints", finishedSprints);
+                //burn down chart data are needed to be shown  for project total effort and current sprint if it's running
+                burnDownChartData = projectService.calculateBurnDownChartData(projectId, finishedSprints);
+            } else {
+                //burn down chart data are needed to be shown  for project total effort and current sprint if it's running
+                burnDownChartData = projectService.calculateBurnDownChartData(projectId, null);
+            }
             model.addAttribute("burnDownChartData", burnDownChartData);
+        } else {
+            throw new ProjectDoesNotExistException("Project with id '" + projectId + "' does not exist.");
         }
+
         return "projectProgress";
     }
 
@@ -308,18 +333,23 @@ public class UserController {
      *
      * @param projectId: the project that this sprint belongs to
      * @param sprintId:  the sprint that the user requested to see the history of
-     * @return: returns the sprintHistory template
+     * @param model      : interface that will be shown to the user
+     * @return : returns the sprintHistory template
+     * @throws SprintDoesNotExistException: this is thrown when the sprint that the user is trying to access its history
+     *                                      of, does not exist
      */
     @RequestMapping(value = "/project/{projectId}/sprint/{sprintId}/history")
     public String sprintHistory(@PathVariable long projectId,
                                 @PathVariable long sprintId,
-                                Model model) {
+                                Model model) throws SprintDoesNotExistException {
         Optional<Sprint> sprintOptional =
-                sprintService.findSprintById(new Sprint(sprintId));
+                sprintService.findSprintByProjectId(projectId, sprintId);
         if (sprintOptional.isPresent()) {
             Sprint sprint = sprintOptional.get();
             model.addAttribute("tasksDoneByDateList", itemSprintHistoryService.sortTasksByDate(sprint));
             model.addAttribute("burnDownChartData", itemSprintHistoryService.calculateBurnDownChartData(sprint));
+        } else {
+            throw new SprintDoesNotExistException("Sprint with id '" + sprintId + "' does not exist in this project.");
         }
         return "sprintHistory";
     }

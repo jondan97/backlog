@@ -20,7 +20,7 @@ public interface SprintRepository extends JpaRepository<Sprint, Long> {
      * active sprint
      *
      * @param status: the status of the sprint, read 'status' attribute in Sprint class for more info
-     * @return: returns an optional that contains the sprint that was requested or returns an empty optional if it
+     * @return : returns an optional that contains the sprint that was requested or returns an empty optional if it
      * doesn't exist
      */
     Optional<Sprint> findFirstByProjectAndStatus(Project project, byte status);
@@ -30,7 +30,7 @@ public interface SprintRepository extends JpaRepository<Sprint, Long> {
      * to oldest), will mainly be used to fetch the finished sprints in each project (history)
      *
      * @param status: the status of the sprint, read 'status' attribute in Sprint class for more info
-     * @return: returns an optional that contains the list of sprints that was requested or returns an empty optional if
+     * @return : returns an optional that contains the list of sprints that was requested or returns an empty optional if
      * no sprint with the requested status doesn't exist
      */
     Optional<List<Sprint>> findSprintsByProjectAndStatusOrderByIdDesc(Project project, byte status);

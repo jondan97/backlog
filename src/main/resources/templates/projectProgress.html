@@ -19,6 +19,11 @@
     const categories = [[${burnDownChartData.categories}]];
     const ideal_burn = [[${burnDownChartData.ideal_burn}]];
     const actual_burn = [[${burnDownChartData.actual_burn}]];
+    //in case the PM has not input any estimation about the sprints needed to finish the project
+    let visible = true;
+    if (!ideal_burn.length) {
+        visible = false;
+    }
     $(function () {
         $('#burndown').highcharts({
             title: {
@@ -63,6 +68,7 @@
             },
             series: [{
                 name: 'Ideal Remaining',
+                visible: visible,
                 color: 'rgba(255,0,22,0.25)',
                 lineWidth: 1,
                 data: ideal_burn

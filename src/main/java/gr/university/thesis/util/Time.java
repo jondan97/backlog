@@ -17,7 +17,7 @@ public class Time implements Comparator<Calendar> {
      *
      * @param startDate: the starting date
      * @param weeks:     the number of weeks that need to be added to the starting date in order to calculate the end date
-     * @return: returns the calculated end date
+     * @return : returns the calculated end date
      */
     public static Date calculateEndDate(Date startDate, int weeks) {
         Calendar calendar = Calendar.getInstance();
@@ -36,7 +36,7 @@ public class Time implements Comparator<Calendar> {
      *
      * @param startDate: the starting date
      * @param endDate:   the ending date
-     * @return: the number of days between these two
+     * @return : the number of days between these two
      */
     public static int calculateDaysRemaining(Date startDate, Date endDate) {
         long differenceInMs = endDate.getTime() - startDate.getTime();
@@ -48,7 +48,7 @@ public class Time implements Comparator<Calendar> {
      * for example date: 18/3/20 20:00:00 would returns 'Wed'
      *
      * @param date: the date that the user requested to find the String of
-     * @return: returns the String of the given date which could be something like 'Mon' for Monday
+     * @return : returns the String of the given date which could be something like 'Mon' for Monday
      */
     public static String findDay(Date date) {
         return new SimpleDateFormat("EE").format(date);
@@ -58,7 +58,7 @@ public class Time implements Comparator<Calendar> {
      * this method takes as input a date, and returns the day after the input date
      *
      * @param date: date that the user requested to increment by 1 day
-     * @return: returns the incremented date
+     * @return : returns the incremented date
      */
     public static Date incrementDateByOne(Date date) {
         Calendar calendar = Calendar.getInstance();
@@ -73,7 +73,7 @@ public class Time implements Comparator<Calendar> {
      *
      * @param date1: first date that we want to compare
      * @param date2: second date that we want to compare
-     * @return: returns the result of the overidden compare(): 1 if date1 is later than date2, 0 if date1 is equal to
+     * @return : returns the result of the overidden compare(): 1 if date1 is later than date2, 0 if date1 is equal to
      * date2 and -1 if date1 is earlier than date2
      */
     public static int compare(Date date1, Date date2) {
@@ -86,23 +86,15 @@ public class Time implements Comparator<Calendar> {
     }
 
     /**
-     * @param date: the date that the user requested to set the time to
-     * @return
-     */
-    public static String getDateOnlyAsString(Date date) {
-        String dateStr = date.toString();
-        return dateStr.substring(0, 10);
-    }
-
-    /**
      * this method sets the clock of a date to zero, mainly used to group dates together
      *
      * @param date: the date that the user requested to set the clock to zero
+     * @return : returns a date with its clock set to 00:00:00
      */
     public static Date setClockToZero(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
-        //we set the end date to the final day and hour of 23:59
+        //we set the end date's clock to  00:00:00
         calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
@@ -116,7 +108,7 @@ public class Time implements Comparator<Calendar> {
      *
      * @param c1: first calendar that we want to compare
      * @param c2: second calendar that we want to compare
-     * @return: returns 1 if calendar1 is later than calendar2, returns 0 if same date and returns -1 if calendar1
+     * @return : returns 1 if calendar1 is later than calendar2, returns 0 if same date and returns -1 if calendar1
      * is earlier than calendar 2
      */
     @Override

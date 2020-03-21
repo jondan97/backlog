@@ -32,7 +32,7 @@ public class SessionService {
      * this method instantly finds the repository id of an user
      *
      * @param session: the current session with a user
-     * @return: returns a User that only contains the Id saved in an attribute of the session
+     * @return : returns a User that only contains the Id saved in an attribute of the session
      */
     public User getUserWithSessionId(HttpSession session) {
         return new User((long) session.getAttribute("userId"));
@@ -42,7 +42,7 @@ public class SessionService {
      * this method takes as input a user and returns a role in the form of a String
      *
      * @param user: the user that is associated with the current session
-     * @return: returns the highest privilege role that is associated with the user
+     * @return : returns the highest privilege role that is associated with the user
      */
     private String findRole(SessionUser user) {
         //roles: user OR admin

@@ -1,5 +1,7 @@
 package gr.university.thesis.service;
 
+import gr.university.thesis.Exceptions.ItemAlreadyExistsException;
+import gr.university.thesis.Exceptions.ItemHasEmptyTitleException;
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.User;
@@ -35,7 +37,7 @@ public class ItemService {
      * this method searches the repository in search of an item requested by the user
      *
      * @param item: the item that the user wants to find
-     * @return: returns an optional that may contain the item the user has requested
+     * @return : returns an optional that may contain the item the user has requested
      */
     public Optional<Item> findItemById(Item item) {
         return itemRepository.findById(item.getId());
@@ -89,19 +91,46 @@ public class ItemService {
      * @param description: the description of the new item
      * @param type:        the type of the new item
      * @param priority:    the priority of the new item
-     * @param effort:      the effort required for this item to complete
+     * @param effortStr:   the effort required for this item to complete
      * @param project:     the project that this item belongs to
      * @param assignee:    the user that this item has been assigned to
      * @param owner:       the user who created this item
      * @param parent:      the parent (epic/story) of this item
+     * @throws ItemAlreadyExistsException : user has tried to create an item with the same title
+     * @throws ItemHasEmptyTitleException : user has tried to create an item with no title
      */
-    public void createItem(String title, String description, ItemType type, ItemPriority priority, int effort, Project project, User assignee, User owner, Item parent) {
+    public void createItem(String title, String description, ItemType type, ItemPriority priority, String effortStr,
+                           Project project, User assignee, User owner, Item parent)
+            throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
+        if (title.isEmpty()) {
+            throw new ItemHasEmptyTitleException("Item cannot be created without a title.");
+        }
+        title = title.trim();
+        if (itemRepository.findFirstByTitleAndProject(title, project).isPresent()) {
+            throw new ItemAlreadyExistsException("Item with title '" + title + "' already exists.");
+        }
+        int effort = 0;
+        //if the item has no parent
         if (parent.getId() == 0) {
             parent = null;
+        }
+        //example of input handling, not in the scope of this project
+        if (!effortStr.isEmpty()) {
+            effort = Integer.parseInt(effortStr);
+            if (effort > 10) {
+                effort = 10;
+            } else if (effort < 1) {
+                effort = 1;
+            }
         }
         //if its an epic or a story, we want to calculate its children's' effort
         if (type == ItemType.EPIC || type == ItemType.STORY) {
             effort = 0;
+        }
+        if (description.isEmpty()) {
+            description = "No description";
+        } else {
+            description = description.trim();
         }
         Item item = new Item(title, description, type.getRepositoryId(), priority.getRepositoryId(), effort, project, assignee, owner, parent);
         itemRepository.save(item);
@@ -114,19 +143,47 @@ public class ItemService {
      * @param description : description of the item
      * @param type :        ItemType of the item
      * @param priority :    ItemPriority of the item
-     * @param effort :      effort required to finish this item
+     * @param effortStr :      effort required to finish this item
      * @param assignee :    the user that this item is assigned to
      * @param parent :      the parent (epic/story) of this item
+     * @throws ItemAlreadyExistsException : user has tried to set the item's title to one that already exists
+     * @throws ItemHasEmptyTitleException : user has tried to set the item's title to blank
      */
-    public void updateItem(long itemId, String title, String description, String type, String priority, int effort, User assignee, Item parent) {
+    public void updateItem(long itemId, String title, String description, String type, String priority, String effortStr, User assignee, Item parent) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
+        if (title.isEmpty()) {
+            throw new ItemHasEmptyTitleException("Item cannot be created without a title.");
+        }
         Optional<Item> itemOptional = itemRepository.findById(itemId);
-        System.out.println(itemOptional.isPresent());
+        title = title.trim();
         if (itemOptional.isPresent()) {
             Item item = itemOptional.get();
+            Optional<Item> itemWithThatTitleOptional = itemRepository.findFirstByTitleAndProject(title, item.getProject());
+            if (itemWithThatTitleOptional.isPresent()) {
+                Item itemWithThatTitle = itemWithThatTitleOptional.get();
+                if (!itemWithThatTitle.getTitle().equals(item.getTitle())) {
+                    throw new ItemAlreadyExistsException("Item with title '" + itemWithThatTitle.getTitle() + "' already exists.");
+                }
+            }
+            int effort = 0;
             item.setTitle(title);
+            if (description.isEmpty()) {
+                description = "No Description";
+            } else {
+                description = description.trim();
+            }
             item.setDescription(description);
             item.setType(ItemType.valueOf(type).getRepositoryId());
             item.setPriority(ItemPriority.valueOf(priority).getRepositoryId());
+            //example of input handling, not in the scope of this project
+            if (!effortStr.isEmpty()) {
+                //might throw exception
+                effort = Integer.parseInt(effortStr);
+                if (effort > 10) {
+                    effort = 10;
+                } else if (effort < 1) {
+                    effort = 1;
+                }
+            }
             item.setEffort(effort);
             item.setAssignee(assignee);
             // if item was updated to no parent
@@ -136,6 +193,7 @@ public class ItemService {
             //all other cases
             else {
                 Optional<Item> parentOptional = itemRepository.findById(parent.getId());
+                //updating status to match that of the parent's
                 if (parentOptional.isPresent()) {
                     setStatusToItemAndChildren(item, ItemStatus.findItemTypeByRepositoryId(parentOptional.get().getStatus()));
                     item.setParent(parentOptional.get());
@@ -161,7 +219,7 @@ public class ItemService {
      *
      * @param itemId:    the item that the user wants to find
      * @param projectId: the project that this item belongs to
-     * @return: returns an optional that may contain the item requested
+     * @return : returns an optional that may contain the item requested
      */
     public Optional<Item> findItemInProject(long itemId, long projectId) {
         return itemRepository.findDistinctItemByProjectId(itemId, projectId);
@@ -198,6 +256,7 @@ public class ItemService {
      *
      * @param item:       the item that the user requested to change the status of
      * @param itemStatus: the new item status the user requested to have
+     * @return : returns the item that had its status changed and was saved in the repository
      */
     public Item changeItemStatus(Item item, ItemStatus itemStatus) {
         item.setStatus((byte) itemStatus.getRepositoryId());
@@ -238,7 +297,7 @@ public class ItemService {
      * and if all the children have a status of 'FINISHED', then the parent is also finished
      *
      * @param item: the item we want to check the parent of
-     * @return: returns true if parent has all its children finished, false if any of its children is not finished
+     * @return : returns true if parent has all its children finished, false if any of its children is not finished
      */
     public boolean checkIfParentIsComplete(Item item) {
         boolean finished = false;
