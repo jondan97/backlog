@@ -9,7 +9,7 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $(document).on('change', 'select', function () {
-            var form = $(this).parent();
+            const form = $(this).parent();
             $(form).find('#updateAssignee').click();
         });
     });

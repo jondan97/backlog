@@ -398,8 +398,11 @@ public class ItemSprintHistoryService {
                         actualBurn[i + 1] = previousEffort - currentActualBurn;
                         //if the burn is below 0, then set it to 0, as the graph should never show below 0
                         // (just making sure)
-                        if (actualBurn[i + 1] < 0) {
+                        if (actualBurn[i + 1] <= 0) {
                             actualBurn[i + 1] = 0;
+                            //actually ending the actual remaining graph to the point it reaches 0
+                            actualBurn = Arrays.copyOfRange(actualBurn, 0, i + 2);
+                            break;
                         }
                         //setting the effort, to the current iterated cell
                         previousEffort = actualBurn[i + 1];

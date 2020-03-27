@@ -1,4 +1,4 @@
-package gr.university.thesis.Exceptions;
+package gr.university.thesis.exceptions;
 
 /**
  * this exception is thrown when the user tries to create or update a project and leaves its name blank

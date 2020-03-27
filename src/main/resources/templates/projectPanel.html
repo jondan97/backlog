@@ -3,53 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <title>Project Panel</title>
+    <link rel="stylesheet" th:href="@{/css/general.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/data-tooltip.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/projectPanel.css}" type="text/css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
+
+<!--&lt;!&ndash; The Modal &ndash;&gt;-->
+<!--<div id="myModal" class="modal">-->
+<!--    &lt;!&ndash; Modal content &ndash;&gt;-->
+<!--    <div class="modal-content">-->
+<!--        <div class="modal-header">-->
+<!--            <h4 class="modal-title">Modify Project</h4>-->
+<!--            <button type="button" class="close" data-dismiss="modal">&times;</button>-->
+<!--        </div>-->
+<!--        <table>-->
+<!--            <form id="modifyProjectForm" method="post" th:action="@{/pm/editProject}">-->
+<!--                <input id="projectId" name="projectId" hidden>-->
+<!--                <tr>-->
+<!--                    <td>-->
+<!--                        <label for="title">Title:</label>-->
+<!--                        <input id="projectTitle" name="projectTitle">-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td>-->
+<!--                        <label for="description">Description:</label>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td>-->
+<!--                    <textarea maxlength="200" rows="4" cols="50" id="projectDescription"-->
+<!--                              name="projectDescription" form="modifyProjectForm"></textarea>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td>-->
+<!--                        <label for="developersWorking"> Developers Working:</label>-->
+<!--                        <input id="projectDevelopersWorking" name="projectDevelopersWorking" type="number">-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td>-->
+<!--                        <label for="estimatedSprintsNeeded" >Estimated Sprints Needed:</label>-->
+<!--                        <input id="projectEstimatedSprintsNeeded" name="projectEstimatedSprintsNeeded" type="number">-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--                <tr>-->
+<!--                    <td>-->
+<!--                        <button id="${'deleteProjectButton' + projectStat.count}" name="action" type="submit" value="delete">-->
+<!--                            Delete-->
+<!--                        </button>-->
+<!--                        <button id="${'updateProjectButton' + projectStat.count}" name="action" type="submit" value="update">-->
+<!--                            Update-->
+<!--                        </button>-->
+<!--                    </td>-->
+<!--                </tr>-->
+<!--            </form>-->
+<!--        </table>-->
+<!--    </div>-->
+<!--</div>-->
 <button th:onclick="'window.location.href=\'' + @{/} + '\''"
         type="button">Home
 </button>
-<h3>Existing Projects:</h3>
-<div th:each="project : ${projects}" th:style="'border-style: solid'">
-    <form method="post" th:action="@{/pm/editProject}">
-        <label for="projectId">ID</label>
-        <input id="projectId" name="projectId" readonly th:value="${project.id}">
-        <label for="projectTitle">Title</label>
-        <input id="projectTitle" name="projectTitle" th:value="${project.title}">
-        <label for="projectDescription">Description</label>
-        <input id="projectDescription" name="projectDescription" th:value="${project.description}">
-        <label for="projectTotalEffort">Total Effort</label>
-        <input id="projectTotalEffort" name="projectTotalEffort" readonly th:value="${project.total_effort}">
-        <label for="projectDevelopersWorking">Developers Working</label>
-        <input id="projectDevelopersWorking" name="projectDevelopersWorking"
-               th:value="${project.developers_working}" type="number">
-        <label for="projectEstimatedSprintsNeeded">Estimated Sprints Needed</label>
-        <input id="projectEstimatedSprintsNeeded" name="projectEstimatedSprintsNeeded"
-               th:value="${project.estimated_sprints_needed}" type="number">
-        <button name="action" th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id}} + '\''"
-                type="button" value="view">View
-        </button>
-        <button name="action" sec:authorize="hasAnyAuthority('ADMIN','PROJECT_MANAGER')" type="submit" value="update">
-            Update
-        </button>
-        <button name="action" sec:authorize="hasAnyAuthority('ADMIN','PROJECT_MANAGER')" type="submit" value="delete">
-            Delete
-        </button>
-    </form>
+<br>
+<span class="textHeader">Existing Projects</span>
+<table style="width: 100%">
+    <tr>
+        <th>Title</th>
+        <th>Description</th>
+        <th>Total Effort</th>
+        <th>Developers Working</th>
+        <th>Estimated Sprints Needed</th>
+    </tr>
 
-</div>
+    <div th:each="project : ${projects}">
+        <tr class="projectRow">
+            <form>
+                <input hidden name="projectId" readonly th:id="|projectId${projectStat.count}|"
+                       th:value="${project.id}">
+                <td th:onclick="|window.location='project/${project.id}'|">
+                    <span th:text="${project.title}"></span>
+                    <input hidden name="projectTitle" th:id="|projectTitle${projectStat.count}|"
+                           th:value="${project.title}">
+                </td>
+                <td data-tooltip-position="bottom" th:data-tooltip="${project.description}"
+                    th:onclick="|window.location='project/${project.id}'|">
+                    <span class="spanDescription" th:text="${project.description}"></span>
+                    <input hidden name="projectDescription" th:id="|projectDescription${projectStat.count}|"
+                           th:value="${project.description}">
+                </td>
+                <td th:onclick="|window.location='project/${project.id}'|">
+                    <span th:text="${project.total_effort}"></span>
+                    <input hidden id="projectTotalEffort" name="projectTotalEffort" readonly
+                           th:value="${project.total_effort}">
+                </td>
+                <td th:onclick="|window.location='project/${project.id}'|">
+                    <span th:text="${project.developers_working}"></span>
+                    <input hidden name="projectDevelopersWorking"
+                           th:id="|projectDevelopersWorking${projectStat.count}|"
+                           th:value="${project.developers_working}" type="number">
+                </td>
+                <td th:onclick="|window.location='project/${project.id}'|">
+                    <span th:text="${project.estimated_sprints_needed}"></span>
+                    <input hidden name="projectEstimatedSprintsNeeded"
+                           th:id="|projectEstimatedSprintsNeeded${projectStat.count}|"
+                           th:value="${project.estimated_sprints_needed}" type="number">
+                </td>
+                <span sec:authorize="hasAnyAuthority('ADMIN','PROJECT_MANAGER')">
+        <td>
+            <button th:id="${'modifyProjectButton' + projectStat.count}"
+                    th:onclick="|modifyProject(${projectStat.count})|" type="button">
+                Modify
+            </button>
+            <button hidden name="action" th:id="${'updateProjectButton' + projectStat.count}" type="submit"
+                    value="update">
+                Update
+            </button>
+            <button hidden name="action" th:id="${'deleteProjectButton' + projectStat.count}" type="submit"
+                    value="delete">
+                Delete
+            </button>
+            </td>
+        </span>
+            </form>
+        </tr>
+    </div>
+</table>
+
 <span sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')">
-<h3>Create a Project</h3>
-<form method="post" th:action="@{/pm/createProject}">
-    <label for="title">Title</label>
-    <input id="title" name="title">
-    <label for="description">Description</label>
-    <input id="description" name="description">
-    <label for="developersWorking">Developers Working</label>
-    <input id="developersWorking" name="developersWorking" type="number">
-    <label for="estimatedSprintsNeeded">Estimated Sprints Needed</label>
-    <input id="estimatedSprintsNeeded" name="estimatedSprintsNeeded" type="number">
-    <button type="submit">Submit</button>
-</form>
+    <br>
+    <div id="createElementButtonSet">
+        <span class="textHeader"> Create a Project</span>
+        <input id="createElementPlusSymbol" onclick="showCreateProjectTable()" th:src="@{/images/add.png}" type="image">
+    </div>
+    <table hidden id="createProjectTable">
+        <form id="createProjectForm" method="post" th:action="@{/pm/createProject}">
+            <tr>
+                <td>
+                    <label for="title">Title:</label>
+                    <input id="title" name="title" placeholder="Name of the project">
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="description">Description:</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <textarea cols="50" form="createProjectForm" id="description" maxlength="200" name="description"
+                              placeholder="Short description about the project" rows="4"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="developersWorking"> Developers Working:</label>
+                    <input id="developersWorking" name="developersWorking" placeholder="0 to 7 or more" type="number">
+                </td>
+            </tr>
+             <tr>
+                <td>
+                    <label for="estimatedSprintsNeeded">Estimated Sprints Needed:</label>
+                    <input id="estimatedSprintsNeeded" name="estimatedSprintsNeeded" placeholder="0 and above"
+                           type="number">
+                    <button type="submit">Create Project</button>
+                </td>
+            </tr>
+        </form>
+    </table>
 </span>
+<span th:insert="include/modals :: editProjectModal"></span>
+<script th:src="@{/js/projectPanel.js}"></script>
 </body>
 </html>

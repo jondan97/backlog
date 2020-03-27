@@ -1,4 +1,4 @@
-package gr.university.thesis.Exceptions;
+package gr.university.thesis.exceptions;
 
 /**
  * this exception is thrown when the user tries to view a project that does not exist, mainly in their browser

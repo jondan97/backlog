@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Project Page</title>
+    <link rel="stylesheet" th:href="@{/css/general.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/project.css}" type="text/css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
 <button th:onclick="'window.location.href=\'' + @{/} + '\''"
@@ -16,10 +21,19 @@
         th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/projectProgress'} + '\''"
         type="button">Project Progress
 </button>
-
-<h3>Active Sprint:</h3>
+<br>
+<br>
+<span th:style="'border-style: solid;display:block;'">
+<span th:if="${sprint.status == 1}">
+    <span class="textHeader">Ready Sprint</span>
+</span>
+<span th:unless="${sprint.status == 1}">
+    <span class="textHeader">Active Sprint</span>
+</span>
 <span th:insert="include/sprint :: sprintForm"></span>
-<h4>Items in Sprint:</h4>
+</span>
+<span th:style="'border-style: solid;display:block;'">
+<span class="textHeader">Items in Sprint</span>
 <span th:if="${sprint}" th:style="'border-style: solid;display:block;'">
     <div th:each="itemSprintHistory : ${sprint.associatedItems}">
             <span th:with="item =${itemSprintHistory.item}">
@@ -29,51 +43,37 @@
             </span>
     </div>
 </span>
-<h3>Backlog:</h3>
+</span>
+<br>
+<span th:style="'border-style: solid;display:block;'">
+<span class="textHeader">Backlog</span>
+    <span th:style="'border-style: solid;display:block;'">
 <div th:each="item : ${backlog}">
     <span th:if="${item.status == 1}">
-        <span th:insert="include/setOfItems :: items" th:style="'border-style: solid;display:block;'"></span>
+        <span th:insert="include/setOfItems :: items"></span>
     </span>
 </div>
+    </span>
+</span>
 <!--create a new item-->
 <span sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')">
-    <h3>Create New Item</h3>
+    <div id="createElementButtonSet">
+        <span class="textHeader"> Create an Item</span>
+        <input id="createElementPlusSymbol" onclick="showCreateItemTable()" th:src="@{/images/add.png}" type="image">
+    </div>
     <span th:insert="include/createItem :: createForm"></span>
 
 </span>
-<script>
-    function toggleInputs() {
-        const x = document.getElementById("type").value;
-        if (x === "BUG" || x === "TASK") {
-            document.getElementById("fakeEffort").disabled = false;
-            document.getElementById("fakeParentId").disabled = false;
-            const x = document.getElementById("fakeParentId");
-            document.getElementById("disabledParentInput").remove();
 
-        } else if (x === "STORY") {
-            document.getElementById("fakeEffort").disabled = true;
-            document.getElementById("fakeParentId").disabled = false;
-            const x = document.getElementById("fakeParentId");
-            document.getElementById("disabledParentInput").remove();
-        } else if (x === "EPIC") {
-            document.getElementById("fakeEffort").disabled = true;
-            const x = document.getElementById("fakeParentId");
-            const option = document.createElement("option");
-            option.text = "Disabled";
-            option.id = "disabledParentInput";
-            option.setAttribute('selected', 'selected');
-            x.add(option);
-            document.getElementById("fakeParentId").disabled = true;
-        }
-    }
-
-    function checkInputs() {
-        const x = document.getElementById("type").value;
-        if (x === "BUG" || x === "TASK") {
-            document.getElementById("effort").value = document.getElementById("fakeEffort").value;
-            document.getElementById("parentId").value = document.getElementById("fakeParentId").value;
-        }
-    }
-</script>
+<span th:insert="include/modals :: viewItemModal"></span>
+<script th:src="@{/js/project.js}"></script>
+<!--in the event of redirecting to a modal (after modifying item or clicking on a parent let's say-->
+<span th:if="${itemId}">
+    <script>
+            const projectId = [[${project.id}]];
+            const itemId = [[${itemId}]];
+            redirectToModal(projectId, itemId);
+    </script>
+</span>
 </body>
 </html>

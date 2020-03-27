@@ -5,92 +5,43 @@
 </head>
 <body>
 <form method="post" th:action="@{/pm/editItem}" th:fragment="updateForm">
-
-    <label for="itemId">ID</label>
-    <input id="itemId" name="itemId" readonly th:value="${item.id}">
-
-    <label for="itemTitle">Title</label>
-    <input id="itemTitle" name="itemTitle"
-           th:readonly="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') ? 'false' : 'true'}"
-           th:value="${item.title}">
-
-    <label for="itemDescription">Description</label>
-    <input id="itemDescription" name="itemDescription"
-           th:readonly="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') ? 'false' : 'true'}"
-           th:value="${item.description}">
-
-    <label for="itemType">Type</label>
-    <select disabled id="itemType" name="itemType">
-        <option selected>Epic</option>
-    </select>
+    <input hidden id="itemId" name="itemId" readonly th:value="${item.id}">
+    <input hidden id="itemProjectId" name="itemProjectId" th:value="${project.id}">
+    <input hidden id="sprintId" name="sprintId" th:value="${sprint.id}">
     <input name="itemType" type="hidden" value="EPIC">
-
-    <label for="itemParentId">Parent</label>
-    <select disabled id="itemParentId" name="itemParentId">
-        <option selected value="0">Disabled</option>
-    </select>
     <input name="itemParentId" type="hidden" value="0">
-
-    <label for="itemPriority">Priority</label>
-    <select id="itemPriority" name="itemPriority"
-            th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') ? 'false' : 'true'}">
-                <span th:each="itemPriority : ${itemPriorities}">
-                    <span th:if="${itemPriority.repositoryId != 0}">
-                        <option th:selected="${item.priority == itemPriority.repositoryId ? true : false}"
-                                th:text="${itemPriority.name}" th:value="${itemPriority}">
-                        </option>
-                    </span>
-                </span>
-    </select>
-
-    <label for="itemEffort">Effort</label>
-    <input id="itemEffort" name="itemEffort" readonly th:value="${item.effort}">
-
-    <label for="itemAssigneeId">Assignee</label>
-    <select id="itemAssigneeId" name="itemAssigneeId"
-            th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') or (session.userId == item.assignee.id) ? 'false' : 'true'}">
+    <input formaction="/user/updateAssignee" hidden name="updateAssigneeButton" th:id="|updateAssignee${item.id}|"
+           type="submit" value="projectPage">
+    <table class="itemTable">
+        <tr>
+            <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
+                <span class="informationText" id="itemTitle" th:text="${item.title}" title="Title"></span>
+            </td>
+            <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
+    <span th:each="itemPriority : ${itemPriorities}">
+        <span th:if="${itemPriority.repositoryId != 0}">
+            <span th:if="${item.priority == itemPriority.repositoryId}">
+                <span class="informationText" id="itemPriority" th:text="${itemPriority.name}" title="Priority"></span>
+            </span>
+        </span>
+    </span>
+            </td>
+            <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
+                <span class="informationText" id="itemEffort" th:text="${item.effort}" title="Total Effort"></span>
+            </td>
+            <td>
+                <select id="itemAssigneeId" name="itemAssigneeId" th:onchange="|updateAssignee(${item.id})|"
+                        title="Assignee"
+                        th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') or (session.userId == item.assignee.id) ? 'false' : 'true'}">
                 <span th:each="user : ${allUsers}">
                     <option th:selected="${item.assignee.id == user.id ? true : false}"
                             th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
                             th:value="${user.id}">
                     </option>
             </span>
-    </select>
-
-    <label for="itemOwner">Owner</label>
-    <input id="itemOwner" name="itemOwner" readonly th:value="${item.owner.firstName + ' ' + item.owner.lastName}">
-
-    <label for="itemOwner">Date</label>
-    <input id="itemDate" name="itemDate" readonly th:value="${item.date_created}">
-
-    <input hidden id="itemProjectId" name="itemProjectId" th:value="${project.id}">
-
-    <button name="action"
-            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/item/' + ${item.id}} + '\''"
-            type="button" value="view">View
-    </button>
-
-    <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
-            value="update">
-        Update
-    </button>
-
-    <span th:if="${item.status != 3}">
-        <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
-                value="delete">
-            Delete
-        </button>
-    </span>
-
-    <!--    if the user is not an admin nor a project manager, and needs to assigne the item to somebody else-->
-    <button formaction="/user/updateAssignee" name="updateAssigneeButton"
-            th:if="${item.assignee.id == session.userId and not #authorization.expression('hasAnyAuthority(''ADMIN'', ''PROJECT_MANAGER'')')}"
-            type="submit"
-            value="projectPage">Change Assignee
-    </button>
-
-    <input hidden id="sprintId" name="sprintId" th:value="${sprint.id}">
-
+                </select>
+            </td>
+            <td>
     <span th:if="${item.status != 3}">
         <span th:if="${item.status == 2}">
             <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
@@ -100,7 +51,7 @@
         </span>
      </span>
 
-    <span th:if="${sprint.status != 2}">
+                <span th:if="${sprint.status != 2}">
         <span th:if="${item.status == 1}">
             <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
                     value="move">
@@ -108,7 +59,9 @@
         </button>
         </span>
     </span>
-
+            </td>
+        </tr>
+    </table>
 </form>
 </body>
 </html>

@@ -1,10 +1,10 @@
 package gr.university.thesis.service;
 
-import gr.university.thesis.Exceptions.UserAlreadyExistsException;
-import gr.university.thesis.Exceptions.UserHasEmptyEmailException;
 import gr.university.thesis.entity.Role;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.RoleEnum;
+import gr.university.thesis.exceptions.UserAlreadyExistsException;
+import gr.university.thesis.exceptions.UserHasEmptyEmailException;
 import gr.university.thesis.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;

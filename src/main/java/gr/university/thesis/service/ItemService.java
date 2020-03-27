@@ -1,13 +1,13 @@
 package gr.university.thesis.service;
 
-import gr.university.thesis.Exceptions.ItemAlreadyExistsException;
-import gr.university.thesis.Exceptions.ItemHasEmptyTitleException;
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.ItemPriority;
 import gr.university.thesis.entity.enumeration.ItemStatus;
 import gr.university.thesis.entity.enumeration.ItemType;
+import gr.university.thesis.exceptions.ItemAlreadyExistsException;
+import gr.university.thesis.exceptions.ItemHasEmptyTitleException;
 import gr.university.thesis.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -109,7 +109,7 @@ public class ItemService {
         if (itemRepository.findFirstByTitleAndProject(title, project).isPresent()) {
             throw new ItemAlreadyExistsException("Item with title '" + title + "' already exists.");
         }
-        int effort = 0;
+        int effort = 1;
         //if the item has no parent
         if (parent.getId() == 0) {
             parent = null;

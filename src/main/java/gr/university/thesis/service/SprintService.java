@@ -1,6 +1,5 @@
 package gr.university.thesis.service;
 
-import gr.university.thesis.Exceptions.SprintHasZeroEffortException;
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.ItemSprintHistory;
 import gr.university.thesis.entity.Project;
@@ -9,6 +8,7 @@ import gr.university.thesis.entity.enumeration.ItemStatus;
 import gr.university.thesis.entity.enumeration.ItemType;
 import gr.university.thesis.entity.enumeration.SprintStatus;
 import gr.university.thesis.entity.enumeration.TaskBoardStatus;
+import gr.university.thesis.exceptions.SprintHasZeroEffortException;
 import gr.university.thesis.repository.SprintRepository;
 import gr.university.thesis.util.Time;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -119,7 +119,7 @@ public class SprintService {
             sprint.setEnd_date(endDate);
             //example of input handling, not in the scope of this project
             if (sprintGoal.isEmpty()) {
-                sprintGoal = "No Goal";
+                sprintGoal = "Goal not specified";
             } else {
                 sprintGoal = sprintGoal.trim();
             }

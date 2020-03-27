@@ -1,9 +1,9 @@
 package gr.university.thesis.controller;
 
-import gr.university.thesis.Exceptions.UserAlreadyExistsException;
-import gr.university.thesis.Exceptions.UserHasEmptyEmailException;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.RoleEnum;
+import gr.university.thesis.exceptions.UserAlreadyExistsException;
+import gr.university.thesis.exceptions.UserHasEmptyEmailException;
 import gr.university.thesis.service.RoleService;
 import gr.university.thesis.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

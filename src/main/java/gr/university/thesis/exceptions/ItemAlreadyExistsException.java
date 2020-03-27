@@ -1,4 +1,4 @@
-package gr.university.thesis.Exceptions;
+package gr.university.thesis.exceptions;
 
 /**
  * this exception is thrown when the item the user is trying to create or update, already exists in the repository

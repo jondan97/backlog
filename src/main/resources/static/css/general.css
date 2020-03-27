@@ -1,0 +1,24 @@
+.textHeader {
+    font-size: 26px;
+    font-weight: bold;
+    margin: auto;
+}
+
+#createElementPlusSymbol {
+    height: 30px;
+    width: 30px;
+}
+
+#createElementPlusSymbol:hover {
+    opacity: 0.3;
+}
+
+#createElementButtonSet input {
+    margin: 7px 10px 0px 5px;
+    position: absolute;
+}
+
+.informationText {
+    font-size: 16px;
+    font-weight: bold;
+}

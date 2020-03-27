@@ -1,12 +1,12 @@
 package gr.university.thesis.controller;
 
-import gr.university.thesis.Exceptions.*;
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.ItemPriority;
 import gr.university.thesis.entity.enumeration.ItemType;
+import gr.university.thesis.exceptions.*;
 import gr.university.thesis.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.util.Optional;
@@ -172,13 +173,21 @@ public class ProjectManagerController {
                              @RequestParam String itemEffort,
                              @RequestParam long itemAssigneeId,
                              @RequestParam long itemParentId,
-                             @RequestParam long sprintId
+                             @RequestParam long sprintId,
+                             @RequestParam String modifyItemPage,
+                             RedirectAttributes redir
     ) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
         //the associations need to be defined before the item is updated
         itemSprintHistoryService.manageItemSprintAssociation(new Item(itemId), new Sprint(sprintId), new Item(itemParentId));
         itemService.updateItem(itemId, itemTitle, itemDescription, itemType, itemPriority, itemEffort,
                 new User(itemAssigneeId), new Item(itemParentId));
-        return "redirect:/user/project/" + itemProjectId;
+        if (modifyItemPage.equals("projectPage"))
+            return "redirect:/user/project/" + itemProjectId;
+        else if (modifyItemPage.equals("viewItem")) {
+            redir.addFlashAttribute("itemId", itemId);
+            return "redirect:/user/project/" + itemProjectId;
+        } else
+            return "redirect:/";
     }
 
     /**
@@ -192,10 +201,12 @@ public class ProjectManagerController {
     @RequestMapping(value = "/editItem", params = "action=delete", method = RequestMethod.POST)
     public String deleteItem(@RequestParam long itemId,
                              @RequestParam long itemProjectId,
-                             @RequestParam long sprintId) {
+                             @RequestParam long sprintId,
+                             RedirectAttributes redir) {
         //need to delete its associations first (if they exist)
         itemSprintHistoryService.removeItemFromSprint(new Item(itemId), new Sprint(sprintId), null);
         itemService.deleteItem(itemId);
+        redir.addFlashAttribute("itemId", -1);
         return "redirect:/user/project/" + itemProjectId;
     }
 

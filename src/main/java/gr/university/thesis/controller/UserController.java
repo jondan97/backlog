@@ -1,20 +1,22 @@
 package gr.university.thesis.controller;
 
 
-import gr.university.thesis.Exceptions.ItemDoesNotExistException;
-import gr.university.thesis.Exceptions.ProjectDoesNotExistException;
-import gr.university.thesis.Exceptions.SprintDoesNotExistException;
 import gr.university.thesis.dto.BurnDownChartData;
 import gr.university.thesis.entity.*;
 import gr.university.thesis.entity.enumeration.ItemPriority;
 import gr.university.thesis.entity.enumeration.ItemType;
 import gr.university.thesis.entity.enumeration.SprintStatus;
 import gr.university.thesis.entity.enumeration.TaskBoardStatus;
+import gr.university.thesis.exceptions.ItemDoesNotExistException;
+import gr.university.thesis.exceptions.ProjectDoesNotExistException;
+import gr.university.thesis.exceptions.SprintDoesNotExistException;
+import gr.university.thesis.exceptions.SprintHasNotStartedException;
 import gr.university.thesis.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 import java.util.*;
@@ -113,22 +115,42 @@ public class UserController {
     @RequestMapping(value = "/project/{projectId}/item/{itemId}")
     public String viewItem(@PathVariable long projectId,
                            @PathVariable long itemId,
-                           Model model) throws ItemDoesNotExistException {
+                           @RequestParam(required = false) boolean modalView,
+                           @RequestParam(required = false) Optional<String> modalSource,
+                           Model model,
+                           RedirectAttributes redir) throws ItemDoesNotExistException {
         Optional<Item> itemOptional = itemService.findItemInProject(itemId, projectId);
+        Optional<Project> projectOptional = projectService.findProjectById(projectId);
         if (itemOptional.isPresent()) {
-            //we want the most recent one shown first, we sort our item comments using a comparator, and then we reverse it
-            Collections.sort(itemOptional.get().getComments(), Collections.reverseOrder(Comparator.comparing(Comment::getDate_created)));
-            model.addAttribute("item", itemOptional.get());
-            //the following two help in finding the enums associated with the item
-            model.addAttribute("itemType", ItemType.findItemTypeByRepositoryId(itemOptional.get().getType()));
-            model.addAttribute("itemPriority", ItemPriority.findItemTypeByRepositoryId(itemOptional.get().getPriority()));
-            //we also need to show the parent of the child, for usability issues
-            if (itemOptional.get().getParent() != null) {
-                model.addAttribute("projectId", projectId);
-                model.addAttribute("parentItemType", ItemType.findItemTypeByRepositoryId(itemOptional.get().getParent().getType()).getName());
+            Item item = itemOptional.get();
+            if (item.getType() == ItemType.EPIC.getRepositoryId() || item.getType() == ItemType.STORY.getRepositoryId()) {
+                List<Item> temporaryOneSizedArrayList = new ArrayList<>();
+                temporaryOneSizedArrayList.add(item);
+                itemService.calculatedCombinedEffort(temporaryOneSizedArrayList);
             }
+            Project project = projectOptional.get();
+            model.addAttribute("sprint", sprintService.findActiveSprintInProject(project).get());
+            model.addAttribute("project", project);
+            //perhaps not the most sufficient but this application is not supposed to be scalable
+            model.addAttribute("allUsers", userService.findAllUsers());
+            model.addAttribute("backlog", itemService.findAllItemsByProjectId(projectId));
+
+            model.addAttribute("itemTypes", ItemType.values());
+            model.addAttribute("itemPriorities", ItemPriority.values());
+            //we want the most recent one shown first, we sort our item comments using a comparator, and then we reverse it
+            Collections.sort(item.getComments(), Collections.reverseOrder(Comparator.comparing(Comment::getDate_created)));
+            model.addAttribute("item", item);
         } else {
             throw new ItemDoesNotExistException("Item with id '" + itemId + "' does not exist in this project.");
+        }
+        //if the user asks to view a parent item through the modal view
+        if (modalView && modalSource.isPresent()) {
+            redir.addFlashAttribute("itemId", itemId);
+            if (modalSource.get().equals("projectPage")) {
+                return "redirect:/user/project/" + projectId;
+            } else if (modalSource.get().equals("projectProgressPage")) {
+                return "redirect:/user/project/" + projectId + "/projectProgress";
+            }
         }
         return "item";
     }
@@ -151,13 +173,17 @@ public class UserController {
                                  @RequestParam long itemAssigneeId,
                                  @RequestParam long itemProjectId,
                                  @RequestParam long sprintId,
-                                 @RequestParam String updateAssigneeButton) {
+                                 @RequestParam String updateAssigneeButton,
+                                 RedirectAttributes redir) {
         itemService.updateAssignee(itemId, new User(itemAssigneeId));
         if (updateAssigneeButton.equals("projectPage"))
             return "redirect:/user/project/" + itemProjectId;
         else if (updateAssigneeButton.equals("taskBoardPage"))
             return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
-        else
+        else if (updateAssigneeButton.equals("viewItemPage")) {
+            redir.addFlashAttribute("itemId", itemId);
+            return "redirect:/user/project/" + itemProjectId;
+        } else
             return "redirect:/";
     }
 
@@ -174,9 +200,11 @@ public class UserController {
     public String createComment(@RequestParam String commentBody,
                                 @RequestParam long commentItemId,
                                 @RequestParam long commentProjectId,
-                                HttpSession session) {
+                                HttpSession session,
+                                RedirectAttributes redir) {
         commentService.createComment(commentBody, new Item(commentItemId), sessionService.getUserWithSessionId(session));
-        return "redirect:/user/project/" + commentProjectId + "/item/" + commentItemId;
+        redir.addFlashAttribute("itemId", commentItemId);
+        return "redirect:/user/project/" + commentProjectId;
     }
 
     /**
@@ -192,9 +220,11 @@ public class UserController {
     public String updateComment(@RequestParam long commentIdView,
                                 @RequestParam long commentItemIdView,
                                 @RequestParam long commentProjectIdView,
-                                @RequestParam String commentBodyView) {
+                                @RequestParam String commentBodyView,
+                                RedirectAttributes redir) {
         commentService.updateComment(commentIdView, commentBodyView);
-        return "redirect:/user/project/" + commentProjectIdView + "/item/" + commentItemIdView;
+        redir.addFlashAttribute("itemId", commentItemIdView);
+        return "redirect:/user/project/" + commentProjectIdView;
     }
 
     /**
@@ -208,10 +238,12 @@ public class UserController {
     @RequestMapping(value = "/editComment", params = "action=delete", method = RequestMethod.POST)
     public String deleteComment(@RequestParam long commentIdView,
                                 @RequestParam long commentItemIdView,
-                                @RequestParam long commentProjectIdView
+                                @RequestParam long commentProjectIdView,
+                                RedirectAttributes redir
     ) {
         commentService.deleteComment(commentIdView);
-        return "redirect:/user/project/" + commentProjectIdView + "/item/" + commentItemIdView;
+        redir.addFlashAttribute("itemId", commentItemIdView);
+        return "redirect:/user/project/" + commentProjectIdView;
     }
 
     /**
@@ -226,12 +258,16 @@ public class UserController {
     @RequestMapping(value = "/project/{projectId}/sprint/{sprintId}")
     public String viewTaskBoard(@PathVariable long projectId,
                                 @PathVariable long sprintId,
-                                Model model) throws SprintDoesNotExistException {
+                                Model model) throws SprintDoesNotExistException, SprintHasNotStartedException {
         Optional<Sprint> sprintOptional = projectService.findSprintInProject(projectId, sprintId);
         if (sprintOptional.isPresent()) {
+            Sprint sprint = sprintOptional.get();
+            if (sprint.getStatus() == SprintStatus.READY.getRepositoryId()) {
+                throw new SprintHasNotStartedException("Sprint has not yet started, so task board cannot be seen.");
+            }
             model.addAttribute("allUsers", userService.findAllUsers());
             model.addAttribute("projectId", projectId);
-            model.addAttribute("sprint", sprintOptional.get());
+            model.addAttribute("sprint", sprint);
             Optional<List<ItemSprintHistory>> todoAssociations = itemSprintHistoryService.
                     findAllAssociationsByStatus(new Sprint(sprintId), TaskBoardStatus.TO_DO,
                             ItemType.TASK, ItemType.BUG);

@@ -1,7 +1,5 @@
 package gr.university.thesis.service;
 
-import gr.university.thesis.Exceptions.ProjectAlreadyExistsException;
-import gr.university.thesis.Exceptions.ProjectHasEmptyTitleException;
 import gr.university.thesis.dto.BurnDownChartData;
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
@@ -9,6 +7,8 @@ import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.ItemType;
 import gr.university.thesis.entity.enumeration.SprintStatus;
+import gr.university.thesis.exceptions.ProjectAlreadyExistsException;
+import gr.university.thesis.exceptions.ProjectHasEmptyTitleException;
 import gr.university.thesis.repository.ProjectRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

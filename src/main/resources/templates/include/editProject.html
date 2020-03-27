@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<table th:fragment="editProject">
+    <form id="modifyProjectForm" method="post" th:action="@{/pm/editProject}">
+        <input hidden id="projectId" name="projectId">
+        <tr>
+            <td>
+                <label for="projectTitle">Title:</label>
+                <input id="projectTitle" name="projectTitle">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="projectDescription">Description:</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                                            <textarea cols="45" form="modifyProjectForm" id="projectDescription"
+                                                      maxlength="200"
+                                                      name="projectDescription" rows="4"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="projectDevelopersWorking"> Developers Working:</label>
+                <input id="projectDevelopersWorking" name="projectDevelopersWorking" type="number">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="projectEstimatedSprintsNeeded">Estimated Sprints Needed:</label>
+                <input id="projectEstimatedSprintsNeeded" name="projectEstimatedSprintsNeeded" type="number">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button id="${'deleteProjectButton' + projectStat.count}" name="action" type="submit" value="delete">
+                    Delete
+                </button>
+                <button id="${'updateProjectButton' + projectStat.count}" name="action" type="submit" value="update">
+                    Update
+                </button>
+            </td>
+        </tr>
+    </form>
+</table>
+</body>
+</html>

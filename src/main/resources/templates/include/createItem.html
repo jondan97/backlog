@@ -4,60 +4,97 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<form method="post" onsubmit="checkInputs();" th:action="@{/pm/createItem}" th:fragment="createForm">
-    <label for="title">Title</label>
-    <input id="title" name="title">
-
-    <label for="description">Description</label>
-    <input id="description" name="description">
-
-    <label for="type">Type</label>
-    <select id="type" name="type" onchange="toggleInputs()">
+<form id="createItemForm" method="post" onsubmit="checkInputs();" th:action="@{/pm/createItem}"
+      th:fragment="createForm">
+    <table hidden id="createItemTable">
+        <tr>
+            <td>
+                <label for="title">Title:</label>
+                <input id="title" name="title" placeholder="Name of the item">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="description">Description:</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                    <textarea cols="50" form="createItemForm" id="description" maxlength="200" name="description"
+                              placeholder="Short description about the item" rows="4"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="type">Type:</label>
+                <select id="type" name="type" onchange="toggleInputs()">
         <span th:each="itemType : ${itemTypes}">
             <span th:if="${itemType.repositoryId != 0}">
                 <option th:selected="${itemType.repositoryId == 3}" th:text="${itemType.name}"
                         th:value="${itemType}"></option>
             </span>
         </span>
-    </select>
-
-    <label for="fakeParentId">Parent</label>
-    <select id="fakeParentId" name="fakeParentId">
-        <option selected value="0"></option>
-        <span th:each="item : ${backlog}">
-            <span th:if="${(item.type == 1 or item.type == 2) and (item.status != 4 and item.status != 3)}">
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="fakeEpicParentId">Parent:</label>
+                <select hidden id="fakeEpicParentId" name="fakeParentId">
+                    <option selected value="0">No Parent</option>
+                    <span th:each="item : ${backlog}">
+            <span th:if="${item.type == 1 and (item.status != 4 and item.status != 3)}">
                 <option th:text="${item.title}" th:value="${item.id}"></option>
             </span>
         </span>
-    </select>
-    <input id="parentId" name="parentId" type="hidden" value="0">
+                </select>
+                <select id="fakeStoryParentId" name="fakeParentId">
+                    <option selected value="0">No Parent</option>
+                    <span th:each="item : ${backlog}">
+                <span th:if="${item.type == 2 and (item.status != 4 and item.status != 3)}">
+                    <option th:text="${item.title}" th:value="${item.id}"></option>
+                </span>
+        </span>
+                </select>
+                <input id="parentId" name="parentId" type="hidden" value="0">
 
-    <label for="priority">Priority</label>
-    <select id="priority" name="priority">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="priority">Priority:</label>
+                <select id="priority" name="priority">
         <span th:each="itemPriority : ${itemPriorities}">
             <span th:if="${itemPriority.repositoryId != 0}">
                 <option th:selected="${itemPriority.repositoryId == 3}" th:text="${itemPriority.name}"
                         th:value="${itemPriority}"></option>
             </span>
         </span>
-    </select>
-
-    <label for="fakeEffort">Effort</label>
-    <input id="fakeEffort" name="fakeEffort" placeholder="1 to 10" type="number">
-    <input id="effort" name="effort" type="hidden" value="0">
-
-    <label for="assigneeId">Assignee</label>
-    <select id="assigneeId" name="assigneeId">
-        <span th:each="user : ${allUsers}">
-            <option th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
-                    th:selected="${user.id == session.userId}"
-                    th:value="${user.id}"></option>
-        </span>
-    </select>
-
-    <input hidden id="projectId" name="projectId" th:value="${project.id}">
-
-    <button type="submit">Submit</button>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="fakeEffort">Effort:</label>
+                <input id="fakeEffort" name="fakeEffort" placeholder="1 to 10" type="number">
+                <input id="effort" name="effort" type="hidden" value="0">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="assigneeId">Assignee:</label>
+                <select id="assigneeId" name="assigneeId">
+                <span th:each="user : ${allUsers}">
+                    <option th:selected="${user.id == session.userId}"
+                            th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                            th:value="${user.id}"></option>
+                </span>
+                </select>
+                <input hidden id="projectId" name="projectId" th:value="${project.id}">
+                <button type="submit">Create Item</button>
+            </td>
+        </tr>
+    </table>
 </form>
 </body>
 </html>
