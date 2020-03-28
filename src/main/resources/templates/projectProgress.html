@@ -2,90 +2,15 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <link rel="stylesheet" th:href="@{/css/general.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/projectProgress.css}" type="text/css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://code.highcharts.com/stock/highstock.js"></script>
     <meta charset="UTF-8">
     <title>Project Progress</title>
-    <style>
-        #burndown {
-            width: 100%;
-            min-width: 310px;
-            height: 400px;
-            margin: 0 auto;
-        }
-    </style>
 </head>
 <body>
-<script th:inline="javascript">
-    const categories = [[${burnDownChartData.categories}]];
-    const ideal_burn = [[${burnDownChartData.ideal_burn}]];
-    const actual_burn = [[${burnDownChartData.actual_burn}]];
-    //in case the PM has not input any estimation about the sprints needed to finish the project
-    let visible = true;
-    if (!ideal_burn.length) {
-        visible = false;
-    }
-    $(function () {
-        $('#burndown').highcharts({
-            title: {
-                text: 'Product Burndown',
-                x: -20 //center
-            },
-            colors: ['blue', 'red'],
-            plotOptions: {
-                line: {
-                    lineWidth: 3
-                },
-                tooltip: {
-                    hideDelay: 200
-                }
-            },
-            subtitle: {
-                text: 'All Sprints',
-                x: -20
-            },
-            xAxis: {
-                categories: categories
-            },
-            yAxis: {
-                title: {
-                    text: 'Effort'
-                },
-                plotLines: [{
-                    value: 0,
-                    width: 1
-                }]
-            },
-            tooltip: {
-                valueSuffix: ' effort',
-                crosshairs: true,
-                shared: true
-            },
-            legend: {
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'middle',
-                borderWidth: 0
-            },
-            series: [{
-                name: 'Ideal Remaining',
-                visible: visible,
-                color: 'rgba(255,0,22,0.25)',
-                lineWidth: 1,
-                data: ideal_burn
-            }, {
-                name: 'Actual Remaining',
-                color: 'rgba(133,200,98,0.75)',
-                marker: {
-                    radius: 6
-                },
-                data: actual_burn
-            }]
-        });
-    });
-</script>
 <button th:onclick="'window.location.href=\'' + @{/} + '\''"
         type="button">Home
 </button>
@@ -97,28 +22,80 @@
 <br>
 
 <br>
-<h2>Sprint History</h2>
-<span th:if="${finishedSprints}">
+<h2 align="center">Sprint History</h2>
+<span style="text-align: center;" th:if="${finishedSprints}">
+    <table class="sprintHistoryTable">
+        <tr>
+            <th class="sprintHeader">
+                Name
+            </th>
+            <th class="sprintHeader">
+                Start Date
+            </th>
+            <th class="sprintHeader">
+                End Date
+            </th>
+            <th class="sprintHeader">
+                Velocity
+            </th>
+        </tr>
     <span th:each="sprint : ${finishedSprints}">
-<!--        <attributeName>Stat is something that thymeleaf offers, amongst those, we can use size and count-->
-        <span th:text="${'Sprint ' + ((sprintStat.size + 1) - sprintStat.count) + ': ' + sprint.start_date + ', Velocity: ' + sprint.velocity}"></span>
-        <button name="action"
-                th:onclick="'window.location.href=\'' + @{'/user/project/' + ${sprint.project.id} + '/sprint/' + ${sprint.id}} + '\''"
-                type="button" value="view">View Board
-        </button>
-        <br>
-            <div th:each="association: ${sprint.associatedItems}">
-                <ul>
-                    <span th:if="${association.item.type == 3 or association.item.type == 4}">
-                        <span th:text="${association.item.title + ': ' + association.status}"></span>
-                        <button
-                                th:onclick="'window.location.href=\'' + @{'/user/project/' + ${association.sprint.project.id} + '/item/' + ${association.item.id} + '/?source=projectProgressPage'} + '\''"
-                                type="button" value="view">View
-                        </button>
-                    </span>
-                </ul>
-        </div>
+        <tr class="infoRowHeader"
+            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${sprint.project.id} + '/sprint/' + ${sprint.id}} + '\''">
+            <td style="">
+                <!--        <attributeName>Stat is something that thymeleaf offers, amongst those, we can use size and count-->
+                <!--                they come reversed-->
+               <span th:text="${'Sprint ' + ((sprintStat.size + 1) - sprintStat.count)}"></span>
+            </td>
+            <td style="text-align: left;">
+                <span th:text="${#dates.format(sprint.start_date, 'dd-MMM-yyyy')}"></span>
+            </td>
+            <td style="text-align: left;">
+                <span th:text="${#dates.format(sprint.end_date, 'dd-MMM-yyyy')}"></span>
+            </td>
+            <td style="text-align: center;">
+                <span th:text="${sprint.velocity}"></span>
+            </td>
+        </tr>
+        <tr>
+            <th class="taskHeader" colspan="2" style="text-align: center;">
+                Task Name
+            </th>
+            <th class="taskHeader" colspan="2" style="text-align: center;">
+                Status
+            </th>
+        </tr>
+         <span th:each="association: ${sprint.associatedItems}">
+             <span th:if="${association.item.type == 3 or association.item.type == 4}">
+                <tr class="infoRow"
+                    th:onclick="|openViewItemModal(${association.item.project.id},${association.item.id})|">
+                    <td colspan="2" style="text-align: center;">
+                        <span th:text="${association.item.title}"></span>
+                    </td>
+                    <td colspan="2" style="text-align: center;">
+                        <span th:text="${association.status.name}"></span>
+                        </td>
+                </tr>
+             </span>
+        </span>
     </span>
+    </table>
+</span>
+<span th:insert="include/modals :: viewItemModal"></span>
+<script th:src="@{/js/projectProgress.js}"></script>
+<script th:src="@{/js/modalFunctions.js}"></script>
+<script th:inline="javascript">
+    const categories = [[${burnDownChartData.categories}]];
+    const ideal_burn = [[${burnDownChartData.ideal_burn}]];
+    const actual_burn = [[${burnDownChartData.actual_burn}]];
+    showChart(categories, ideal_burn, actual_burn);
+</script>
+<span th:if="${itemId}">
+    <script>
+            const projectId = [[${projectId}]];
+            const itemId = [[${itemId}]];
+            redirectToModal(projectId, itemId);
+    </script>
 </span>
 </body>
 </html>

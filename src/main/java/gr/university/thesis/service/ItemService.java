@@ -342,4 +342,31 @@ public class ItemService {
         }
         return finished;
     }
+
+    /**
+     * this method checks if an item (epic or story), has any children and if it has, whether any of them are finished.
+     * If any of them are finished, then the item cannot be deleted, as the finished items will also be deleted
+     *
+     * @param item: the item that the user requested to check if it has any finished children
+     */
+    public boolean checkIfItemContainsFinishedChildren(Item item) {
+        boolean hasFinishedChildren = false;
+        //only an epic or a story can have children
+        if (item.getChildren() != null) {
+            for (Item child : item.getChildren()) {
+                if (child.getStatus() == ItemStatus.FINISHED.getRepositoryId()) {
+                    hasFinishedChildren = true;
+                    break;
+                }
+                if (child.getChildren() != null) {
+                    for (Item childOfChild : child.getChildren())
+                        if (childOfChild.getStatus() == ItemStatus.FINISHED.getRepositoryId()) {
+                            hasFinishedChildren = true;
+                            break;
+                        }
+                }
+            }
+        }
+        return hasFinishedChildren;
+    }
 }

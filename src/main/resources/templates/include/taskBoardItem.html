@@ -5,45 +5,79 @@
 </head>
 <body>
 <form method="post" th:action="@{/user/editAssociation}" th:fragment="item">
-        <span th:text="${association.item.title + ' ' + association.status}">
+    <input hidden id="sprintId" name="sprintId" th:value="${association.sprint.id}">
+    <input hidden id="itemId" name="itemId" readonly th:value="${association.item.id}">
+    <input hidden id="associationStatus" name="associationStatus" readonly th:value="${association.status}">
+    <input hidden id="itemProjectId" name="itemProjectId" readonly th:value="${projectId}">
+    <input formaction="/user/updateAssignee" hidden name="updateAssigneeButton"
+           th:id="|updateAssignee${association.item.id}|"
+           type="submit" value="taskBoard">
 
-        </span>
-    <select id="itemAssigneeId" name="itemAssigneeId"
-            th:disabled="${(#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
-            or (session.userId == association.item.assignee.id))
-            and sprint.status != 3
-            ? 'false' : 'true'}">
+    <table>
+        <tr>
+            <td height="100px" rowspan="3">
+                <span th:if="${sprint.status != 3}">
+                    <button name="action" style="height:100%"
+                            th:hidden="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+                            or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
+                            type="submit"
+                            value="previousStatus">
+                        <
+                    </button>
+                </span>
+            </td>
+            <td class="taskTitle" th:onclick="|openViewItemModal(${projectId},${association.item.id},${sprintId})|"
+                width="100%">
+             <span class="informationText" th:text="${association.item.title}">
+             </span>
+            </td>
+            <td height="100px" rowspan="3">
+                <span th:if="${sprint.status != 3}">
+                    <button name="action" style="height:100%"
+                            th:hidden="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+                            or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
+                            type="submit"
+                            value="nextStatus">
+                        >
+                    </button>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td class="taskAdditionalInfo"
+                th:onclick="|openViewItemModal(${projectId},${association.item.id},${sprintId})|"
+                width="100%">
+                <span class="informationText" th:text="${association.item.effort}"></span>
+            </td>
+        </tr>
+        <tr>
+            <td class="taskAdditionalInfo"
+                th:onclick="|openViewItemModal(${projectId},${association.item.id},${sprintId})|"
+                width="100%">
+                <span th:each="itemPriority : ${itemPriorities}">
+                <span class="informationText" th:if="${association.item.priority == itemPriority.repositoryId}"
+                      th:text="${itemPriority.name}"></span>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="3">
+                <select id="itemAssigneeId" name="itemAssigneeId" style="width: 100%"
+                        th:disabled="${(#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+                        or (session.userId == association.item.assignee.id))
+                        and sprint.status != 3
+                        ? 'false' : 'true'}" th:onchange="|updateAssignee(${association.item.id})|">
                     <span th:each="user : ${allUsers}">
                         <option th:selected="${association.item.assignee.id == user.id ? true : false}"
                                 th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
                                 th:value="${user.id}">
                         </option>
-                </span>
-    </select>
-    <button name="action"
-            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${association.item.id}} + '\''"
-            type="button" value="view">View
-    </button>
-    <span th:if="${sprint.status != 3}">
-        <button name="action"
-                th:hidden="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
-                type="submit"
-                value="previousStatus">
-            Previous
-        </button>
-        <button name="action"
-                th:hidden="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
-                type="submit"
-                value="nextStatus">
-            Next
-        </button>
-    </span>
-    <input hidden id="sprintId" name="sprintId" th:value="${association.sprint.id}">
-    <input hidden id="itemId" name="itemId" readonly th:value="${association.item.id}">
-    <input hidden id="associationStatus" name="associationStatus" readonly th:value="${association.status}">
-    <input hidden id="itemProjectId" name="itemProjectId" readonly th:value="${projectId}">
-    <input formaction="/user/updateAssignee" hidden id="updateAssignee" name="updateAssigneeButton"
-           type="submit" value="taskBoardPage">
+                    </span>
+                </select>
+            </td>
+        </tr>
+
+    </table>
 </form>
 </body>
 </html>

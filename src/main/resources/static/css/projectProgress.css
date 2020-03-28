@@ -1,0 +1,44 @@
+#burndown {
+    width: 100%;
+    min-width: 310px;
+    height: 400px;
+    margin: 0 auto;
+}
+
+.sprintHeader {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.taskHeader {
+    font-size: 15px;
+    font-weight: bold;
+    background-color: #cdcdcd;
+}
+
+.sprintHistoryTable {
+    margin: 0 auto;
+}
+
+.sprintHistoryTable td {
+    padding: 0 15px;
+}
+
+.infoRow:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+.infoRow:hover {
+    background-color: #ebebeb;
+    cursor: pointer;
+}
+
+.infoRowHeader {
+    background-color: #dbf5ba;
+    border-top: 2px solid black;
+}
+
+.infoRowHeader:hover {
+    background-color: #a3d689;
+    cursor: pointer;
+}

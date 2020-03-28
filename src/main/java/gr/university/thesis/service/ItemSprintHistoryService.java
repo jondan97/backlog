@@ -479,6 +479,8 @@ public class ItemSprintHistoryService {
                 tasksDoneByDate.setItems(items);
                 tasksDoneByDatesList.add(tasksDoneByDate);
             }
+            //sort the dates again because the map entries return a set
+            Collections.sort(tasksDoneByDatesList, Comparator.comparing(TasksDoneByDate::getDate));
             return tasksDoneByDatesList;
         }
         return null;

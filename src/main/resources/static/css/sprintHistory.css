@@ -1,0 +1,31 @@
+#burndown {
+    width: 100%;
+    min-width: 310px;
+    height: 400px;
+    margin: 0 auto;
+}
+
+.taskHistoryTable {
+    margin: 0 auto;
+}
+
+.taskHistoryTable td {
+    padding: 0 15px;
+}
+
+.infoRowHeader {
+    border-top: 2px solid black;
+}
+
+.infoCell {
+    border-left: 1px solid black;
+}
+
+.greyHover:nth-of-type(even) {
+    background-color: #a9c0f2;
+}
+
+.greyHover:hover {
+    background-color: #409ad6;
+    cursor: pointer;
+}

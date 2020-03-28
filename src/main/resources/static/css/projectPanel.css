@@ -1,9 +1,10 @@
-.projectRow:hover {
-    background-color: #f5f5f5;
-}
-
 .projectRow:nth-child(even) {
     background-color: #f2f2f2;
+}
+
+.projectRow:hover {
+    background-color: #ebebeb;
+    cursor: pointer;
 }
 
 .projectRow {

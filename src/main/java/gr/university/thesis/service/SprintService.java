@@ -208,10 +208,29 @@ public class SprintService {
                 sprintRepository.findSprintsByProjectAndStatusOrderByIdDesc(project, (byte) sprintStatus.getRepositoryId());
         if (finishedSprintsOptionals.isPresent()) {
             List<Sprint> finishedSprints = finishedSprintsOptionals.get();
+            List<Sprint> sprintsWithoutTasks = new ArrayList<>();
+            //getting the sprint ready before showing it
             for (Sprint sprint : finishedSprints) {
+                boolean containsTasks = false;
+                //if the sprint does not contain any tasks, then the sprint should be removed from this list, as it
+                //will show an empty sprint in the sprint history page
+                //this should be replaced with a more efficient algorithm, one for example which directly takes tasks/bugs
+                //from the database, if the optional receiving is null, then skip etc.
+                for (ItemSprintHistory ish : sprint.getAssociatedItems()) {
+                    if (ish.getItem().getType() == ItemType.TASK.getRepositoryId()
+                            || ish.getItem().getType() == ItemType.BUG.getRepositoryId()) {
+                        containsTasks = true;
+                        break;
+                    }
+                }
+                if (!containsTasks) {
+                    sprintsWithoutTasks.add(sprint);
+                    continue;
+                }
                 calculateTotalEffort(sprint);
                 calculateVelocity(sprint);
             }
+            finishedSprints.removeAll(sprintsWithoutTasks);
         }
         return finishedSprintsOptionals;
     }

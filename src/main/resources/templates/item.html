@@ -12,26 +12,74 @@
         Modify
     </button>
     <!--    if the user is not an admin nor a project manager, and needs to assign the item to somebody else-->
-    <button id="uniqueItemChangeAssigneeButton"
-            onclick="toggleAssigneeInput()"
-            th:if="${item.assignee.id == session.userId and not #authorization.expression('hasAnyAuthority(''ADMIN'', ''PROJECT_MANAGER'')')}"
-            type="button"
-            value="projectPage">Change Assignee
-    </button>
-    <input formaction="/user/updateAssignee" hidden id="uniqueUpdateAssigneeButton" name="updateAssigneeButton"
-           type="submit" value="viewItemPage">
+    <span th:if="${item.status != 4}">
+            <button id="uniqueItemChangeAssigneeButton"
+                    onclick="toggleAssigneeInput()"
+                    th:if="${item.assignee.id == session.userId and not #authorization.expression('hasAnyAuthority(''ADMIN'', ''PROJECT_MANAGER'')')}"
+                    type="button"
+                    value="projectPage">Change Assignee
+            </button>
+        </span>
 
     <table id="viewUniqueItemTable">
         <input hidden id="uniqueItemId" name="itemId" th:value="${item.id}">
         <input hidden id="uniqueSprintId" name="sprintId" th:value="${sprint.id}">
-        <input hidden id="modifyItemPage" name="modifyItemPage" value="viewItem">
         <input hidden id="uniqueItemProjectId" name="itemProjectId" th:value="${projectId}">
+
+        <span th:if="${param.source}">
+            <span th:if="${param.source[0] == 'projectPage'}">
+                <input formaction="/user/updateAssignee" hidden id="uniqueUpdateAssigneeButton"
+                       name="updateAssigneeButton"
+                       type="submit" value="viewItem">
+                <!--                                when the user clicks to view the item in the project page-->
+                <input hidden id="modifyItemPage" name="modifyItemPage" value="viewItem">
+            </span>
+            <span th:if="${param.source[0] == 'projectProgressPage'}">
+                <input formaction="/user/updateAssignee" hidden id="uniqueUpdateAssigneeButton"
+                       name="updateAssigneeButton"
+                       type="submit" value="projectProgressPage">
+                <!--                                when the user clicks to view the item in the project progress page-->
+                                <input hidden id="modifyItemPage" name="modifyItemPage" value="projectProgressPage">
+                            </span>
+            <span th:if="${param.source[0] == 'taskBoardPage'}">
+                <input formaction="/user/updateAssignee" hidden id="uniqueUpdateAssigneeButton"
+                       name="updateAssigneeButton"
+                       type="submit" value="taskBoardPage">
+                <!--                                when the user clicks to view the item in the task board page-->
+                                <input hidden id="modifyItemPage" name="modifyItemPage" value="taskBoardPage">
+                <!--                sprint id is also needed-->
+                                <input hidden id="sprintIdModal" name="sprintIdModal"
+                                       th:value="${param.sprintIdModal[0]}">
+            </span>
+            <span th:if="${param.source[0] == 'sprintHistoryPage'}">
+                <input formaction="/user/updateAssignee" hidden id="uniqueUpdateAssigneeButton"
+                       name="updateAssigneeButton"
+                       type="submit" value="sprintHistoryPage">
+                <!--                                when the user clicks to view the item in the sprint history page-->
+                                <input hidden id="modifyItemPage" name="modifyItemPage" value="sprintHistoryPage">
+                <!--                sprint id is also needed-->
+                                <input hidden id="sprintIdModal" name="sprintIdModal"
+                                       th:value="${param.sprintIdModal[0]}">
+                            </span>
+        </span>
 
         <tr>
             <td>
                 <label for="uniqueItemTitle">Title:</label>
                 <span class="informationText" th:text="${item.title}"></span>
                 <input class="uniqueItemInput" hidden id="uniqueItemTitle" name="itemTitle" th:value="${item.title}">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="uniqueItemStatusInput">Status:</label>
+
+                <span class="informationText" id="uniqueItemStatusInput" th:if="${item.status == 1}">In Backlog</span>
+                <span class="informationText" id="uniqueItemStatusInput"
+                      th:if="${item.status == 2}">In Ready Sprint</span>
+                <span class="informationText" id="uniqueItemStatusInput"
+                      th:if="${item.status == 3}">In Active Sprint</span>
+                <span class="informationText" id="uniqueItemStatusInput" th:if="${item.status == 4}">Finished</span>
             </td>
         </tr>
         <tr>
@@ -144,15 +192,6 @@
             </span>
         </span>
     </select>
-                    <!--in case the above select option is disabled-->
-    <span th:if="${item.status == 3}">
-        <span th:if="${item.parent}">
-            <input name="itemParentId" th:value="${item.parent.id}" type="hidden">
-        </span>
-        <span th:unless="${item.parent}">
-            <input name="itemParentId" type="hidden" value="0">
-        </span>
-    </span>
                 </span>
             </span>
                 <span th:unless="${item.type == 1 or item.type == 2}">
@@ -218,11 +257,32 @@
                                         type="button" value="view">View
                                 </button>
                             </span>
+                            <span th:if="${param.source[0] == 'taskBoardPage'}">
+                                <button name="action"
+                                        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${item.parent.id} +'/?modalView=true&modalSource=taskBoardPage&sprintIdModal=' + ${param.sprintIdModal[0]}} + '\''"
+                                        type="button" value="view">View
+                                </button>
+                            </span>
+                            <span th:if="${param.source[0] == 'sprintHistoryPage'}">
+                                <button name="action"
+                                        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${item.parent.id} +'/?modalView=true&modalSource=sprintHistoryPage&sprintIdModal=' + ${param.sprintIdModal[0]}} + '\''"
+                                        type="button" value="view">View
+                                </button>
+                            </span>
                         </span>
             </span>
                 <span th:unless="${item.parent}">
                 <span class="informationText">No Parent</span>
             </span>
+                <!--in case any of the above select options are disabled-->
+                <span th:if="${item.status == 3}">
+                    <span th:if="${item.parent}">
+                        <input name="itemParentId" th:value="${item.parent.id}" type="hidden">
+                    </span>
+                    <span th:unless="${item.parent}">
+                        <input name="itemParentId" type="hidden" value="0">
+                    </span>
+                </span>
             </td>
         </tr>
         <tr>
@@ -241,7 +301,7 @@
                 <span th:each="itemPriority : ${itemPriorities}">
                 <span class="informationText" th:if="${item.priority == itemPriority.repositoryId}"
                       th:text="${itemPriority.name}"></span>
-            </span>
+                </span>
             </td>
         </tr>
         <tr>
@@ -304,7 +364,8 @@
                     Update
                 </button>
                 <button class="uniqueItemUpdateAndDeleteButtons" hidden name="action"
-                        sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" th:if="${item.status != 3}"
+                        sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" th:if="${item.status != 3
+                        and !itemHasFinishedChildren}"
                         type="submit"
                         value="delete">
                     Delete
@@ -323,6 +384,36 @@
         <input hidden id="commentIdView" name="commentIdView" readonly th:value="${comment.id}">
         <input hidden id="commentItemIdView" name="commentItemIdView" th:value="${item.id}">
         <input hidden id="commentProjectIdView" name="commentProjectIdView" th:value="${item.project.id}">
+
+        <span th:if="${param.source}">
+            <span th:if="${param.source[0] == 'projectPage'}">
+<!--                                when the user clicks to view the item in the project page-->
+                <input hidden id="modifyItemPageComment" name="modifyItemPageComment" value="viewItem">
+            </span>
+            <span th:if="${param.source[0] == 'projectProgressPage'}">
+<!--                                when the user clicks to view the item in the project progress page-->
+                                <input hidden id="modifyItemPageComment" name="modifyItemPageComment"
+                                       value="projectProgressPage">
+                            </span>
+            <span th:if="${param.source[0] == 'taskBoardPage'}">
+<!--                                when the user clicks to view the item in the task board page-->
+                                <input hidden id="modifyItemPageComment" name="modifyItemPageComment"
+                                       value="taskBoardPage">
+                <!--                sprint id is also needed-->
+                                <input hidden id="sprintIdModalComment" name="sprintIdModalComment"
+                                       th:value="${param.sprintIdModal[0]}">
+                            </span>
+            <span th:if="${param.source[0] == 'sprintHistoryPage'}">
+<!--                                when the user clicks to view the item in the sprint history page-->
+                                <input hidden id="modifyItemPageComment" name="modifyItemPageComment"
+                                       value="sprintHistoryPage">
+                <!--                sprint id is also needed-->
+                                <input hidden id="sprintIdModalComment" name="sprintIdModalComment"
+                                       th:value="${param.sprintIdModal[0]}">
+                            </span>
+        </span>
+
+
         <span th:text="${comment.owner.firstName + ' ' + comment.owner.lastName + ' at '}"></span>
         <span th:text="${#dates.format(comment.date_created, 'dd-MMM-yyyy HH:mm:ss')}"></span>
 
@@ -352,6 +443,35 @@
     <input id="commentBody" maxlength="32" name="commentBody" placeholder="Short comment about task"
            size="32">
     <button type="submit">Post</button>
+
+    <span th:if="${param.source}">
+            <span th:if="${param.source[0] == 'projectPage'}">
+<!--                                when the user clicks to view the item in the project page-->
+                <input hidden id="modifyItemPageCommentCreateCreate" name="modifyItemPageCommentCreate"
+                       value="viewItem">
+            </span>
+            <span th:if="${param.source[0] == 'projectProgressPage'}">
+<!--                                when the user clicks to view the item in the project progress page-->
+                                <input hidden id="modifyItemPageCommentCreate" name="modifyItemPageCommentCreate"
+                                       value="projectProgressPage">
+                            </span>
+            <span th:if="${param.source[0] == 'taskBoardPage'}">
+<!--                                when the user clicks to view the item in the task board page-->
+                                <input hidden id="modifyItemPageCommentCreate" name="modifyItemPageCommentCreate"
+                                       value="taskBoardPage">
+                <!--                sprint id is also needed-->
+                                <input hidden id="sprintIdModalCommentCreate" name="sprintIdModalCommentCreate"
+                                       th:value="${param.sprintIdModal[0]}">
+                            </span>
+            <span th:if="${param.source[0] == 'sprintHistoryPage'}">
+<!--                                when the user clicks to view the item in the sprint history page-->
+                                <input hidden id="modifyItemPageCommentCreate" name="modifyItemPageCommentCreate"
+                                       value="sprintHistoryPage">
+                <!--                sprint id is also needed-->
+                                <input hidden id="sprintIdModalCommentCreate" name="sprintIdModalCommentCreate"
+                                       th:value="${param.sprintIdModal[0]}">
+                            </span>
+        </span>
 </form>
 </body>
 </html>

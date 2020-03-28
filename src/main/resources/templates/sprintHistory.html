@@ -2,84 +2,16 @@
 <html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <link rel="stylesheet" th:href="@{/css/general.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/sprintHistory.css}" type="text/css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
     <script src="https://code.highcharts.com/stock/highstock.js"></script>
     <meta charset="UTF-8">
     <title>Sprint History</title>
-    <style>
-        #burndown {
-            width: 100%;
-            min-width: 310px;
-            height: 400px;
-            margin: 0 auto;
-        }
-    </style>
 </head>
 <body>
-<script th:inline="javascript">
-    const categories = [[${burnDownChartData.categories}]];
-    const ideal_burn = [[${burnDownChartData.ideal_burn}]];
-    const actual_burn = [[${burnDownChartData.actual_burn}]];
-    $(function () {
-        $('#burndown').highcharts({
-            title: {
-                text: 'Burndown Chart',
-                x: -20 //center
-            },
-            colors: ['blue', 'red'],
-            plotOptions: {
-                line: {
-                    lineWidth: 3
-                },
-                tooltip: {
-                    hideDelay: 200
-                }
-            },
-            subtitle: {
-                text: 'This Sprint',
-                x: -20
-            },
-            xAxis: {
-                categories: categories
-            },
-            yAxis: {
-                title: {
-                    text: 'Effort'
-                },
-                plotLines: [{
-                    value: 0,
-                    width: 1
-                }]
-            },
-            tooltip: {
-                valueSuffix: ' effort',
-                crosshairs: true,
-                shared: true
-            },
-            legend: {
-                layout: 'vertical',
-                align: 'right',
-                verticalAlign: 'middle',
-                borderWidth: 0
-            },
-            series: [{
-                name: 'Ideal Remaining',
-                color: 'rgba(255,0,0,0.25)',
-                lineWidth: 1,
-                data: ideal_burn
-            }, {
-                name: 'Actual Remaining',
-                color: 'rgba(0,120,200,0.75)',
-                marker: {
-                    radius: 6
-                },
-                data: actual_burn
-            }]
-        });
-    });
-</script>
+
 <button th:onclick="'window.location.href=\'' + @{/} + '\''"
         type="button">Home
 </button>
@@ -92,16 +24,52 @@
         type="button">Back to Task Board
 </button>
 <div id="burndown"></div>
+<br>
 
-<h3>Sprint History of Tasks Done</h3>
+<br>
+<h2 align="center">Sprint History of Tasks Done</h2>
 
-<span th:if="${tasksDoneByDateList}">
+<span style="text-align: center;" th:if="${tasksDoneByDateList}">
+    <table class="taskHistoryTable">
+        <th>Date</th>
+        <th>Task</th>
     <div th:each="tasksDoneByDate : ${tasksDoneByDateList}">
-        <div th:text="${tasksDoneByDate.date}"></div>
-        <div th:each="item : ${tasksDoneByDate.items}">
+        <tr class="infoRowHeader" style="border-top: 2px solid black;">
+            <td th:rowspan="${tasksDoneByDate.items.size()}">
+        <div th:text="${#dates.format(tasksDoneByDate.date, 'dd-MMM-yyyy')}"></div>
+            </td>
+            <td class="infoCell greyHover"
+                th:onclick="|openViewItemModal(${tasksDoneByDate.items[0].project.id},${tasksDoneByDate.items[0].id},${sprintId})|">
+                <span th:text="${tasksDoneByDate.items[0].title}"></span>
+            </td>
+        </tr>
+        <span th:each="item : ${tasksDoneByDate.items}">
+<!--            skipping the first cell, as it has been printed on the previous row-->
+        <tr class="greyHover" th:if="${itemStat.count != 1}">
+            <td class="infoCell" th:onclick="|openViewItemModal(${item.project.id},${item.id},${sprintId})|">
             <span th:text="${item.title}"></span>
-        </div>
+            </td>
+        </tr>
+        </span>
     </div>
+    </table>
+</span>
+<span th:insert="include/modals :: viewItemModal"></span>
+<script th:src="@{/js/sprintHistory.js}"></script>
+<script th:src="@{/js/modalFunctions.js}"></script>
+<script th:inline="javascript">
+    const categories = [[${burnDownChartData.categories}]];
+    const ideal_burn = [[${burnDownChartData.ideal_burn}]];
+    const actual_burn = [[${burnDownChartData.actual_burn}]];
+    showChart(categories, ideal_burn, actual_burn);
+</script>
+<span th:if="${itemId}">
+    <script>
+            const projectId = [[${projectId}]];
+            const itemId = [[${itemId}]];
+            const sprintId = [[${sprintId}]];
+            redirectToModal(projectId, itemId, sprintId);
+    </script>
 </span>
 </body>
 </html>

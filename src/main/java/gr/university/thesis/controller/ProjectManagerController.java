@@ -159,6 +159,8 @@ public class ProjectManagerController {
      * @param itemAssigneeId:  the user that thisitem is assigned to
      * @param itemParentId    : the parent of the item
      * @param sprintId : the sprint that this item belongs to
+     * @param modifyItemPage: allows the controller to know, which page this request comes from
+     * @param redir: allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : returns a redirection to the current project backlog
      * @throws ItemAlreadyExistsException : user has tried to set the item's title to one that already exists
      * @throws ItemHasEmptyTitleException : user has tried to set the item's title to blank
@@ -183,31 +185,57 @@ public class ProjectManagerController {
                 new User(itemAssigneeId), new Item(itemParentId));
         if (modifyItemPage.equals("projectPage"))
             return "redirect:/user/project/" + itemProjectId;
-        else if (modifyItemPage.equals("viewItem")) {
+        else {
             redir.addFlashAttribute("itemId", itemId);
-            return "redirect:/user/project/" + itemProjectId;
-        } else
-            return "redirect:/";
+            switch (modifyItemPage) {
+                case "viewItem":
+                    return "redirect:/user/project/" + itemProjectId;
+                case "projectProgressPage":
+                    return "redirect:/user/project/" + itemProjectId + "/projectProgress";
+                case "taskBoardPage":
+                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
+                case "sprintHistoryPage":
+                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId + "/history";
+            }
+        }
+        return "redirect:/";
     }
 
     /**
      * this method calls the item service in order to delete an existing item from the repository
      *
-     * @param itemId:        required id in order to delete the item from the repository
-     * @param itemProjectId: required for the redirection to the project backlog
-     * @param sprintId      : the sprint that this item belongs to
+     * @param itemId:         required id in order to delete the item from the repository
+     * @param itemProjectId:  required for the redirection to the project backlog
+     * @param sprintId        : the sprint that this item belongs to
+     * @param modifyItemPage: allows the controller to know, which page this request comes from
+     * @param redir:          allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : returns a redirection to the current project backlog
      */
     @RequestMapping(value = "/editItem", params = "action=delete", method = RequestMethod.POST)
     public String deleteItem(@RequestParam long itemId,
                              @RequestParam long itemProjectId,
                              @RequestParam long sprintId,
+                             @RequestParam String modifyItemPage,
                              RedirectAttributes redir) {
         //need to delete its associations first (if they exist)
         itemSprintHistoryService.removeItemFromSprint(new Item(itemId), new Sprint(sprintId), null);
         itemService.deleteItem(itemId);
-        redir.addFlashAttribute("itemId", -1);
-        return "redirect:/user/project/" + itemProjectId;
+        if (modifyItemPage.equals("projectPage"))
+            return "redirect:/user/project/" + itemProjectId;
+        else {
+            redir.addFlashAttribute("itemId", -1);
+            switch (modifyItemPage) {
+                case "viewItem":
+                    return "redirect:/user/project/" + itemProjectId;
+                case "projectProgressPage":
+                    return "redirect:/user/project/" + itemProjectId + "/projectProgress";
+                case "taskBoardPage":
+                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
+                case "sprintHistoryPage":
+                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId + "/history";
+            }
+        }
+        return "redirect:/";
     }
 
     /**

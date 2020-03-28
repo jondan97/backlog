@@ -106,9 +106,15 @@ public class UserController {
     /**
      * this method shows to the user, the backlog and the sprints of a certain project
      *
-     * @param projectId: the project id that was requested by the user to view
-     * @param itemId     : the id of the item that the user requested to see
-     * @param model:     the user interface that will be shown in the front-end
+     * @param projectId:     the project id that was requested by the user to view
+     * @param itemId         : the id of the item that the user requested to see
+     * @param modalView      : this allows the controller to know, whether the request comes from a modal or not
+     * @param modalSource:   this allows the controller to know, what is the source of the modal, is it accessed in the
+     *                       project page, the task board page etc.
+     * @param sprintIdModal: this helps the controller acquire the sprint id, by accessing the GET request
+     *                       *                            parameter
+     * @param model:         the user interface that will be shown in the front-end
+     * @param redir:         allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : returns the item template
      * @throws ItemDoesNotExistException : exception thrown when item does not exist in the project
      */
@@ -117,16 +123,19 @@ public class UserController {
                            @PathVariable long itemId,
                            @RequestParam(required = false) boolean modalView,
                            @RequestParam(required = false) Optional<String> modalSource,
+                           @RequestParam(required = false) String sprintIdModal,
                            Model model,
                            RedirectAttributes redir) throws ItemDoesNotExistException {
         Optional<Item> itemOptional = itemService.findItemInProject(itemId, projectId);
         Optional<Project> projectOptional = projectService.findProjectById(projectId);
         if (itemOptional.isPresent()) {
             Item item = itemOptional.get();
+            boolean itemHasFinishedChildren = false;
             if (item.getType() == ItemType.EPIC.getRepositoryId() || item.getType() == ItemType.STORY.getRepositoryId()) {
                 List<Item> temporaryOneSizedArrayList = new ArrayList<>();
                 temporaryOneSizedArrayList.add(item);
                 itemService.calculatedCombinedEffort(temporaryOneSizedArrayList);
+                itemHasFinishedChildren = itemService.checkIfItemContainsFinishedChildren(item);
             }
             Project project = projectOptional.get();
             model.addAttribute("sprint", sprintService.findActiveSprintInProject(project).get());
@@ -140,6 +149,7 @@ public class UserController {
             //we want the most recent one shown first, we sort our item comments using a comparator, and then we reverse it
             Collections.sort(item.getComments(), Collections.reverseOrder(Comparator.comparing(Comment::getDate_created)));
             model.addAttribute("item", item);
+            model.addAttribute("itemHasFinishedChildren", itemHasFinishedChildren);
         } else {
             throw new ItemDoesNotExistException("Item with id '" + itemId + "' does not exist in this project.");
         }
@@ -150,6 +160,10 @@ public class UserController {
                 return "redirect:/user/project/" + projectId;
             } else if (modalSource.get().equals("projectProgressPage")) {
                 return "redirect:/user/project/" + projectId + "/projectProgress";
+            } else if (modalSource.get().equals("taskBoardPage")) {
+                return "redirect:/user/project/" + projectId + "/sprint/" + sprintIdModal;
+            } else if (modalSource.get().equals("sprintHistoryPage")) {
+                return "redirect:/user/project/" + projectId + "/sprint/" + sprintIdModal + "/history";
             }
         }
         return "item";
@@ -165,6 +179,7 @@ public class UserController {
      * @param sprintId             : the sprint that this assignee belongs to
      * @param updateAssigneeButton : the source that this request comes from, is it from the project page or the
      *                             task board page
+     * @param redir: allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : redirection to project page if assignment was done in project page, taskBoard page if assignment
      * was done in taskBoard page or home page if assignment failed to be recognised where it came from
      */
@@ -178,13 +193,22 @@ public class UserController {
         itemService.updateAssignee(itemId, new User(itemAssigneeId));
         if (updateAssigneeButton.equals("projectPage"))
             return "redirect:/user/project/" + itemProjectId;
-        else if (updateAssigneeButton.equals("taskBoardPage"))
+        else if (updateAssigneeButton.equals("taskBoard"))
             return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
-        else if (updateAssigneeButton.equals("viewItemPage")) {
+        else {
             redir.addFlashAttribute("itemId", itemId);
-            return "redirect:/user/project/" + itemProjectId;
-        } else
-            return "redirect:/";
+            switch (updateAssigneeButton) {
+                case "viewItem":
+                    return "redirect:/user/project/" + itemProjectId;
+                case "projectProgressPage":
+                    return "redirect:/user/project/" + itemProjectId + "/projectProgress";
+                case "taskBoardPage":
+                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
+                case "sprintHistoryPage":
+                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId + "/history";
+            }
+        }
+        return "redirect:/";
     }
 
     /**
@@ -193,6 +217,10 @@ public class UserController {
      * @param commentBody:   body of the comment, what is says
      * @param commentItemId: item that this belongs to
      * @param commentProjectId : the project that this comment belongs to
+     * @param sprintIdModalCommentCreate: this helps the controller acquire the sprint id, by accessing the GET request
+     *                            parameter
+     * @param modifyItemPageCommentCreate: allows the controller to know, which page this request comes from
+     * @param redir: allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @param session:       the current session, needed to find the creator of the comment
      * @return : returns a redirection to the item of a project
      */
@@ -200,11 +228,23 @@ public class UserController {
     public String createComment(@RequestParam String commentBody,
                                 @RequestParam long commentItemId,
                                 @RequestParam long commentProjectId,
+                                @RequestParam String modifyItemPageCommentCreate,
+                                @RequestParam(required = false) Optional<Long> sprintIdModalCommentCreate,
                                 HttpSession session,
                                 RedirectAttributes redir) {
         commentService.createComment(commentBody, new Item(commentItemId), sessionService.getUserWithSessionId(session));
         redir.addFlashAttribute("itemId", commentItemId);
-        return "redirect:/user/project/" + commentProjectId;
+        switch (modifyItemPageCommentCreate) {
+            case "viewItem":
+                return "redirect:/user/project/" + commentProjectId;
+            case "projectProgressPage":
+                return "redirect:/user/project/" + commentProjectId + "/projectProgress";
+            case "taskBoardPage":
+                return "redirect:/user/project/" + commentProjectId + "/sprint/" + sprintIdModalCommentCreate.get();
+            case "sprintHistoryPage":
+                return "redirect:/user/project/" + commentProjectId + "/sprint/" + sprintIdModalCommentCreate.get() + "/history";
+        }
+        return "redirect:/";
     }
 
     /**
@@ -214,6 +254,10 @@ public class UserController {
      * @param commentItemIdView: required for the redirection
      * @param commentProjectIdView : required for the redirection
      * @param commentBodyView:   body of the comment, what is says
+     * @param sprintIdModalComment: this helps the controller acquire the sprint id, by accessing the GET request
+     *                            parameter
+     * @param modifyItemPageComment: allows the controller to know, which page this request comes from
+     * @param redir: allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : returns a redirection to the item of a project
      */
     @RequestMapping(value = "/editComment", params = "action=update", method = RequestMethod.POST)
@@ -221,10 +265,22 @@ public class UserController {
                                 @RequestParam long commentItemIdView,
                                 @RequestParam long commentProjectIdView,
                                 @RequestParam String commentBodyView,
+                                @RequestParam String modifyItemPageComment,
+                                @RequestParam(required = false) Optional<Long> sprintIdModalComment,
                                 RedirectAttributes redir) {
         commentService.updateComment(commentIdView, commentBodyView);
         redir.addFlashAttribute("itemId", commentItemIdView);
-        return "redirect:/user/project/" + commentProjectIdView;
+        switch (modifyItemPageComment) {
+            case "viewItem":
+                return "redirect:/user/project/" + commentProjectIdView;
+            case "projectProgressPage":
+                return "redirect:/user/project/" + commentProjectIdView + "/projectProgress";
+            case "taskBoardPage":
+                return "redirect:/user/project/" + commentProjectIdView + "/sprint/" + sprintIdModalComment.get();
+            case "sprintHistoryPage":
+                return "redirect:/user/project/" + commentProjectIdView + "/sprint/" + sprintIdModalComment.get() + "/history";
+        }
+        return "redirect:/";
     }
 
     /**
@@ -233,17 +289,33 @@ public class UserController {
      * @param commentIdView:        required id in order to delete the comment from the repository
      * @param commentItemIdView:    required for the redirection
      * @param commentProjectIdView: required for the redirection
+     * @param sprintIdModalComment: this helps the controller acquire the sprint id, by accessing the GET request
+     *                            parameter
+     * @param modifyItemPageComment: allows the controller to know, which page this request comes from
+     * @param redir: allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : returns a redirection to the item of a project
      */
     @RequestMapping(value = "/editComment", params = "action=delete", method = RequestMethod.POST)
     public String deleteComment(@RequestParam long commentIdView,
                                 @RequestParam long commentItemIdView,
                                 @RequestParam long commentProjectIdView,
+                                @RequestParam String modifyItemPageComment,
+                                @RequestParam(required = false) Optional<Long> sprintIdModalComment,
                                 RedirectAttributes redir
     ) {
         commentService.deleteComment(commentIdView);
         redir.addFlashAttribute("itemId", commentItemIdView);
-        return "redirect:/user/project/" + commentProjectIdView;
+        switch (modifyItemPageComment) {
+            case "viewItem":
+                return "redirect:/user/project/" + commentProjectIdView;
+            case "projectProgressPage":
+                return "redirect:/user/project/" + commentProjectIdView + "/projectProgress";
+            case "taskBoardPage":
+                return "redirect:/user/project/" + commentProjectIdView + "/sprint/" + sprintIdModalComment.get();
+            case "sprintHistoryPage":
+                return "redirect:/user/project/" + commentProjectIdView + "/sprint/" + sprintIdModalComment.get() + "/history";
+        }
+        return "redirect:/";
     }
 
     /**
@@ -254,6 +326,8 @@ public class UserController {
      * @param model:     the user interface
      * @return : the task board of the sprint requested
      * @throws SprintDoesNotExistException: this is thrown when the sprint requested does not exist in this project
+     * @throws SprintHasNotStartedException: this is thrown when the user tries to access the task board of a ready
+     * sprint or a task board that in general, is not in the active state
      */
     @RequestMapping(value = "/project/{projectId}/sprint/{sprintId}")
     public String viewTaskBoard(@PathVariable long projectId,
@@ -263,7 +337,7 @@ public class UserController {
         if (sprintOptional.isPresent()) {
             Sprint sprint = sprintOptional.get();
             if (sprint.getStatus() == SprintStatus.READY.getRepositoryId()) {
-                throw new SprintHasNotStartedException("Sprint has not yet started, so task board cannot be seen.");
+                throw new SprintHasNotStartedException("Sprint task board has not yet started.");
             }
             model.addAttribute("allUsers", userService.findAllUsers());
             model.addAttribute("projectId", projectId);
@@ -288,6 +362,7 @@ public class UserController {
                             ItemType.TASK, ItemType.BUG);
             doneAssociations.ifPresent(itemSprintHistories -> model.addAttribute("doneAssociations",
                     itemSprintHistories));
+            model.addAttribute("itemPriorities", ItemPriority.values());
         } else {
             throw new SprintDoesNotExistException("Sprint with id '" + sprintId + "' does not exist in this project");
         }

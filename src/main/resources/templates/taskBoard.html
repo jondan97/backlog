@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Task Board</title>
+    <link rel="stylesheet" th:href="@{/css/general.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/taskBoard.css}" type="text/css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-<script type="text/javascript">
-    $(document).ready(function () {
-        $(document).on('change', 'select', function () {
-            const form = $(this).parent();
-            $(form).find('#updateAssignee').click();
-        });
-    });
-</script>
 <button th:onclick="'window.location.href=\'' + @{/} + '\''"
         type="button">Home
 </button>
@@ -25,25 +21,67 @@
         th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/sprint/' + ${sprint.id} + '/history'} + '\''"
         type="button">Sprint History
 </button>
-<span th:if="${todoAssociations}">
-  <span th:each="association: ${todoAssociations}">
-      <span th:insert="include/taskBoardItem :: item"></span>
-  </span>
-</span>
-<span th:if="${inProgressAssociations}">
-    <span th:each="association: ${inProgressAssociations}">
-        <span th:insert="include/taskBoardItem :: item"></span>
-    </span>
-</span>
-<span th:if="${forReviewAssociations}">
-    <span th:each="association: ${forReviewAssociations}">
-        <span th:insert="include/taskBoardItem :: item"></span>
-    </span>
-</span>
-<span th:if="${doneAssociations}">
-    <span th:each="association: ${doneAssociations}">
-        <span th:insert="include/taskBoardItem :: item"></span>
-    </span>
+<br>
+
+<div class="container">
+    <div class="column">
+        <p class="column-title">TO DO</p>
+        <div class="tasks">
+            <span th:if="${todoAssociations}">
+                <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
+                     th:each="association: ${todoAssociations}">
+                        <span th:insert="include/taskBoardItem :: item"></span>
+                </div>
+            </span>
+        </div>
+    </div>
+
+    <div class="column">
+        <p class="column-title">IN PROGRESS</p>
+        <div class="tasks">
+            <span th:if="${inProgressAssociations}">
+                <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
+                     th:each="association: ${inProgressAssociations}">
+                    <span th:insert="include/taskBoardItem :: item"></span>
+                </div>
+            </span>
+        </div>
+    </div>
+
+    <div class="column">
+        <p class="column-title">FOR REVIEW</p>
+        <div class="tasks">
+            <span th:if="${forReviewAssociations}">
+                <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
+                     th:each="association: ${forReviewAssociations}">
+                    <span th:insert="include/taskBoardItem :: item"></span>
+                </div>
+            </span>
+        </div>
+    </div>
+    <div class="column">
+        <p class="column-title">DONE</p>
+        <div class="tasks">
+            <span th:if="${doneAssociations}">
+                <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
+                     th:each="association: ${doneAssociations}">
+                    <span th:insert="include/taskBoardItem :: item"></span>
+                </div>
+            </span>
+        </div>
+    </div>
+</div>
+<span th:insert="include/modals :: viewItemModal"></span>
+<script th:src="@{/js/taskBoard.js}"></script>
+<script th:src="@{/js/modalFunctions.js}"></script>
+<!--in the event of redirecting to a modal (after modifying item or clicking on a parent let's say-->
+<span th:if="${itemId}">
+    <script>
+            const projectId = [[${projectId}]];
+            const itemId = [[${itemId}]];
+            const sprintId = [[${sprintId}]];
+            redirectToModal(projectId, itemId, sprintId);
+    </script>
 </span>
 </body>
 </html>

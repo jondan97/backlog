@@ -22,3 +22,17 @@
     font-size: 16px;
     font-weight: bold;
 }
+
+#uniqueItemModifyButton {
+    position: absolute;
+    right: 5%;
+}
+
+#uniqueItemChangeAssigneeButton {
+    position: absolute;
+    right: 5%;
+}
+
+.uniqueItemUpdateAndDeleteButtons {
+    float: right;
+}
