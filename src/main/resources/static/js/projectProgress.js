@@ -4,10 +4,17 @@ function showChart(categories, ideal_burn, actual_burn) {
     if (!ideal_burn.length) {
         visible = false;
     }
+    let titleWithImage = 'Product Burndown';
+    if (checkCookie('hints')) {
+        titleWithImage = 'Product Burndown' +
+            ' ' +
+            '<img class="hintSymbol" src="../../../../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 2px;" onclick="openHintModal(\'productBurndown\')">';
+    }
     $(function () {
         $('#burndown').highcharts({
             title: {
-                text: 'Product Burndown',
+                useHTML: true,
+                text: titleWithImage,
                 x: -20 //center
             },
             colors: ['blue', 'red'],

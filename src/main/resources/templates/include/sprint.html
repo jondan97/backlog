@@ -9,13 +9,41 @@
         <table style="width: 100%">
             <form method="post" th:action="@{/pm/editSprint}">
             <tr>
-                <th>Goal</th>
-                <th>Duration</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Days Remaining</th>
-                <th>Total Effort</th>
-                <th>Velocity</th>
+                <th>
+                    Goal
+                    <img class="hintSymbol" hidden onclick="openHintModal('sprint-goal')"
+                         src="../../images/hintSymbol.png" style="width: 20px;height: 20px;">
+                </th>
+                <th>
+                    Duration
+                    <img class="hintSymbol" hidden onclick="openHintModal('sprint-duration')"
+                         src="../../images/hintSymbol.png" style="width: 20px;height: 20px;">
+                </th>
+                <th>
+                    Start Date
+                    <img class="hintSymbol" hidden onclick="openHintModal('sprint-startDate')"
+                         src="../../images/hintSymbol.png" style="width: 20px;height: 20px;">
+                </th>
+                <th>
+                    End Date
+                    <img class="hintSymbol" hidden onclick="openHintModal('sprint-endDate')"
+                         src="../../images/hintSymbol.png" style="width: 20px;height: 20px;">
+                </th>
+                <th>
+                    Days Remaining
+                    <img class="hintSymbol" hidden onclick="openHintModal('sprint-daysRemaining')"
+                         src="../../images/hintSymbol.png" style="width: 20px;height: 20px;">
+                </th>
+                <th>
+                    Total Effort
+                    <img class="hintSymbol" hidden onclick="openHintModal('sprint-totalEffort')"
+                         src="../../images/hintSymbol.png" style="width: 20px;height: 20px;">
+                </th>
+                <th>
+                    Velocity
+                    <img class="hintSymbol" hidden onclick="openHintModal('sprint-velocity')"
+                         src="../../images/hintSymbol.png" style="width: 20px;height: 20px;">
+                </th>
             </tr>
 
                 <input hidden id="sprintId" name="sprintId" readonly th:value="${sprint.id}">

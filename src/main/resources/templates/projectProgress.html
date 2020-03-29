@@ -18,11 +18,18 @@
         th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId}} + '\''"
         type="button">Project
 </button>
+<button onclick="window.location.href='/logout'" style="float: right"
+        type="button">Log Out
+</button>
 <div id="burndown"></div>
 <br>
 
 <br>
-<h2 align="center">Sprint History</h2>
+<h2 align="center">
+    Sprint History
+    <img class="hintSymbol" hidden onclick="openHintModal('projectProgress-sprintHistory')"
+         src="../../../../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 5px 2px;">
+</h2>
 <span style="text-align: center;" th:if="${finishedSprints}">
     <table class="sprintHistoryTable">
         <tr>
@@ -84,6 +91,11 @@
 <span th:insert="include/modals :: viewItemModal"></span>
 <script th:src="@{/js/projectProgress.js}"></script>
 <script th:src="@{/js/modalFunctions.js}"></script>
+
+<span th:insert="include/modals :: hintModal"></span>
+<span th:insert="include/hints :: hints"></span>
+<script th:src="@{/js/general.js}"></script>
+
 <script th:inline="javascript">
     const categories = [[${burnDownChartData.categories}]];
     const ideal_burn = [[${burnDownChartData.ideal_burn}]];
@@ -97,5 +109,12 @@
             redirectToModal(projectId, itemId);
     </script>
 </span>
+<script>
+    // self executing function here
+    (function () {
+        showHints();
+
+    })();
+</script>
 </body>
 </html>

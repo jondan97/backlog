@@ -21,11 +21,19 @@
         th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/sprint/' + ${sprint.id} + '/history'} + '\''"
         type="button">Sprint History
 </button>
+<button onclick="window.location.href='/logout'" style="float: right"
+        type="button">Log Out
+</button>
 <br>
 
 <div class="container">
     <div class="column">
-        <p class="column-title">TO DO</p>
+        <p class="column-title">
+            TO DO
+            <img class="hintSymbol" hidden onclick="openHintModal('toDo')" src="../../../../images/hintSymbol.png"
+                 style="width: 25px;height: 25px;">
+        </p>
+
         <div class="tasks">
             <span th:if="${todoAssociations}">
                 <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
@@ -37,7 +45,11 @@
     </div>
 
     <div class="column">
-        <p class="column-title">IN PROGRESS</p>
+        <p class="column-title">
+            IN PROGRESS
+            <img class="hintSymbol" hidden onclick="openHintModal('inProgress')" src="../../../../images/hintSymbol.png"
+                 style="width: 25px;height: 25px;">
+        </p>
         <div class="tasks">
             <span th:if="${inProgressAssociations}">
                 <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
@@ -49,7 +61,11 @@
     </div>
 
     <div class="column">
-        <p class="column-title">FOR REVIEW</p>
+        <p class="column-title">
+            FOR REVIEW
+            <img class="hintSymbol" hidden onclick="openHintModal('forReview')" src="../../../../images/hintSymbol.png"
+                 style="width: 25px;height: 25px;">
+        </p>
         <div class="tasks">
             <span th:if="${forReviewAssociations}">
                 <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
@@ -60,7 +76,11 @@
         </div>
     </div>
     <div class="column">
-        <p class="column-title">DONE</p>
+        <p class="column-title">
+            DONE
+            <img class="hintSymbol" hidden onclick="openHintModal('done')" src="../../../../images/hintSymbol.png"
+                 style="width: 25px;height: 25px;">
+        </p>
         <div class="tasks">
             <span th:if="${doneAssociations}">
                 <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
@@ -72,6 +92,11 @@
     </div>
 </div>
 <span th:insert="include/modals :: viewItemModal"></span>
+
+<span th:insert="include/modals :: hintModal"></span>
+<span th:insert="include/hints :: hints"></span>
+<script th:src="@{/js/general.js}"></script>
+
 <script th:src="@{/js/taskBoard.js}"></script>
 <script th:src="@{/js/modalFunctions.js}"></script>
 <!--in the event of redirecting to a modal (after modifying item or clicking on a parent let's say-->
@@ -83,5 +108,12 @@
             redirectToModal(projectId, itemId, sprintId);
     </script>
 </span>
+<script>
+    // self executing function here
+    (function () {
+        showHints();
+
+    })();
+</script>
 </body>
 </html>

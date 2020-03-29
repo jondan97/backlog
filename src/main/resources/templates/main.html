@@ -3,24 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <title>Main Page</title>
+    <link rel="stylesheet" th:href="@{/css/general.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/main.css}" type="text/css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" id="bootstrap-css" rel="stylesheet">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-Hi!@
-<div th:switch="${session.role}">
-    <div th:case="null">
-        <div th:text="'Not signed in'"></div>
+<div class="masterContainer">
+    <h1 class="mainTitle">Welcome to the Educational Backlog!</h1>
+    <h3 class="mainTitle">Please choose a mode:</h3>
+    <div class="container" onclick="window.location.href='/user/projectPanel'" style="width: 25%">
+        <img class="image1" src="/images/main-page-normal-mode.png">
+        <div class="overlay">
+            <div class="text">Normal Mode</div>
+        </div>
     </div>
-    <div th:case='*'>
-        <div th:text="${session.userId}"></div>
-        <div th:text="${session.userEmail}"></div>
-        <div th:text="${session.role}"></div>
+    <div class="container" style="width: 25%">
+        <img class="image2" src="/images/artemis/hidden.png">
+        <div class="overlay">
+            <div class="text" style="color: #fcfffa;">Guided Tour</div>
+        </div>
     </div>
+    <div class="containerBottom" id="hintsON" onclick="toggleHints()" style="width: 50.4%">
+        <br>
+        <br>
+        <br>
+        <div class="overlay">
+            <div class="text">Turn hints ON</div>
+        </div>
+    </div>
+    <div class="containerBottom" id="hintsOFF" onclick="toggleHints()" style="width: 50.4%">
+        <br>
+        <br>
+        <br>
+        <div class="overlay">
+            <div class="text">Turn hints OFF</div>
+        </div>
+    </div>
+    <br>
+    <br>
+    <ul class="infoContainer" style="width: 53.4%">
+        <li>
+            <span class="informationText"> Normal Mode: </span>
+            Use the application without any help or hints.
+        </li>
+        <li>
+            <span class="informationText"> Guided Tour: </span>
+            Have a guide show you around the application. They will also try and teach you about the Scrum
+            framework.
+        </li>
+        <li>
+            <span class="informationText"> Hints: </span>
+            Hints will appear in the form of question marks
+            (<img class="hintSymbol" onclick="openHintModal('mainPage')" src="images/hintSymbol.png"
+                  style="width: 25px;height: 25px;">)
+            all around the application. You will be able to click on
+            them and learn more about the key artifacts of the Scrum framework.
+        </li>
+    </ul>
 </div>
----------------------------------------------<br>
-<a href="/login">Login</a><br>
-<a href="/logout">Logout</a><br>
-<a href="/user/projectPanel">Project Panel</a><br>
-<a href="/admin/userPanel">User Panel</a><br>
-<a href="/firstTime">First Time</a><br>
+
+<span class="adminLink">If you are the admin, click <a href="/admin/userPanel">here</a>.</span>
+
+<span th:insert="include/modals :: hintModal"></span>
+<span th:insert="include/hints :: hints"></span>
+<script th:src="@{/js/general.js}"></script>
+
+<script th:src="@{/js/main.js}"></script>
+<script>
+    // self executing function here
+    (function () {
+        toggleContainerBottom();
+    })();
+</script>
 </body>
 </html>

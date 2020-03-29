@@ -5,7 +5,7 @@
 </head>
 <body>
 <span th:fragment="editProjectModal">
-        <!-- Modal -->
+        <!-- Edit Project Modal -->
 <div class="modal fade" id="editProjectModal" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
@@ -26,7 +26,7 @@
 </span>
 
 <span th:fragment="viewItemModal">
-    <!-- Modal -->
+    <!-- View Item Modal -->
 <div class="modal fade" id="viewItemModal" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
@@ -37,6 +37,27 @@
             </div>
             <div class="modal-body">
                 <p>Item has been deleted!</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</span>
+
+<span th:fragment="hintModal">
+    <!-- Hint Modal -->
+<div class="modal fade" id="hintModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="hintTitle"></h4>
+                <button class="close" data-dismiss="modal" type="button">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="hintBody"></p>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>

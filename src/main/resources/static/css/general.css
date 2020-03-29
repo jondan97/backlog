@@ -36,3 +36,13 @@
 .uniqueItemUpdateAndDeleteButtons {
     float: right;
 }
+
+.hintSymbol {
+    filter: grayscale(100%);
+}
+
+.hintSymbol:hover {
+    filter: grayscale(0%);
+    cursor: pointer;
+}
+

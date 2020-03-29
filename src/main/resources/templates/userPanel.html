@@ -8,6 +8,9 @@
 <button th:onclick="'window.location.href=\'' + @{/} + '\''"
         type="button">Home
 </button>
+<button onclick="window.location.href='/logout'" style="float: right"
+        type="button">Log Out
+</button>
 <h3>Existing Users:</h3>
 <div th:each="user : ${users}" th:style="${user.roles.size() > 1 ? 'border-style: dotted' : 'border-style: solid'}">
     <form method="post" th:action="@{/admin/editUser}">

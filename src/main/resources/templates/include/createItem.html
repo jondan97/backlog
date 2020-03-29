@@ -11,11 +11,15 @@
             <td>
                 <label for="title">Title:</label>
                 <input id="title" name="title" placeholder="Name of the item">
+                <img class="hintSymbol" hidden onclick="openHintModal('createItem-title')"
+                     src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
             </td>
         </tr>
         <tr>
             <td>
                 <label for="description">Description:</label>
+                <img class="hintSymbol" hidden onclick="openHintModal('createItem-description')"
+                     src="../../images/hintSymbol.png" style="width: 25px;height: 25px;">
             </td>
         </tr>
         <tr>
@@ -35,6 +39,8 @@
             </span>
         </span>
                 </select>
+                <img class="hintSymbol" hidden onclick="openHintModal('createItem-itemType')"
+                     src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
             </td>
         </tr>
         <tr>
@@ -57,7 +63,8 @@
         </span>
                 </select>
                 <input id="parentId" name="parentId" type="hidden" value="0">
-
+                <img class="hintSymbol" hidden onclick="openHintModal('createItem-parent')"
+                     src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
             </td>
         </tr>
         <tr>
@@ -71,6 +78,8 @@
             </span>
         </span>
                 </select>
+                <img class="hintSymbol" hidden onclick="openHintModal('createItem-itemPriority')"
+                     src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
             </td>
         </tr>
         <tr>
@@ -78,6 +87,8 @@
                 <label for="fakeEffort">Effort:</label>
                 <input id="fakeEffort" name="fakeEffort" placeholder="1 to 10" type="number">
                 <input id="effort" name="effort" type="hidden" value="0">
+                <img class="hintSymbol" hidden onclick="openHintModal('createItem-effort')"
+                     src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
             </td>
         </tr>
         <tr>
@@ -91,6 +102,12 @@
                 </span>
                 </select>
                 <input hidden id="projectId" name="projectId" th:value="${project.id}">
+                <img class="hintSymbol" hidden onclick="openHintModal('createItem-assignee')"
+                     src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
+            </td>
+        </tr>
+        <tr>
+            <td style="float: right;">
                 <button type="submit">Create Item</button>
             </td>
         </tr>

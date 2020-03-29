@@ -35,6 +35,9 @@ public class GeneralController {
      */
     @GetMapping("/")
     public String mainPage() {
+        //used in order to initialize some data needed for the system to properly work, always run this first
+        //if system is run for the first time
+        userDetailsServiceImpl.firstTime();
         return "main";
     }
 
@@ -63,17 +66,5 @@ public class GeneralController {
     @GetMapping("/logout")
     public String logout() {
         return "redirect:/login?logout";
-    }
-
-    /**
-     * used in order to initialize some data needed for the system to properly work, always run this first
-     * if system is run for the first time
-     *
-     * @return redirection to a page (probably main page)
-     */
-    @GetMapping("/firstTime")
-    public String firstTime() {
-        userDetailsServiceImpl.firstTime();
-        return "redirect:/";
     }
 }

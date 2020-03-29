@@ -21,7 +21,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     UserDetailsServiceImpl userDetailsServiceImpl;
     //Array instance that includes all the paths that need to be accessed by all users
     String[] resources = new String[]{
-            "/include/**", "/css/**", "/icons/**", "/img/**", "/js/**", "/layer/**"
+            "/include/**", "/css/**", "/icons/**", "/images/**", "/js/**", "/layer/**"
     };
 
     /**

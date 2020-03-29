@@ -11,73 +11,43 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-
-<!--&lt;!&ndash; The Modal &ndash;&gt;-->
-<!--<div id="myModal" class="modal">-->
-<!--    &lt;!&ndash; Modal content &ndash;&gt;-->
-<!--    <div class="modal-content">-->
-<!--        <div class="modal-header">-->
-<!--            <h4 class="modal-title">Modify Project</h4>-->
-<!--            <button type="button" class="close" data-dismiss="modal">&times;</button>-->
-<!--        </div>-->
-<!--        <table>-->
-<!--            <form id="modifyProjectForm" method="post" th:action="@{/pm/editProject}">-->
-<!--                <input id="projectId" name="projectId" hidden>-->
-<!--                <tr>-->
-<!--                    <td>-->
-<!--                        <label for="title">Title:</label>-->
-<!--                        <input id="projectTitle" name="projectTitle">-->
-<!--                    </td>-->
-<!--                </tr>-->
-<!--                <tr>-->
-<!--                    <td>-->
-<!--                        <label for="description">Description:</label>-->
-<!--                    </td>-->
-<!--                </tr>-->
-<!--                <tr>-->
-<!--                    <td>-->
-<!--                    <textarea maxlength="200" rows="4" cols="50" id="projectDescription"-->
-<!--                              name="projectDescription" form="modifyProjectForm"></textarea>-->
-<!--                    </td>-->
-<!--                </tr>-->
-<!--                <tr>-->
-<!--                    <td>-->
-<!--                        <label for="developersWorking"> Developers Working:</label>-->
-<!--                        <input id="projectDevelopersWorking" name="projectDevelopersWorking" type="number">-->
-<!--                    </td>-->
-<!--                </tr>-->
-<!--                <tr>-->
-<!--                    <td>-->
-<!--                        <label for="estimatedSprintsNeeded" >Estimated Sprints Needed:</label>-->
-<!--                        <input id="projectEstimatedSprintsNeeded" name="projectEstimatedSprintsNeeded" type="number">-->
-<!--                    </td>-->
-<!--                </tr>-->
-<!--                <tr>-->
-<!--                    <td>-->
-<!--                        <button id="${'deleteProjectButton' + projectStat.count}" name="action" type="submit" value="delete">-->
-<!--                            Delete-->
-<!--                        </button>-->
-<!--                        <button id="${'updateProjectButton' + projectStat.count}" name="action" type="submit" value="update">-->
-<!--                            Update-->
-<!--                        </button>-->
-<!--                    </td>-->
-<!--                </tr>-->
-<!--            </form>-->
-<!--        </table>-->
-<!--    </div>-->
-<!--</div>-->
 <button th:onclick="'window.location.href=\'' + @{/} + '\''"
         type="button">Home
 </button>
+<button onclick="window.location.href='/logout'" style="float: right"
+        type="button">Log Out
+</button>
 <br>
 <span class="textHeader">Existing Projects</span>
+<img class="hintSymbol" hidden onclick="openHintModal('existingProjects')" src="../images/hintSymbol.png"
+     style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
 <table style="width: 100%">
     <tr>
-        <th>Title</th>
-        <th>Description</th>
-        <th>Total Effort</th>
-        <th>Developers Working</th>
-        <th>Estimated Sprints Needed</th>
+        <th>
+            Title
+            <img class="hintSymbol" hidden onclick="openHintModal('projectTitle')" src="../images/hintSymbol.png"
+                 style="width: 25px;height: 25px;">
+        </th>
+        <th>
+            Description
+            <img class="hintSymbol" hidden onclick="openHintModal('projectDescription')" src="../images/hintSymbol.png"
+                 style="width: 25px;height: 25px;">
+        </th>
+        <th>
+            Total Effort
+            <img class="hintSymbol" hidden onclick="openHintModal('projectTotalEffort')" src="../images/hintSymbol.png"
+                 style="width: 25px;height: 25px;">
+        </th>
+        <th>
+            Developers Working
+            <img class="hintSymbol" hidden onclick="openHintModal('projectDevelopersWorking')"
+                 src="../images/hintSymbol.png" style="width: 25px;height: 25px;">
+        </th>
+        <th>
+            Estimated Sprints Needed
+            <img class="hintSymbol" hidden onclick="openHintModal('projectEstimatedSprintsNeeded')"
+                 src="../images/hintSymbol.png" style="width: 25px;height: 25px;">
+        </th>
     </tr>
 
     <div th:each="project : ${projects}">
@@ -177,6 +147,19 @@
     </table>
 </span>
 <span th:insert="include/modals :: editProjectModal"></span>
+
+<span th:insert="include/modals :: hintModal"></span>
+<span th:insert="include/hints :: hints"></span>
+<script th:src="@{/js/general.js}"></script>
+
 <script th:src="@{/js/projectPanel.js}"></script>
+
+
+<script>
+    // self executing function here
+    (function () {
+        showHints();
+    })();
+</script>
 </body>
 </html>

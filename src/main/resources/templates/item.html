@@ -318,7 +318,6 @@
                        type="number">
                 <span class="informationText" th:text="${item.effort}"></span>
             </span>
-
             </td>
         </tr>
         <tr>
@@ -378,7 +377,14 @@
 
 </form>
 <br>
-<h4>Comments</h4>
+<h4>
+    Comments
+    <div class="popup">
+        <img class="hintSymbol" hidden onclick="openPopup()" src="../../../../../images/hintSymbol.png"
+             style="width: 30px;height: 30px;margin: 0 0 3px 2px;">
+        <span class="popuptext" id="commentHintPopup">A Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple Popup!</span>
+    </div>
+</h4>
 <div th:each="comment : ${item.getComments()}" th:style="'border-style: solid'">
     <form method="post" th:action="@{/user/editComment}">
         <input hidden id="commentIdView" name="commentIdView" readonly th:value="${comment.id}">
@@ -473,5 +479,12 @@
                             </span>
         </span>
 </form>
+<script>
+    // self executing function here
+    (function () {
+        showHints();
+
+    })();
+</script>
 </body>
 </html>

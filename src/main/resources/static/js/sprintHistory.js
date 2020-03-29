@@ -1,8 +1,15 @@
 function showChart(categories, ideal_burn, actual_burn) {
+    let titleWithImage = 'Burndown Chart';
+    if (checkCookie('hints')) {
+        titleWithImage = 'Burndown Chart' +
+            ' ' +
+            '<img class="hintSymbol" src="../../../../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 2px;" onclick="openHintModal(\'burndownChart\')">';
+    }
     $(function () {
         $('#burndown').highcharts({
             title: {
-                text: 'Burndown Chart',
+                useHTML: true,
+                text: titleWithImage,
                 x: -20 //center
             },
             colors: ['blue', 'red'],

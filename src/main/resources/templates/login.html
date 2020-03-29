@@ -3,21 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <title>Login Page</title>
+    <link rel="stylesheet" th:href="@{/css/general.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/login.css}" type="text/css"/>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" id="bootstrap-css" rel="stylesheet">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-<form method="post" th:action="@{/login}">
-    <label for="email">Email</label>
-    <input id="email" name="email" th:value="${session.userEmail}"
-           type="email"/>
-    <label for="password">Password</label>
-    <input id="password" name="password" th:value="${password}"
-           type="password">
-    <button type="submit">Log In</button>
-    <button th:onclick="'window.location.href=\'' + @{/} + '\''"
-            type="button">Home
-    </button>
-    <div class="errMsg" th:if="${param.error}">Invalid email or password</div>
-    <div class="errMsg" th:if="${param.logout}">You have been logged out</div>
-</form>
+<!--<form method="post" th:action="@{/login}">-->
+<!--    <label for="email">Email</label>-->
+<!--    <input id="email" name="email" th:value="${session.userEmail}"-->
+<!--           type="email"/>-->
+<!--    <label for="password">Password</label>-->
+<!--    <input id="password" name="password" th:value="${password}"-->
+<!--           type="password">-->
+<!--    <button type="submit">Log In</button>-->
+<!--    <button th:onclick="'window.location.href=\'' + @{/} + '\''"-->
+<!--            type="button">Home-->
+<!--    </button>-->
+<!--    <div class="errMsg" th:if="${param.error}">Invalid email or password</div>-->
+<!--    <div class="errMsg" th:if="${param.logout}">You have been logged out</div>-->
+<!--</form>-->
+
+<div class="sidenav">
+    <div class="login-main-text">
+        <h2>Application<br> Login Page</h2>
+        <p>Login to gain access.</p>
+    </div>
+</div>
+<div class="main">
+    <div class="col-md-6 col-sm-12">
+        <div class="login-form">
+            <form method="post" th:action="@{/login}">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input class="form-control" id="email" name="email" placeholder="e-mail"
+                           th:value="${session.userEmail}" type="email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input class="form-control" id="password" name="password"
+                           placeholder="password" th:value="${password}" type="password">
+                </div>
+                <div class="errMsg" th:if="${param.error}">Invalid e-mail or password.</div>
+                <div class="errMsg" th:if="${param.logout}">You have been logged out.</div>
+                <button class="submitButtons" type="submit">Login</button>
+                <button class="submitButtons" th:onclick="'window.location.href=\'' + @{/} + '\''"
+                        type="button">Home
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
 </body>
 </html>

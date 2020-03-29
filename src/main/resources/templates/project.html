@@ -5,6 +5,7 @@
     <title>Project Page</title>
     <link rel="stylesheet" th:href="@{/css/general.css}" type="text/css"/>
     <link rel="stylesheet" th:href="@{/css/project.css}" type="text/css"/>
+    <link rel="stylesheet" th:href="@{/css/popup.css}" type="text/css"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
@@ -21,19 +22,29 @@
         th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/projectProgress'} + '\''"
         type="button">Project Progress
 </button>
+<button onclick="window.location.href='/logout'" style="float: right"
+        type="button">Log Out
+</button>
 <br>
 <br>
 <span th:style="'border-style: solid;display:block;'">
 <span th:if="${sprint.status == 1}">
-    <span class="textHeader">Ready Sprint</span>
+    <span class="textHeader">Ready Sprint
+    <img class="hintSymbol" hidden onclick="openHintModal('readySprint')" src="../../images/hintSymbol.png"
+         style="width: 30px;height: 30px;margin: 0 0 9px 5px;">
+    </span>
 </span>
 <span th:unless="${sprint.status == 1}">
     <span class="textHeader">Active Sprint</span>
+    <img class="hintSymbol" hidden onclick="openHintModal('activeSprint')" src="../../images/hintSymbol.png"
+         style="width: 30px;height: 30px;margin: 0 0 9px 5px;">
 </span>
 <span th:insert="include/sprint :: sprintForm"></span>
 </span>
 <span th:style="'border-style: solid;display:block;'">
 <span class="textHeader">Items in Sprint</span>
+    <img class="hintSymbol" hidden onclick="openHintModal('sprintItems')" src="../../images/hintSymbol.png"
+         style="width: 30px;height: 30px;margin: 0 0 9px 5px;">
 <span th:if="${sprint}" th:style="'border-style: solid;display:block;'">
     <div th:each="itemSprintHistory : ${sprint.associatedItems}">
             <span th:with="item =${itemSprintHistory.item}">
@@ -47,6 +58,8 @@
 <br>
 <span th:style="'border-style: solid;display:block;'">
 <span class="textHeader">Backlog</span>
+    <img class="hintSymbol" hidden onclick="openHintModal('backlog')" src="../../images/hintSymbol.png"
+         style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
     <span th:style="'border-style: solid;display:block;'">
 <div th:each="item : ${backlog}">
     <span th:if="${item.status == 1}">
@@ -66,6 +79,11 @@
 </span>
 
 <span th:insert="include/modals :: viewItemModal"></span>
+
+<span th:insert="include/modals :: hintModal"></span>
+<span th:insert="include/hints :: hints"></span>
+<script th:src="@{/js/general.js}"></script>
+
 <script th:src="@{/js/project.js}"></script>
 <script th:src="@{/js/modalFunctions.js}"></script>
 <!--in the event of redirecting to a modal (after modifying item or clicking on a parent let's say-->
@@ -76,5 +94,12 @@
             redirectToModal(projectId, itemId);
     </script>
 </span>
+<script>
+    // self executing function here
+    (function () {
+        showHints();
+
+    })();
+</script>
 </body>
 </html>

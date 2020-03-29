@@ -28,3 +28,8 @@ function modifyComment(commentItemId) {
     $('#commentDeleteId' + commentItemId).attr('hidden', false);
     $('#commentBodyView' + commentItemId).attr('readonly', false);
 }
+
+function openPopup() {
+    var popup = document.getElementById("commentHintPopup");
+    popup.classList.toggle("show");
+}
