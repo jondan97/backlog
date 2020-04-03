@@ -4,9 +4,9 @@ function showChart(categories, ideal_burn, actual_burn) {
     if (!ideal_burn.length) {
         visible = false;
     }
-    let titleWithImage = 'Product Burndown';
+    let titleWithImage = 'Product Burndown Chart';
     if (checkCookie('hints')) {
-        titleWithImage = 'Product Burndown' +
+        titleWithImage = 'Product Burndown Chart' +
             ' ' +
             '<img class="hintSymbol" src="../../../../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 2px;" onclick="openHintModal(\'productBurndown\')">';
     }

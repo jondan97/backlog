@@ -44,6 +44,17 @@ public class Time implements Comparator<Calendar> {
     }
 
     /**
+     * this method takes two dates and calculates the difference in MS between the two
+     *
+     * @param startDate : the starting date
+     * @param endDate   :   the ending date
+     * @return :the difference in MS between the two
+     */
+    public static long calculateDifferenceInMs(Date startDate, Date endDate) {
+        return endDate.getTime() - startDate.getTime();
+    }
+
+    /**
      * this method takes as input a date and returns a String that represents the calendar day of that date
      * for example date: 18/3/20 20:00:00 would returns 'Wed'
      *
@@ -69,7 +80,8 @@ public class Time implements Comparator<Calendar> {
 
     /**
      * this method was created to make things easier for the developer, instead of instantiating a Time class,
-     * the developer can instantly use this method from a static view point, outside this class
+     * the developer can instantly use this method from a static view point, outside this class, it compares two dates
+     * and returns which one is earlier or later of the two
      *
      * @param date1: first date that we want to compare
      * @param date2: second date that we want to compare

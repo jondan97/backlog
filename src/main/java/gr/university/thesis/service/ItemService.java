@@ -51,7 +51,7 @@ public class ItemService {
      * @return returns all the items that are associated with a project
      */
     public Iterable<Item> findAllItemsByProjectId(long projectId) {
-        Iterable<Item> projectItems = itemRepository.findByProjectId(projectId);
+        Iterable<Item> projectItems = itemRepository.findByProjectIdOrderByPriorityDesc(projectId);
         calculatedCombinedEffort(projectItems);
         return projectItems;
     }
@@ -87,19 +87,20 @@ public class ItemService {
     /**
      * this method creates a new item and saves it into the repository
      *
-     * @param title:       the title of the new item
-     * @param description: the description of the new item
-     * @param type:        the type of the new item
-     * @param priority:    the priority of the new item
-     * @param effortStr:   the effort required for this item to complete
-     * @param project:     the project that this item belongs to
-     * @param assignee:    the user that this item has been assigned to
-     * @param owner:       the user who created this item
-     * @param parent:      the parent (epic/story) of this item
+     * @param title              :       the title of the new item
+     * @param description        : the description of the new item
+     * @param acceptanceCriteria
+     * @param type               :        the type of the new item
+     * @param priority           :    the priority of the new item
+     * @param effortStr          :   the effort required for this item to complete
+     * @param project            :     the project that this item belongs to
+     * @param assignee           :    the user that this item has been assigned to
+     * @param owner              :       the user who created this item
+     * @param parent             :      the parent (epic/story) of this item
      * @throws ItemAlreadyExistsException : user has tried to create an item with the same title
      * @throws ItemHasEmptyTitleException : user has tried to create an item with no title
      */
-    public void createItem(String title, String description, ItemType type, ItemPriority priority, String effortStr,
+    public void createItem(String title, String description, String acceptanceCriteria, ItemType type, ItemPriority priority, String effortStr,
                            Project project, User assignee, User owner, Item parent)
             throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
         if (title.isEmpty()) {
@@ -132,24 +133,31 @@ public class ItemService {
         } else {
             description = description.trim();
         }
-        Item item = new Item(title, description, type.getRepositoryId(), priority.getRepositoryId(), effort, project, assignee, owner, parent);
+        if (acceptanceCriteria.isEmpty()) {
+            acceptanceCriteria = "No Acceptance Criteria";
+        } else {
+            acceptanceCriteria = acceptanceCriteria.trim();
+        }
+        Item item = new Item(title, description, acceptanceCriteria, type.getRepositoryId(), priority.getRepositoryId(), effort, project, assignee, owner, parent);
         itemRepository.save(item);
     }
 
     /**
      * this method updates an existing item and saves it into the repository
-     * @param itemId :      id of the item, needed to find it on the repository
-     * @param title :       title of the item
-     * @param description : description of the item
-     * @param type :        ItemType of the item
-     * @param priority :    ItemPriority of the item
-     * @param effortStr :      effort required to finish this item
-     * @param assignee :    the user that this item is assigned to
-     * @param parent :      the parent (epic/story) of this item
+     *
+     * @param itemId              :      id of the item, needed to find it on the repository
+     * @param title               :       title of the item
+     * @param description         : description of the item
+     * @param acceptanceCriteria: under what conditions, is this item considered done
+     * @param type                :        ItemType of the item
+     * @param priority            :    ItemPriority of the item
+     * @param effortStr           :      effort required to finish this item
+     * @param assignee            :    the user that this item is assigned to
+     * @param parent              :      the parent (epic/story) of this item
      * @throws ItemAlreadyExistsException : user has tried to set the item's title to one that already exists
      * @throws ItemHasEmptyTitleException : user has tried to set the item's title to blank
      */
-    public void updateItem(long itemId, String title, String description, String type, String priority, String effortStr, User assignee, Item parent) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
+    public void updateItem(long itemId, String title, String description, String acceptanceCriteria, String type, String priority, String effortStr, User assignee, Item parent) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
         if (title.isEmpty()) {
             throw new ItemHasEmptyTitleException("Item cannot be created without a title.");
         }
@@ -172,6 +180,12 @@ public class ItemService {
                 description = description.trim();
             }
             item.setDescription(description);
+            if (acceptanceCriteria.isEmpty()) {
+                acceptanceCriteria = "No Acceptance Criteria";
+            } else {
+                acceptanceCriteria = acceptanceCriteria.trim();
+            }
+            item.setAcceptanceCriteria(acceptanceCriteria);
             item.setType(ItemType.valueOf(type).getRepositoryId());
             item.setPriority(ItemPriority.valueOf(priority).getRepositoryId());
             //example of input handling, not in the scope of this project

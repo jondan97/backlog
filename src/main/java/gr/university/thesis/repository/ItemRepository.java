@@ -19,7 +19,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
      * @param projectId: the id of the project that these items belong to
      * @return return an iterable with all the items
      */
-    Iterable<Item> findByProjectId(long projectId);
+    Iterable<Item> findByProjectIdOrderByPriorityDesc(long projectId);
 
     /**
      * this method takes as input a title and a project, and returns an item that belongs to that project and has

@@ -36,13 +36,15 @@ function toggleContainerBottom() {
 }
 
 function openHintModal(id) {
-    let newHintTitle = $("#hintTitle-" + id);
-    let newHintBody = $("#hintBody-" + id);
+    let newHintTitle = $("#hintTitle-" + id).clone();
+    let newHintBody = $("#hintBody-" + id).clone();
     newHintTitle.show();
     newHintBody.show();
     $("#hintModal").modal({show: true});
-    $("#hintTitle").replaceWith(newHintTitle);
-    $("#hintBody").replaceWith(newHintBody);
+    $(newHintTitle).clone().appendTo("#hintTitle");
+    $(newHintBody).clone().appendTo("#hintBody");
+    // $("#hintTitle").replaceWith((newHintTitle));
+    // $("#hintBody").replaceWith((newHintBody));
 }
 
 function showHints() {
@@ -51,3 +53,9 @@ function showHints() {
         $(".hintSymbol").removeAttr('hidden');
     }
 }
+
+//delete content on close
+$(".modal").on("hidden.bs.modal", function () {
+    $("#hintTitle").html("");
+    $("#hintBody").html("");
+});

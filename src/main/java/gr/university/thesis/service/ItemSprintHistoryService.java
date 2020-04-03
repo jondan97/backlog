@@ -271,7 +271,6 @@ public class ItemSprintHistoryService {
                 associationsForNextSprint.addAll(createAssociationForItemAndParents(association.getItem(),
                         newSprint, association.getStatus()));
             }
-            System.out.println(association.getItem().getChildren());
         }
         itemSprintHistoryRepository.saveAll(associationsForNextSprint);
     }

@@ -45,6 +45,12 @@ public class Item {
     private String description;
 
     /**
+     * the acceptance criteria of the item (when it is considered done by the team's standards)
+     */
+    @Column
+    private String acceptanceCriteria;
+
+    /**
      * the effort that is required to finish the item
      */
     @Column
@@ -120,9 +126,10 @@ public class Item {
     /**
      * custom constructor
      */
-    public Item(String title, String description, int type, int priority, int effort, Project project, User assignee, User owner, Item parent) {
+    public Item(String title, String description, String acceptanceCriteria, int type, int priority, int effort, Project project, User assignee, User owner, Item parent) {
         this.title = title;
         this.description = description;
+        this.acceptanceCriteria = acceptanceCriteria;
         this.type = type;
         this.priority = priority;
         this.effort = effort;

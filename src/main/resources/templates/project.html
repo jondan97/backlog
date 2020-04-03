@@ -41,9 +41,9 @@
 </span>
 <span th:insert="include/sprint :: sprintForm"></span>
 </span>
-<span th:style="'border-style: solid;display:block;'">
-<span class="textHeader">Items in Sprint</span>
-    <img class="hintSymbol" hidden onclick="openHintModal('sprintItems')" src="../../images/hintSymbol.png"
+<span th:style="'border-style: solid;display:block;background-color: #F1F1F1;'">
+<span class="textHeader">Sprint Backlog</span>
+    <img class="hintSymbol" hidden onclick="openHintModal('sprintBacklog')" src="../../images/hintSymbol.png"
          style="width: 30px;height: 30px;margin: 0 0 9px 5px;">
 <span th:if="${sprint}" th:style="'border-style: solid;display:block;'">
     <div th:each="itemSprintHistory : ${sprint.associatedItems}">
@@ -56,9 +56,9 @@
 </span>
 </span>
 <br>
-<span th:style="'border-style: solid;display:block;'">
-<span class="textHeader">Backlog</span>
-    <img class="hintSymbol" hidden onclick="openHintModal('backlog')" src="../../images/hintSymbol.png"
+<span th:style="'border-style: solid;display:block;background-color: #F1F1F1;'">
+<span class="textHeader">Product Backlog</span>
+    <img class="hintSymbol" hidden onclick="openHintModal('productBacklog')" src="../../images/hintSymbol.png"
          style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
     <span th:style="'border-style: solid;display:block;'">
 <div th:each="item : ${backlog}">

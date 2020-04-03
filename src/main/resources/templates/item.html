@@ -95,6 +95,18 @@
         </tr>
         <tr>
             <td>
+                <label for="uniqueItemAcceptanceCriteria">Acceptance Criteria:</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            <textarea class="uniqueItemInput" cols="48" form="modifyItemForm" id="uniqueItemAcceptanceCriteria"
+                      maxlength="200"
+                      name="itemAcceptanceCriteria" readonly rows="4" th:text="${item.acceptanceCriteria}"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <label for="uniqueItemType">Type:</label>
                 <span th:if="${item.type == 1 or item.type == 2}">
                 <span th:if="${item.type == 1}">
@@ -382,7 +394,12 @@
     <div class="popup">
         <img class="hintSymbol" hidden onclick="openPopup()" src="../../../../../images/hintSymbol.png"
              style="width: 30px;height: 30px;margin: 0 0 3px 2px;">
-        <span class="popuptext" id="commentHintPopup">A Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple PopupA Simple Popup!</span>
+        <span class="popuptext" id="commentHintPopup">
+            <p><b>This is the comment section.</b><p>
+            <p>The comment section is used in order to <b>share information</b> between the team and as a way for the current assignee to leave <b>documentation</b> for the next assignee.<p>
+            <p>An assignee will usually post a comment after they are done working on the task in order to help the next assignee by either writing short sentences such as <b>descriptions</b> of the work done, <b>problems</b> they might have encountered and need help with or simply <b>reminders</b> for the team to see.<p>
+            <p>In Agile and especially Scrum, <b>collaboration</b> between the team members is encouraged and a comment section contributes to that vision.<p>
+        </span>
     </div>
 </h4>
 <div th:each="comment : ${item.getComments()}" th:style="'border-style: solid'">

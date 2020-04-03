@@ -9,29 +9,33 @@ table.itemTable td {
 }
 
 table.itemTable tr:hover {
-    background-color: #ebebeb;
+    background-color: #d4d4d4;
     cursor: pointer;
 }
 
 .task {
+    background-color: white;
     border-style: solid;
     display: block;
     border-color: lightblue;
 }
 
 .bug {
+    background-color: white;
     border-style: solid;
     display: block;
     border-color: #c5090c;
 }
 
 .story {
+    background-color: white;
     border-style: solid;
     display: block;
     border-color: green;
 }
 
 .epic {
+    background-color: white;
     border-style: solid;
     display: block;
     border-color: purple;

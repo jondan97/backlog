@@ -12,6 +12,7 @@ import gr.university.thesis.exceptions.ProjectDoesNotExistException;
 import gr.university.thesis.exceptions.SprintDoesNotExistException;
 import gr.university.thesis.exceptions.SprintHasNotStartedException;
 import gr.university.thesis.service.*;
+import gr.university.thesis.util.Time;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -91,7 +92,20 @@ public class UserController {
         if (projectOptional.isPresent()) {
             Project project = projectOptional.get();
             model.addAttribute("project", project);
-            model.addAttribute("sprint", sprintService.findActiveSprintInProject(project).get());
+            Optional<Sprint> sprintOptional = sprintService.findActiveSprintInProject(project);
+            Sprint sprint;
+            if (sprintOptional.isPresent()) {
+                sprint = sprintOptional.get();
+                //this checks if the difference in ms remaining are 0 or less, which means that the sprint duration has expired
+                //and the sprint needs to be set to finished
+                if (sprint.getStatus() == SprintStatus.ACTIVE.getRepositoryId()
+                        && Time.calculateDifferenceInMs(new Date(), sprint.getEnd_date()) <= 0) {
+                    sprintService.finishSprint(sprint.getId());
+                    itemSprintHistoryService.transferUnfinishedItemsFromOldSprint(sprint);
+                    sprint = sprintService.findActiveSprintInProject(project).get();
+                }
+                model.addAttribute("sprint", sprint);
+            }
             //perhaps not the most sufficient but this application is not supposed to be scalable
             model.addAttribute("allUsers", userService.findAllUsers());
             model.addAttribute("backlog", itemService.findAllItemsByProjectId(projectId));
@@ -138,7 +152,14 @@ public class UserController {
                 itemHasFinishedChildren = itemService.checkIfItemContainsFinishedChildren(item);
             }
             Project project = projectOptional.get();
-            model.addAttribute("sprint", sprintService.findActiveSprintInProject(project).get());
+            //if the user tries to access a sprint from the history page, then on update or whatever, they are redirected
+            //to finished sprint and not active
+            if (sprintIdModal != null) {
+                long sprintId = Long.parseLong(sprintIdModal);
+                model.addAttribute("sprint", sprintService.findSprintById(new Sprint(sprintId)).get());
+            } else {
+                model.addAttribute("sprint", sprintService.findActiveSprintInProject(project).get());
+            }
             model.addAttribute("project", project);
             //perhaps not the most sufficient but this application is not supposed to be scalable
             model.addAttribute("allUsers", userService.findAllUsers());

@@ -118,6 +118,7 @@ public class ProjectManagerController {
      *
      * @param title:       input for the title of the new project
      * @param description: input for the description of the new project
+     * @param acceptanceCriteria: under what conditions, is this item considered done
      * @param type:        input for the type of item
      * @param priority:    input for the priority of the item
      * @param effort:      input for the effort needed to complete the item
@@ -132,6 +133,7 @@ public class ProjectManagerController {
     @PostMapping("/createItem")
     public String createItem(@RequestParam String title,
                              @RequestParam String description,
+                             @RequestParam String acceptanceCriteria,
                              @RequestParam String type,
                              @RequestParam String priority,
                              @RequestParam String effort,
@@ -139,7 +141,7 @@ public class ProjectManagerController {
                              @RequestParam long assigneeId,
                              @RequestParam long parentId,
                              HttpSession session) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
-        itemService.createItem(title, description, ItemType.valueOf(type),
+        itemService.createItem(title, description, acceptanceCriteria, ItemType.valueOf(type),
                 ItemPriority.valueOf(priority), effort, new Project(projectId),
                 new User(assigneeId), sessionService.getUserWithSessionId(session),
                 new Item(parentId));
@@ -153,6 +155,7 @@ public class ProjectManagerController {
      * @param itemId:          id of the item, needed to find it on the repository
      * @param itemTitle:       title of the item
      * @param itemDescription: description of the item
+     * @param itemAcceptanceCriteria: under what conditions, is this item considered done
      * @param itemType:        ItemType of the item
      * @param itemPriority:    ItemPriority of the item
      * @param itemEffort:      effort required to finish this item
@@ -170,6 +173,7 @@ public class ProjectManagerController {
                              @RequestParam long itemId,
                              @RequestParam String itemTitle,
                              @RequestParam String itemDescription,
+                             @RequestParam String itemAcceptanceCriteria,
                              @RequestParam String itemType,
                              @RequestParam String itemPriority,
                              @RequestParam String itemEffort,
@@ -181,7 +185,7 @@ public class ProjectManagerController {
     ) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
         //the associations need to be defined before the item is updated
         itemSprintHistoryService.manageItemSprintAssociation(new Item(itemId), new Sprint(sprintId), new Item(itemParentId));
-        itemService.updateItem(itemId, itemTitle, itemDescription, itemType, itemPriority, itemEffort,
+        itemService.updateItem(itemId, itemTitle, itemDescription, itemAcceptanceCriteria, itemType, itemPriority, itemEffort,
                 new User(itemAssigneeId), new Item(itemParentId));
         if (modifyItemPage.equals("projectPage"))
             return "redirect:/user/project/" + itemProjectId;

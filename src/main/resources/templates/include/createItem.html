@@ -30,6 +30,20 @@
         </tr>
         <tr>
             <td>
+                <label for="description">Acceptance Criteria:</label>
+                <img class="hintSymbol" hidden onclick="openHintModal('createItem-acceptanceCriteria')"
+                     src="../../images/hintSymbol.png" style="width: 25px;height: 25px;">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                    <textarea cols="50" form="createItemForm" id="acceptanceCriteria" maxlength="200"
+                              name="acceptanceCriteria"
+                              placeholder="Under what conditions, is this item considered done" rows="4"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <label for="type">Type:</label>
                 <select id="type" name="type" onchange="toggleInputs()">
         <span th:each="itemType : ${itemTypes}">

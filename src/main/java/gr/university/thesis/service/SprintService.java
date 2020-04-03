@@ -79,18 +79,14 @@ public class SprintService {
             if (activeSprintOptional.isPresent()) {
                 Sprint sprint = activeSprintOptional.get();
                 calculateTotalEffort(sprint);
+
                 int daysRemaining = Time.calculateDaysRemaining(new Date(), sprint.getEnd_date());
-                //this checks if the days remaining are 0 or less, which means that the sprint duration has expired
-                //and the sprint needs to be set to finished
-                if (daysRemaining <= 0) {
-                    finishSprint(sprint.getId());
-                }
                 sprint.setDays_remaining(daysRemaining);
                 calculateVelocity(sprint);
                 return activeSprintOptional;
             }
         }
-        //if no active or ready sprint was found
+        //if no active or ready sprint was found for some reason
         return readySprintOptional;
     }
 
@@ -158,8 +154,10 @@ public class SprintService {
      */
     public List<Item> getAssociatedItemsList(Set<ItemSprintHistory> associations) {
         List<Item> associatedItems = new ArrayList<>();
-        for (ItemSprintHistory ish : associations) {
-            associatedItems.add(ish.getItem());
+        if (associations != null) {
+            for (ItemSprintHistory ish : associations) {
+                associatedItems.add(ish.getItem());
+            }
         }
         return associatedItems;
     }
