@@ -52,13 +52,13 @@ public class SessionService {
         //since the role-user association is implemented as a ManyToMany relationship,
         // we need to return the highest rank
         if (authorityList.contains("MASTER_ADMIN"))
-            return "MASTER_ADMIN";
+            return "Master Admin";
         else if (authorityList.contains("ADMIN"))
-            return "ADMIN";
-        else if (authorityList.contains("PROJECT_MANAGER")) {
-            return "PROJECT_MANAGER";
+            return "Admin";
+        else if (authorityList.contains("PRODUCT_OWNER")) {
+            return "Product Owner";
         } else {
-            return "USER";
+            return "Developer";
         }
     }
 

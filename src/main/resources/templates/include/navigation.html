@@ -39,7 +39,7 @@
                     <span class="dropdown-item">
                         <span th:text="|Role: ${session.role}|"></span>
                         <img class="hintSymbol" hidden onclick="openHintModal('roles')"
-                             src="../../images/hintSymbol.png"
+                             th:src="@{/images/hintSymbol.png}"
                              style="width: 25px;height: 25px">
                     </span>
                     <div class="dropdown-divider"></div>

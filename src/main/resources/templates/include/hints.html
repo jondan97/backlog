@@ -45,16 +45,54 @@
         <p>The developers are considered a team, and they should have all the skills necessary to take the vision of the product owner and make it a reality. In a team, there are <b>no roles</b>, and everybody (if possible) is involved in all the phases of the development process.</p>
         <p>The number of recommended developers ranges from <b>3</b> to <b>9</b>. More than that and it gets complicated for team members to collaborate properly.</p>
         <p>If the number of developers is not stable (which is not recommended), you should leave it at <b>0</b>.</p>
+        <p><b>Some notes</b>: The number of developers does not actually impact anything in this application. It was implemented for <b>educational purposes</b>.</p>
+    </div>
 
+    <h4 id="hintTitle-projectTotalEffort" style="display: none">Total Effort</h4>
+    <div id="hintBody-projectTotalEffort" style="display: none">
+            <p><b>This is the total effort of the project.</b></p>
+            <p>The total effort is calculated by aggregating all the <b>effort</b> of the <b>tasks</b> and <b>bugs</b> that the project includes. The tasks/bugs can be in any state, either that is in the backlog or finished.</p>
+            <p>The total effort is used in the calculation of the <b>product burndown chart</b>, where both the effort burned each iteration and the total effort of the project are shown.</p>
+
+    </div>
+
+    <h4 id="hintTitle-projectEstimatedTotalEffort" style="display: none">Estimated Total Effort</h4>
+    <div id="hintBody-projectEstimatedTotalEffort" style="display: none">
+            <p><b>This is the estimated total effort of the project.</b></p>
+            <p>The <b>estimated total effort</b> of the project is the <b>aggregation</b> of all the <b>effort</b> estimated for each <b>epic</b> or <b>story</b> without a parent.
+            <p>In Agile and especially Scrum, it is important to make <b>initial estimations</b> for each item in the backlog without defining the set of tasks and bugs that the items comprise of. This helps in roughly calculating the <b>number of sprints</b> that will be needed as well as in understanding the <b>amount of work</b> that each item requires. The estimated effort for an item may <b>continually change</b>, depending on team discussion and based on the results of the decomposition of the item into smaller ones. Moreover, customer needs can change which will also impact the effort that an item has, and re-estimation of the effort may be required.
+            <p><b>Some notes:</b></p>
+            <ul>
+                <li>
+                    The user can only <b>estimate</b> the effort of <b>stories</b> and <b>epics</b>.
+                </li>
+                <li>
+                    The <b>total effort</b> of each story and epic is the <b>aggregation</b> of the effort of all the tasks and bugs that the story or epic includes.
+                </li>
+                <li>
+                    The user can specify the <b>effort</b> needed for each task and bug, but they <b>cannot</b> set the e<b>stimated</b> one, as it is only reserved for the parents (epics/stories).
+                </li>
+            </ul>
     </div>
 
     <h4 id="hintTitle-projectEstimatedSprintsNeeded" style="display: none">Estimated Sprints Needed</h4>
     <div id="hintBody-projectEstimatedSprintsNeeded" style="display: none">
             <p><b>The number of sprints required to finish the product are stated here.</b></p>
-            <p>At the beginning, it is quite difficult to accurately predict the estimated sprints needed unless the team has worked in the past together. A number should nevertheless be stated, as it helps in the product burndown chart, where an ideal sprint effort burn is calculated, and which helps the team with tracking progress and improving overall.</p>
-            <p>This number should always change, depending on the <b>average velocity</b> of the <b>previous sprints</b>.</p>
-            <p>If a prediction is not possible, then this should be set to <b>0</b>, but the ideal sprint burn will not be calculated.</p>
-
+            <p>At the beginning, it is quite difficult to accurately predict the estimated sprints needed unless the team has worked in the past together. A number should nevertheless be calculated, as it helps in the <b>product burndown chart</b> where an ideal sprint effort burn is shown, along with the effort burn of the sprints that have already been executed.</p>
+            <p>The ideal sprint effort burn which is the <b>velocity</b> of each iteration, helps the team with tracking progress and spotting any problems that should be solved before it is too late.</p>
+            <p>This number always changes (automatically), depending on the <b>team velocity</b> of the <b>previous sprint</b>.</p>
+            <p>If a prediction is not possible, then this shows <b>0</b> and the ideal sprint burn in the project progress page is not calculated.</p>
+            <p><b>Some notes</b>:</p>
+            <p>If the total effort is <b>0</b>, then the estimated sprints are based on the estimated total effort. If the estimated total effort is also <b>0</b>, then the value is set to <b>"Not Known Yet"</b>.</p>
+            <p>The <b>formula</b> used to calculate the sprints needed is the following:</p>
+                <b>
+                    <ul>
+                        <li>
+                        (Sprints Needed) = (Total Effort) / (Team Velocity)
+                        </li>
+                    </ul>
+                </b>
+            <p>The team will burn a <b>certain amount</b> of effort (velocity) each iteration, until they burn <b>all</b> the effort included in the project. </p>
     </div>
 
     <h4 id="hintTitle-readySprint" style="display: none">Ready Sprint</h4>
@@ -100,10 +138,10 @@
     <h4 id="hintTitle-sprint-duration" style="display: none">Sprint Duration</h4>
     <div id="hintBody-sprint-duration" style="display: none">
             <p><b>This is the duration of the sprint.</b></p>
-            <p>The <b>duration</b> of the sprint <b>tracks</b> how much the current iteration should last for. After the duration has <b>passed</b>, the sprint <b>expires</b> and it turns from an <b>active</b> state, to a <b>ready</b> state again which includes all the unfinished tasks.</p>
-            <p>The sprint <b>duration</b> should be the <b>same</b> for each sprint, as it helps the team forecast future sprint outcomes and in the calculation of a steady speed of the team.</p>
+            <p>The <b>duration</b> of the sprint <b>tracks</b> how much the current iteration should last for. After the duration has <b>passed</b>, the sprint <b>expires</b> and it turns from an <b>active</b> state to a <b>ready</b> state, which also includes all the unfinished tasks of the previous sprint.</p>
+            <p>The sprint <b>duration</b> should be the <b>same</b> for each sprint, as it helps the team forecast future sprint outcomes and in the calculation of a steady speed. If the duration is different for each iteration, then the velocity is not very accurate compared to the velocity of a project with iterations of the same length.</p>
             <p>The recommended sprint duration is <b>2 weeks</b>, but it can reach up to 30 days (<b>4 weeks</b>).</p>
-            <p>The product owner is also able to finish the sprint, earlier than the one that was set initially.</p>
+            <p>The product owner is also able to finish the sprint earlier than the normal deadline.</p>
     </div>
 
     <h4 id="hintTitle-sprint-endDate" style="display: none">Sprint End Date</h4>
@@ -114,11 +152,12 @@
 
     <h4 id="hintTitle-sprint-velocity" style="display: none">Velocity</h4>
     <div id="hintBody-sprint-velocity" style="display: none">
-            <p><b>The velocity of the sprint is the number of tasks/bugs finished during the execution of a sprint.</b></p>
-            <p>It is calculated by summing up the effort of all the tasks and bugs that are included in the current sprint backlog.</p>
+            <p><b>The velocity of the sprint is the number of tasks/bugs finished by the end of the execution of a sprint.</b></p>
+            <p>In this application, the team velocity is calculated by summing up the effort of all the tasks and bugs that were finished in the previous sprint.</p>
             <p>The sprint velocity helps calculate the <b>team’s speed</b>, which in return, helps in <b>forecasting</b> the future sprints and their results.</p>
             <p>It is the <b>key metric</b> in Scrum, as it works as an <b>indicator</b>, which shows whether the team is improving each sprint, or becomes worse. The more the velocity each sprint, the more the team is improving in working together and finishing user stories and requirements.</p>
             <p>Velocity is used both in the <b>product burndown chart</b>, and the <b>sprint burndown chart</b>. The former helps the product owner in figuring out how many sprints it will take the team to achieve a desired level of functionality that can be shipped, whereas the last helps the team in tracking their progress though out the active sprint and in detecting or solving any problems.</p>
+            <p><b>Some notes</b>: An <b>initial</b> team velocity is requested to be set during the <b>creation</b> of a project, in order to calculate the initial number of estimated sprints needed for the project to finish. The initial velocity can be based on <b>previous sprints</b> of others projects or should be set to <b>0</b> if it is unknown and an initial prediction is not required. When the <b>latest</b> sprint finishes execution, its velocity will be calculated and will <b>automatically</b> be set for the velocity of the project.</p>
     </div>
 
         <h4 id="hintTitle-sprintBacklog" style="display: none">Sprint Backlog</h4>
@@ -203,8 +242,7 @@
             <p><b>Clarification of Requirements</b></p>
             <p>The product owner should make the requirements of the customer clear and the vision he set for the product. This helps the team understand the product better as a whole and allows them to revolve around adding customer value instead of technical value.</p>
             <p><b>Some notes</b>: The product backlog should <b>NEVER</b> contain <b>stray user stories</b> or <b>tasks</b>. The proper structure a backlog should follow, is something like this: <b>Epics</b> broken into <b>User Stories</b> broken into <b>Tasks/Bugs</b>. However, the developer has left the ability to have stray stories and tasks in the backlog, but it is not recommended.</p>
-
-    </div>
+           </div>
 
     <h4 id="hintTitle-createItem-title" style="display: none">Item Title</h4>
     <div id="hintBody-createItem-title" style="display: none">
@@ -287,6 +325,8 @@
             <p>What matters is not how much the number representing the item is, but the <b>ratio</b> in comparison with the other items. If for example an item has an effort of 1, and another item has an effort of 3, it means that the latter requires triple the amount of work of the first.</p>
             <p>Agile enthusiasts may not use the effort system, but one of their own. It depends on the team and their ability to understand and <b>represent effort</b> in their own way. For example, a team may use as a metric, the number of cookies that are consumed during the development and implementation of an item.</p>
             <p>In this application, the effort is estimated using the <b>decimal system</b>. <b>1</b> is for the <b>lowest</b> effort, whereas <b>10</b> is for the <b>highest</b> effort. Any more or less than that is not possible, and the system will reset it to one of the edge numbers.</p>
+            <p><b>Some notes:</b></p>
+            <p>Epics and stories have a <b>different</b> meaning of effort compared to tasks and bugs. The epics and stories have an <b>"Estimated Effort"</b> which is estimated in case tasks have not yet been created for each epic and its children stories. One of the reasons this happens, is because the development team needs to realise the <b>amount of work</b> they <b>believe</b> an epic or a story will need in order to be finished. On the other hand, tasks and bugs have a clearer definition of <b>"Effort"</b>, where a more pragmatic estimation is done as the PBI has now been broken down into the <b>lowest level possible</b>. Epics and stories also have a second attribute, which is the <b>"Total Effort"</b> of all the tasks and bugs that are included within them.</p>
     </div>
 
     <h4 id="hintTitle-createItem-assignee" style="display: none">Item Assignee</h4>
@@ -297,6 +337,15 @@
             <p>In Agile, and especially Scrum, practices such as <b>pair programming</b> and daily <b>collaboration</b> and <b>discussion</b> are encouraged, and the team should always work together towards the completion of an item.</p>
             <p><b>Some notes</b>: The product owner can modify an item (including deletion), whereas assignees can only move tasks in the task board or assign new team members to work on the item.</p>
     </div>
+
+    <h4 id="hintTitle-sprintTaskBoard" style="display: none">Sprint Task Board</h4>
+    <div id="hintBody-sprintTaskBoard" style="display: none">
+            <p><b>This is the task board of the sprint.</b></p>
+            <p>Through the task board, the <b>sprint backlog</b> is made available for all the <b>team members</b> to <b>see</b> and act upon.</p>
+            <p>There are 4 columns where the team members constantly move tasks and bugs by <b>updating</b> their <b>status</b>.</p>
+            <p>The task board helps the team <b>keep track</b> of all the tasks that have <b>not yet started</b>, are <b>close to completion</b> or <b>have been finished</b>.</p>
+            <p>A task board may also include <b>notes</b>, but this application does not support this functionality.</p>
+            </div>
 
     <h4 id="hintTitle-toDo" style="display: none">To Do</h4>
     <div id="hintBody-toDo" style="display: none">

@@ -34,13 +34,13 @@
             <select hidden id="masterAdmin" name="userRole">
                 <option selected value="master_admin">Disabled</option>
             </select>
-            <span th:if="${session.role == 'MASTER_ADMIN'}">
+            <span th:if="${session.role == 'Master Admin'}">
                 <button name="action" type="submit" value="update">Update</button>
             </span>
         </span>
         <span th:unless="${user.roles.size() > 1}">
             <span th:if="${user.roles.get(0).role == 'ADMIN'}">
-                <span th:if="${session.role == 'MASTER_ADMIN'}">
+                <span th:if="${session.role == 'Master Admin'}">
                     <select id="userRole" name="userRole">
                         <span th:each="roleEnum : ${allRoleEnums}">
                         <span th:if="${roleEnum.repositoryId != 1}">
@@ -54,7 +54,7 @@
                 <button name="action" type="submit" value="update">Update</button>
                 <button name="action" type="submit" value="delete">Delete</button>
                 </span>
-                <span th:unless="${session.role == 'MASTER_ADMIN'}">
+                <span th:unless="${session.role == 'Master Admin'}">
                     <select disabled id="masterAdminFake" name="userRoleFake">-->
                         <option selected value="master_admin">Disabled</option>
                     </select>
@@ -69,7 +69,7 @@
             </span>
             <span th:if="${user.roles.get(0).role == 'DEVELOPER' or user.roles.get(0).role == 'PRODUCT_OWNER'}">
                 <select id="userRole" name="userRole">
-                <span th:if="${session.role == 'MASTER_ADMIN'}">
+                <span th:if="${session.role == 'Master Admin'}">
                     <span th:each="roleEnum : ${allRoleEnums}">
                         <span th:if="${roleEnum.repositoryId != 1}">
                             <option th:selected="${user.roles[0].role == roleEnum.name ? true : false}"
@@ -79,7 +79,7 @@
                         </span>
                     </span>
                 </span>
-                <span th:unless="${session.role == 'MASTER_ADMIN'}">
+                <span th:unless="${session.role == 'Master Admin'}">
                     <span th:each="roleEnum : ${allRoleEnums}">
                         <span th:if="${roleEnum.repositoryId != 1 and roleEnum.repositoryId != 2}">
                             <option th:selected="${user.roles[0].role == roleEnum.name ? true : false}"
@@ -112,14 +112,14 @@
     <input id="lastName" name="lastName" th:value="${lastName}">
     <label for="roles">Role</label>
     <select id="roles" name="role">
-        <span th:if="${session.role == 'MASTER_ADMIN'}">
+        <span th:if="${session.role == 'Master Admin'}">
             <span th:each="roleEnum : ${allRoleEnums}">
                 <span th:if="${roleEnum.repositoryId != 1}">
                     <option th:text="${roleEnum.name}" th:value="${roleEnum.name}"></option>
                 </span>
             </span>
         </span>
-        <span th:unless="${session.role == 'MASTER_ADMIN'}">
+        <span th:unless="${session.role == 'Master Admin'}">
             <span th:each="roleEnum : ${allRoleEnums}">
                 <span th:if="${roleEnum.repositoryId != 1 and roleEnum.repositoryId != 2 }">
                     <option th:text="${roleEnum.name}" th:value="${roleEnum.name}"></option>

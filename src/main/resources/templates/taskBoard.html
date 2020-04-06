@@ -24,6 +24,8 @@
 <br>
 <h2 align="center">
     Sprint Task Board
+    <img class="hintSymbol" hidden onclick="openHintModal('sprintTaskBoard')" src="../../../../images/hintSymbol.png"
+         style="width: 35px;height: 35px;margin: 0 0 6px 0px;">
 </h2>
 
 <div class="container">
@@ -31,7 +33,7 @@
         <p class="column-title">
             TO DO
             <img class="hintSymbol" hidden onclick="openHintModal('toDo')" src="../../../../images/hintSymbol.png"
-                 style="width: 25px;height: 25px;">
+                 style="width: 25px;height: 25px;margin: 0 0 5px 0px;">
         </p>
         <div class="tasks">
             <span th:if="${todoAssociations}">
@@ -46,7 +48,7 @@
         <p class="column-title">
             IN PROGRESS
             <img class="hintSymbol" hidden onclick="openHintModal('inProgress')" src="../../../../images/hintSymbol.png"
-                 style="width: 25px;height: 25px;">
+                 style="width: 25px;height: 25px;margin: 0 0 5px 0px;">
         </p>
         <div class="tasks">
             <span th:if="${inProgressAssociations}">
@@ -61,7 +63,7 @@
         <p class="column-title">
             FOR REVIEW
             <img class="hintSymbol" hidden onclick="openHintModal('forReview')" src="../../../../images/hintSymbol.png"
-                 style="width: 25px;height: 25px;">
+                 style="width: 25px;height: 25px;margin: 0 0 5px 0px;">
         </p>
         <div class="tasks">
             <span th:if="${forReviewAssociations}">
@@ -76,7 +78,7 @@
         <p class="column-title">
             DONE
             <img class="hintSymbol" hidden onclick="openHintModal('done')" src="../../../../images/hintSymbol.png"
-                 style="width: 25px;height: 25px;">
+                 style="width: 25px;height: 25px;margin: 0 0 5px 0px;">
         </p>
         <div class="tasks">
             <span th:if="${doneAssociations}">
