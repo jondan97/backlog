@@ -21,6 +21,8 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
      */
     Iterable<Item> findByProjectIdOrderByPriorityDesc(long projectId);
 
+    Iterable<Item> findByProjectIdAndStatusOrderByPriorityDesc(long projectId, byte itemStatus);
+
     /**
      * this method takes as input a title and a project, and returns an item that belongs to that project and has
      * that certain title from the repository
@@ -40,4 +42,6 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
      */
     @Query("SELECT item FROM Item item WHERE item.id=:itemId AND item.project.id=:projectId")
     Optional<Item> findDistinctItemByProjectId(@Param("itemId") long itemId, @Param("projectId") long projectId);
+
+
 }

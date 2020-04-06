@@ -42,16 +42,44 @@ public class Project {
     private int developers_working;
 
     /**
-     * estimated sprints needed in order for the project to finish (rough estimation)
+     * the velocity of the team, during the execution of sprints
      */
     @Column
-    private int estimated_sprints_needed;
+    private int team_velocity;
+
+    /**
+     * the duration of each sprint, counted in weeks
+     */
+    @Column
+    private int sprint_duration;
+
 
     /**
      * the total effort of the project calculated every time the user wants to see this project in the project panel etc.
      */
     @Transient
     private long total_effort;
+
+    /**
+     * the remaining effort needed to complete the project, calculated with the following formula:
+     * total effort - effort of items with status done
+     */
+    @Transient
+    private long remaining_effort;
+
+    /**
+     * the estimated total effort of the project calculated every time the user wants to see this project
+     * in the project panel etc., it counts all the stray stories and epics
+     */
+    @Transient
+    private long estimated_total_effort;
+
+    /**
+     * the estimated sprints needed, calculated with the following formula:
+     * total_effort / team_velocity
+     */
+    @Transient
+    private long estimated_sprints_needed;
 
     /**
      * the associated sprints
@@ -79,17 +107,19 @@ public class Project {
     private User owner;
 
     /**
-     * @param title:                  the title of the project
-     * @param description:            the description of the project
-     * @param developersWorking:      the number of developers working for that project
-     * @param estimatedSprintsNeeded: the number of sprints estimated in order to complete the project
-     * @param owner:                  the owner of tis project
+     * @param title:             the title of the project
+     * @param description:       the description of the project
+     * @param developersWorking: the number of developers working for that project
+     * @param teamVelocity:      the number of sprints estimated in order to complete the project
+     * @param sprint_duration    : the duration of each sprint in the project
+     * @param owner:             the owner of tis project
      */
-    public Project(String title, String description, int developersWorking, int estimatedSprintsNeeded, User owner) {
+    public Project(String title, String description, int developersWorking, int teamVelocity, int sprint_duration, User owner) {
         this.title = title;
         this.description = description;
         this.developers_working = developersWorking;
-        this.estimated_sprints_needed = estimatedSprintsNeeded;
+        this.team_velocity = teamVelocity;
+        this.sprint_duration = sprint_duration;
         this.owner = owner;
     }
 

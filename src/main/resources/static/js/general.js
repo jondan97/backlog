@@ -43,8 +43,6 @@ function openHintModal(id) {
     $("#hintModal").modal({show: true});
     $(newHintTitle).clone().appendTo("#hintTitle");
     $(newHintBody).clone().appendTo("#hintBody");
-    // $("#hintTitle").replaceWith((newHintTitle));
-    // $("#hintBody").replaceWith((newHintBody));
 }
 
 function showHints() {

@@ -12,24 +12,11 @@
     <title>Sprint History</title>
 </head>
 <body>
-
-<button th:onclick="'window.location.href=\'' + @{/} + '\''"
-        type="button">Home
-</button>
-<button
-        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId}} + '\''"
-        type="button">Project
-</button>
-<button
-        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/sprint/' + ${sprintId}} + '\''"
-        type="button">Back to Task Board
-</button>
-<button onclick="window.location.href='/logout'" style="float: right"
-        type="button">Log Out
-</button>
-<div id="burndown"></div>
+<span th:insert="include/navigation :: bar"></span>
 <br>
 
+<div id="burndown"></div>
+<br>
 <br>
 <h2 align="center">
     Sprint History of Tasks Done
@@ -69,7 +56,6 @@
 <script th:src="@{/js/general.js}"></script>
 
 <script th:src="@{/js/sprintHistory.js}"></script>
-<script th:src="@{/js/modalFunctions.js}"></script>
 <script th:inline="javascript">
     const categories = [[${burnDownChartData.categories}]];
     const ideal_burn = [[${burnDownChartData.ideal_burn}]];

@@ -11,37 +11,40 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-<button th:onclick="'window.location.href=\'' + @{/} + '\''"
-        type="button">Home
-</button>
-<button
-        th:onclick="'window.location.href=\'' + @{'/user/projectPanel'} + '\''"
-        type="button">Project Panel
-</button>
-<button
-        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/projectProgress'} + '\''"
-        type="button">Project Progress
-</button>
-<button onclick="window.location.href='/logout'" style="float: right"
-        type="button">Log Out
-</button>
-<br>
+<span th:insert="include/navigation :: bar"></span>
 <br>
 <span th:style="'border-style: solid;display:block;'">
 <span th:if="${sprint.status == 1}">
-    <span class="textHeader">Ready Sprint
+    <span class="textHeader readySprintLines">Ready Sprint
     <img class="hintSymbol" hidden onclick="openHintModal('readySprint')" src="../../images/hintSymbol.png"
          style="width: 30px;height: 30px;margin: 0 0 9px 5px;">
     </span>
+    <span style="float: right">
+        <button class="btn btn-success btn-primary btn-lg" form="sprintForm" name="action"
+                sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')" type="submit" value="start">
+                Start
+        </button>
+    </span>
 </span>
 <span th:unless="${sprint.status == 1}">
-    <span class="textHeader">Active Sprint</span>
+    <span class="textHeader activeSprintsLines">Active Sprint</span>
     <img class="hintSymbol" hidden onclick="openHintModal('activeSprint')" src="../../images/hintSymbol.png"
          style="width: 30px;height: 30px;margin: 0 0 9px 5px;">
+    <span style="float: right">
+        <button class="btn btn-primary btn-lg"
+                name="action"
+                th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/sprint/' + ${sprint.id}} + '\''"
+                type="button" value="view">View Task Board
+        </button>
+        <button class="btn btn-danger btn-primary btn-lg" form="sprintForm" name="action"
+                sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')" type="submit" value="finish">
+            Finish
+        </button>
+    </span>
 </span>
 <span th:insert="include/sprint :: sprintForm"></span>
 </span>
-<span th:style="'border-style: solid;display:block;background-color: #F1F1F1;'">
+<span class="backlog">
 <span class="textHeader">Sprint Backlog</span>
     <img class="hintSymbol" hidden onclick="openHintModal('sprintBacklog')" src="../../images/hintSymbol.png"
          style="width: 30px;height: 30px;margin: 0 0 9px 5px;">
@@ -53,10 +56,12 @@
                 </span>
             </span>
     </div>
+    <span th:if="${sprint.associatedItems.size() == 0}">There are no items in the Sprint Backlog.</span>
 </span>
 </span>
 <br>
-<span th:style="'border-style: solid;display:block;background-color: #F1F1F1;'">
+<br>
+<span class="backlog">
 <span class="textHeader">Product Backlog</span>
     <img class="hintSymbol" hidden onclick="openHintModal('productBacklog')" src="../../images/hintSymbol.png"
          style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
@@ -66,16 +71,16 @@
         <span th:insert="include/setOfItems :: items"></span>
     </span>
 </div>
+        <span th:if="${backlog.size() == 0}">There are no items in the Product Backlog.</span>
     </span>
 </span>
 <!--create a new item-->
-<span sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')">
+<span sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')">
     <div id="createElementButtonSet">
         <span class="textHeader"> Create an Item</span>
         <input id="createElementPlusSymbol" onclick="showCreateItemTable()" th:src="@{/images/add.png}" type="image">
     </div>
     <span th:insert="include/createItem :: createForm"></span>
-
 </span>
 
 <span th:insert="include/modals :: viewItemModal"></span>
@@ -85,7 +90,6 @@
 <script th:src="@{/js/general.js}"></script>
 
 <script th:src="@{/js/project.js}"></script>
-<script th:src="@{/js/modalFunctions.js}"></script>
 <!--in the event of redirecting to a modal (after modifying item or clicking on a parent let's say-->
 <span th:if="${itemId}">
     <script>

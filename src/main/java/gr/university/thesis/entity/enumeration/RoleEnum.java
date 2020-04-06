@@ -7,8 +7,8 @@ package gr.university.thesis.entity.enumeration;
 public enum RoleEnum {
     MASTER_ADMIN(1, "MASTER_ADMIN"),
     ADMIN(2, "ADMIN"),
-    PROJECT_MANAGER(3, "PROJECT_MANAGER"),
-    USER(4, "USER");
+    PRODUCT_OWNER(3, "PRODUCT_OWNER"),
+    DEVELOPER(4, "DEVELOPER");
 
     private final String name;
     private final int repositoryId; //database id, known beforehand

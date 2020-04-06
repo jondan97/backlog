@@ -7,7 +7,7 @@
 <body>
 <form id="modifyItemForm" method="post" th:action="@{/pm/editItem}">
     <button id="uniqueItemModifyButton" name="action" onclick="modifyItem()"
-            sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" th:if="${item.status != 4}"
+            sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')" th:if="${item.status != 4}"
             type="button">
         Modify
     </button>
@@ -15,7 +15,7 @@
     <span th:if="${item.status != 4}">
             <button id="uniqueItemChangeAssigneeButton"
                     onclick="toggleAssigneeInput()"
-                    th:if="${item.assignee.id == session.userId and not #authorization.expression('hasAnyAuthority(''ADMIN'', ''PROJECT_MANAGER'')')}"
+                    th:if="${item.assignee.id == session.userId and not #authorization.expression('hasAnyAuthority(''ADMIN'', ''PRODUCT_OWNER'')')}"
                     type="button"
                     value="projectPage">Change Assignee
             </button>
@@ -84,29 +84,6 @@
         </tr>
         <tr>
             <td>
-                <label for="uniqueItemDescription">Description:</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-            <textarea class="uniqueItemInput" cols="48" form="modifyItemForm" id="uniqueItemDescription" maxlength="200"
-                      name="itemDescription" readonly rows="4" th:text="${item.description}"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="uniqueItemAcceptanceCriteria">Acceptance Criteria:</label>
-            </td>
-        </tr>
-        <tr>
-            <td>
-            <textarea class="uniqueItemInput" cols="48" form="modifyItemForm" id="uniqueItemAcceptanceCriteria"
-                      maxlength="200"
-                      name="itemAcceptanceCriteria" readonly rows="4" th:text="${item.acceptanceCriteria}"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
                 <label for="uniqueItemType">Type:</label>
                 <span th:if="${item.type == 1 or item.type == 2}">
                 <span th:if="${item.type == 1}">
@@ -127,7 +104,7 @@
 
                 <span th:unless="${item.type == 1 or item.type == 2}">
                 <select class="uniqueItemInput" hidden id="uniqueItemType" name="itemType"
-                        th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') ? 'false' : 'true'}">
+                        th:disabled="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')') ? 'false' : 'true'}">
                     <span th:each="itemType : ${itemTypes}">
                         <span th:if="${itemType.repositoryId != 0 and itemType.repositoryId != 1 and itemType.repositoryId != 2}">
                             <option th:selected="${item.type == itemType.repositoryId ? true : false}"
@@ -148,6 +125,30 @@
         </tr>
         <tr>
             <td>
+                <label for="uniqueItemDescription">Description:</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <textarea class="uniqueItemInput" cols="48" id="uniqueItemDescription" maxlength="200"
+                          name="itemDescription"
+                          readonly rows="4" th:text="${item.description}"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="uniqueItemAcceptanceCriteria">Acceptance Criteria:</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <textarea class="uniqueItemInput" cols="48" id="uniqueItemAcceptanceCriteria" maxlength="200"
+                          name="itemAcceptanceCriteria"
+                          readonly rows="4" th:text="${item.acceptanceCriteria}"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <label for="uniqueItemParentId">Parent:</label>
                 <span th:if="${item.type == 1 or item.type == 2}">
                 <span th:if="${item.type == 1}">
@@ -158,7 +159,7 @@
                 </span>
                 <span th:if="${item.type == 2}">
                     <select class="uniqueItemInput" hidden id="uniqueItemParentId" name="itemParentId"
-                            th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+                            th:disabled="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')')
          and item.status != 3
          ? 'false' : 'true'}">
         <option selected value="0">No parent</option>
@@ -208,7 +209,7 @@
             </span>
                 <span th:unless="${item.type == 1 or item.type == 2}">
             <select class="uniqueItemInput" hidden id="uniqueItemParentId" name="itemParentId"
-                    th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+                    th:disabled="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')')
         and item.status != 3
         ? 'false' : 'true'}">
                 <option selected value="0">No parent</option>
@@ -299,9 +300,70 @@
         </tr>
         <tr>
             <td>
+                <span th:if="${(item.type == 1 or item.type == 2) and item.children != null}">
+                    Children:
+                    <span th:if="${item.children.isEmpty()}">
+                        <span class="informationText">
+                            No Children
+                        </span>
+                    </span>
+                    <span th:unless="${item.children.isEmpty()}">
+                        <button id="uniqueItemChildrenButtonExpand"
+                                th:onclick="expandList()" type="button">Expand List
+                                </button>
+                        <button id="uniqueItemChildrenButtonClose"
+                                style="display: none" th:onclick="closeList()" type="button">Close List
+                                </button>
+                        <span hidden id="uniqueItemChildren">
+                            <br>
+                            <ul>
+                            <span th:each="child : ${item.children}">
+                                <li>
+                                <span class="informationText" th:text="${child.title + ' '}"></span>
+                                    <span th:if="${item.status == 1}">(In Backlog)</span>
+                                    <span th:if="${item.status == 2}">(In Ready Sprint)</span>
+                                    <span th:if="${item.status == 3}">(In Active Sprint)</span>
+                                    <span th:if="${item.status == 4}">(Finished)</span>
+                                    <span th:if="${param.source}">
+                                        <span th:if="${param.source[0] == 'projectPage'}">
+                                            <button name="action"
+                                                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=projectPage'} + '\''"
+                                                    type="button" value="view">View
+                                            </button>
+                                        </span>
+                                        <span th:if="${param.source[0] == 'projectProgressPage'}">
+                                            <button name="action"
+                                                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=projectProgressPage'} + '\''"
+                                                    type="button" value="view">View
+                                            </button>
+                                        </span>
+                                        <span th:if="${param.source[0] == 'taskBoardPage'}">
+                                            <button name="action"
+                                                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=taskBoardPage&sprintIdModal=' + ${param.sprintIdModal[0]}} + '\''"
+                                                    type="button" value="view">View
+                                            </button>
+                                        </span>
+                                        <span th:if="${param.source[0] == 'sprintHistoryPage'}">
+                                            <button name="action"
+                                                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=sprintHistoryPage&sprintIdModal=' + ${param.sprintIdModal[0]}} + '\''"
+                                                    type="button" value="view">View
+                                            </button>
+                                        </span>
+                                    </span>
+                                </li>
+                            </span>
+                                </ul>
+                        </span>
+                    </span>
+
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <label for="uniqueItemPriority">Priority:</label>
                 <select class="uniqueItemInput" hidden id="uniqueItemPriority" name="itemPriority"
-                        th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') ? 'false' : 'true'}">
+                        th:disabled="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')') ? 'false' : 'true'}">
                 <span th:each="itemPriority : ${itemPriorities}">
                     <span th:if="${itemPriority.repositoryId != 0}">
                         <option th:selected="${item.priority == itemPriority.repositoryId ? true : false}"
@@ -316,34 +378,48 @@
                 </span>
             </td>
         </tr>
+        <span th:if="${item.type == 1 or item.type == 2}">
         <tr>
             <td>
-            <span th:if="${item.type == 1 or item.type == 2}">
                 <label for="uniqueItemEffort">Total Effort:</label>
                 <input hidden id="uniqueItemEffort" name="itemEffort" th:value="${item.effort}">
                 <span class="informationText" id="uniqueItemTotalEffortInput" th:text="${item.effort}"></span>
-
-            </span>
-                <span th:unless="${item.type == 1 or item.type == 2}">
-                <label for="uniqueItemEffort">Effort:</label>
-                <input class="uniqueItemInput" hidden id="uniqueItemEffort" name="itemEffort" th:value="${item.effort}"
-                       type="number">
-                <span class="informationText" th:text="${item.effort}"></span>
-            </span>
             </td>
         </tr>
+        <tr>
+            <td>
+                <label for="uniqueEstimatedEffort">Estimated Effort:</label>
+                <input class="uniqueItemInput" hidden id="uniqueEstimatedEffort" name="itemEstimatedEffort"
+                       th:value="${item.estimatedEffort}"
+                       type="number">
+                <span class="informationText" th:text="${item.estimatedEffort}"></span>
+            </td>
+        </tr>
+        </span>
+        <span th:unless="${item.type == 1 or item.type == 2}">
+            <tr>
+                <td>
+                   <label for="uniqueItemEffort">Effort:</label>
+                    <input class="uniqueItemInput" hidden id="uniqueItemEffort" name="itemEffort"
+                           th:value="${item.effort}"
+                           type="number">
+                <span class="informationText" th:text="${item.effort}"></span>
+                    <input hidden name="itemEstimatedEffort" th:value="0" type="number">
+                </td>
+            </tr>
+        </span>
         <tr>
             <td>
                 <label for="uniqueItemAssigneeId">Assignee:</label>
                 <select class="uniqueItemInput" hidden id="uniqueItemAssigneeId" name="itemAssigneeId"
                         onchange="updateUniqueAssignee()"
-                        th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') or (session.userId == item.assignee.id) ? 'false' : 'true'}">
+                        th:disabled="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')') or (session.userId == item.assignee.id) ? 'false' : 'true'}">
                 <span th:each="user : ${allUsers}">
                     <option th:selected="${item.assignee.id == user.id ? true : false}"
                             th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
                             th:value="${user.id}">
                     </option>
-            </span>
+                </span>
                 </select>
                 <span th:each="user : ${allUsers}">
                 <span class="informationText" id="uniqueItemAssigneeIdSpan" th:if="${item.assignee.id == user.id}"
@@ -370,12 +446,12 @@
             <td>
             <span>
                 <button class="uniqueItemUpdateAndDeleteButtons" hidden name="action"
-                        sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+                        sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')" type="submit"
                         value="update">
                     Update
                 </button>
                 <button class="uniqueItemUpdateAndDeleteButtons" hidden name="action"
-                        sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" th:if="${item.status != 3
+                        sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')" th:if="${item.status != 3
                         and !itemHasFinishedChildren}"
                         type="submit"
                         value="delete">
@@ -496,6 +572,7 @@
                             </span>
         </span>
 </form>
+<script th:src="@{/js/modalFunctions.js}"></script>
 <script>
     // self executing function here
     (function () {

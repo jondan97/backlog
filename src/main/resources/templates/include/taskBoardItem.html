@@ -18,7 +18,7 @@
             <td height="100px" rowspan="3">
                 <span th:if="${sprint.status != 3}">
                     <button name="action" style="height:100%"
-                            th:hidden="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+                            th:hidden="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')')
                             or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
                             type="submit"
                             value="previousStatus">
@@ -34,7 +34,7 @@
             <td height="100px" rowspan="3">
                 <span th:if="${sprint.status != 3}">
                     <button name="action" style="height:100%"
-                            th:hidden="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+                            th:hidden="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')')
                             or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
                             type="submit"
                             value="nextStatus">
@@ -63,7 +63,7 @@
         <tr>
             <td colspan="3">
                 <select id="itemAssigneeId" name="itemAssigneeId" style="width: 100%"
-                        th:disabled="${(#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+                        th:disabled="${(#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')')
                         or (session.userId == association.item.assignee.id))
                         and sprint.status != 3
                         ? 'false' : 'true'}" th:onchange="|updateAssignee(${association.item.id})|">

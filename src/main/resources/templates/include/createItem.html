@@ -17,6 +17,21 @@
         </tr>
         <tr>
             <td>
+                <label for="type">Type:</label>
+                <select id="type" name="type" onchange="toggleInputs()">
+        <span th:each="itemType : ${itemTypes}">
+            <span th:if="${itemType.repositoryId != 0}">
+                <option th:selected="${itemType.repositoryId == 3}" th:text="${itemType.name}"
+                        th:value="${itemType}"></option>
+            </span>
+        </span>
+                </select>
+                <img class="hintSymbol" hidden onclick="openHintModal('createItem-itemType')"
+                     src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
+            </td>
+        </tr>
+        <tr>
+            <td>
                 <label for="description">Description:</label>
                 <img class="hintSymbol" hidden onclick="openHintModal('createItem-description')"
                      src="../../images/hintSymbol.png" style="width: 25px;height: 25px;">
@@ -40,21 +55,6 @@
                     <textarea cols="50" form="createItemForm" id="acceptanceCriteria" maxlength="200"
                               name="acceptanceCriteria"
                               placeholder="Under what conditions, is this item considered done" rows="4"></textarea>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="type">Type:</label>
-                <select id="type" name="type" onchange="toggleInputs()">
-        <span th:each="itemType : ${itemTypes}">
-            <span th:if="${itemType.repositoryId != 0}">
-                <option th:selected="${itemType.repositoryId == 3}" th:text="${itemType.name}"
-                        th:value="${itemType}"></option>
-            </span>
-        </span>
-                </select>
-                <img class="hintSymbol" hidden onclick="openHintModal('createItem-itemType')"
-                     src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
             </td>
         </tr>
         <tr>
@@ -98,11 +98,22 @@
         </tr>
         <tr>
             <td>
-                <label for="fakeEffort">Effort:</label>
-                <input id="fakeEffort" name="fakeEffort" placeholder="1 to 10" type="number">
-                <input id="effort" name="effort" type="hidden" value="0">
-                <img class="hintSymbol" hidden onclick="openHintModal('createItem-effort')"
-                     src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
+                <span id="taskBugEffort">
+                    <label for="effort">Effort:</label>
+                    <input id="effort" name="effort" placeholder="0 to 10" type="number">
+                    <img class="hintSymbol" hidden onclick="openHintModal('createItem-effort')"
+                         src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
+                </span>
+                <span hidden id="epicStoryEffort">
+                    <label for="estimatedEffort">Estimated Effort:</label>
+                    <input id="estimatedEffort" name="estimatedEffort" placeholder="0 and above" type="number">
+                    <img class="hintSymbol" hidden onclick="openHintModal('createItem-estimatedEffort')"
+                         src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>
             </td>
         </tr>
         <tr>

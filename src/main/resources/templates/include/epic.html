@@ -29,10 +29,20 @@
             <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
                 <span class="informationText" id="itemEffort" th:text="${item.effort}" title="Total Effort"></span>
             </td>
+            <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
+                <span th:if="${item.estimatedEffort == 0}">
+                    <span style="font-size:12px">No Effort Estimation</span>
+                </span>
+                <span th:unless="${item.estimatedEffort == 0}">
+                    <span class="informationText" id="itemEstimatedEffort" th:text="${item.estimatedEffort}"
+                          title="Estimated Effort"></span>
+                    <span style="font-size:12px">(estimated)</span>
+                </span>
+            </td>
             <td>
                 <select id="itemAssigneeId" name="itemAssigneeId" th:onchange="|updateAssignee(${item.id})|"
                         title="Assignee"
-                        th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')') or (session.userId == item.assignee.id) ? 'false' : 'true'}">
+                        th:disabled="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')') or (session.userId == item.assignee.id) ? 'false' : 'true'}">
                 <span th:each="user : ${allUsers}">
                     <option th:selected="${item.assignee.id == user.id ? true : false}"
                             th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
@@ -44,7 +54,7 @@
             <td>
     <span th:if="${item.status != 3}">
         <span th:if="${item.status == 2}">
-            <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+            <button name="action" sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')" type="submit"
                     value="remove">
             Remove from Sprint
         </button>
@@ -53,7 +63,7 @@
 
                 <span th:if="${sprint.status != 2}">
         <span th:if="${item.status == 1}">
-            <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
+            <button name="action" sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')" type="submit"
                     value="move">
             Move to Sprint
         </button>

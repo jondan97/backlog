@@ -11,21 +11,20 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-<button th:onclick="'window.location.href=\'' + @{/} + '\''"
-        type="button">Home
-</button>
-<button
-        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId}} + '\''"
-        type="button">Project
-</button>
-<button
-        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/sprint/' + ${sprint.id} + '/history'} + '\''"
-        type="button">Sprint History
-</button>
-<button onclick="window.location.href='/logout'" style="float: right"
-        type="button">Log Out
-</button>
+<span th:insert="include/navigation :: bar"></span>
 <br>
+<span style="float: right">
+    <button class="btn btn-primary btn-lg"
+            name="action"
+            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/sprint/' + ${sprintId}+ '/history'} + '\''"
+            type="button" value="view">View Burndown Chart
+    </button>
+</span>
+<br>
+<br>
+<h2 align="center">
+    Sprint Task Board
+</h2>
 
 <div class="container">
     <div class="column">
@@ -34,7 +33,6 @@
             <img class="hintSymbol" hidden onclick="openHintModal('toDo')" src="../../../../images/hintSymbol.png"
                  style="width: 25px;height: 25px;">
         </p>
-
         <div class="tasks">
             <span th:if="${todoAssociations}">
                 <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
@@ -44,7 +42,6 @@
             </span>
         </div>
     </div>
-
     <div class="column">
         <p class="column-title">
             IN PROGRESS
@@ -60,7 +57,6 @@
             </span>
         </div>
     </div>
-
     <div class="column">
         <p class="column-title">
             FOR REVIEW
@@ -99,7 +95,6 @@
 <script th:src="@{/js/general.js}"></script>
 
 <script th:src="@{/js/taskBoard.js}"></script>
-<script th:src="@{/js/modalFunctions.js}"></script>
 <!--in the event of redirecting to a modal (after modifying item or clicking on a parent let's say-->
 <span th:if="${itemId}">
     <script>

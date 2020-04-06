@@ -2,6 +2,22 @@
     width: 100%;
 }
 
+.activeSprintsLines {
+    text-decoration: underline overline;
+    text-decoration-color: green;
+}
+
+.readySprintLines {
+    text-decoration: underline overline;
+    text-decoration-color: #a9a900;
+}
+
+.backlog {
+    border-style: solid;
+    display: block;
+    background-color: #f8f9fa;
+}
+
 table.itemTable td {
     width: 6%;
     padding: 10px;
@@ -9,35 +25,29 @@ table.itemTable td {
 }
 
 table.itemTable tr:hover {
-    background-color: #d4d4d4;
+    background-color: #bbbbbb;
     cursor: pointer;
 }
 
-.task {
+.item {
     background-color: white;
     border-style: solid;
     display: block;
+}
+
+.task {
     border-color: lightblue;
 }
 
 .bug {
-    background-color: white;
-    border-style: solid;
-    display: block;
     border-color: #c5090c;
 }
 
 .story {
-    background-color: white;
-    border-style: solid;
-    display: block;
     border-color: green;
 }
 
 .epic {
-    background-color: white;
-    border-style: solid;
-    display: block;
     border-color: purple;
 }
 

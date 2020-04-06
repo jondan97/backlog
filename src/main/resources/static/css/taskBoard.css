@@ -38,3 +38,8 @@
     border-style: solid;
     border-color: #c5090c;
 }
+
+#burndownChartButton {
+    position: relative;
+    margin: 5% 5% 5% 66%;
+}

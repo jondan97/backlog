@@ -3,10 +3,7 @@ package gr.university.thesis.controller;
 
 import gr.university.thesis.dto.BurnDownChartData;
 import gr.university.thesis.entity.*;
-import gr.university.thesis.entity.enumeration.ItemPriority;
-import gr.university.thesis.entity.enumeration.ItemType;
-import gr.university.thesis.entity.enumeration.SprintStatus;
-import gr.university.thesis.entity.enumeration.TaskBoardStatus;
+import gr.university.thesis.entity.enumeration.*;
 import gr.university.thesis.exceptions.ItemDoesNotExistException;
 import gr.university.thesis.exceptions.ProjectDoesNotExistException;
 import gr.university.thesis.exceptions.SprintDoesNotExistException;
@@ -64,13 +61,11 @@ public class UserController {
     /**
      * 'main' page of user, here, the user(s) can manage all the project of the system
      *
-     * @param model:   user interface that is shown to user
-     * @param session: session required to get the current's admin ID (only the admin can access this method so we
-     *                 find the session's userId attribute
+     * @param model: user interface that is shown to user
      * @return : returns the manageUsers template
      */
     @GetMapping("/projectPanel")
-    public String viewProjectsPanel(Model model, HttpSession session) {
+    public String viewProjectsPanel(Model model) {
         List<Project> allProjects = projectService.findAllProjects();
         model.addAttribute("projects", allProjects);
         return "projectPanel";
@@ -108,7 +103,7 @@ public class UserController {
             }
             //perhaps not the most sufficient but this application is not supposed to be scalable
             model.addAttribute("allUsers", userService.findAllUsers());
-            model.addAttribute("backlog", itemService.findAllItemsByProjectId(projectId));
+            model.addAttribute("backlog", itemService.findAllItemsInBacklogByProjectId(projectId, ItemStatus.BACKLOG));
             model.addAttribute("itemTypes", ItemType.values());
             model.addAttribute("itemPriorities", ItemPriority.values());
         } else {
@@ -354,15 +349,19 @@ public class UserController {
     public String viewTaskBoard(@PathVariable long projectId,
                                 @PathVariable long sprintId,
                                 Model model) throws SprintDoesNotExistException, SprintHasNotStartedException {
+        Optional<Project> projectOptional = projectService.findProjectById(projectId);
         Optional<Sprint> sprintOptional = projectService.findSprintInProject(projectId, sprintId);
         if (sprintOptional.isPresent()) {
+            Project project = projectOptional.get();
+            model.addAttribute("project", project);
+            Optional<Sprint> sprintActiveOptional = sprintService.findActiveSprintInProject(project);
+            sprintActiveOptional.ifPresent(sprint -> model.addAttribute("sprint", sprint));
             Sprint sprint = sprintOptional.get();
             if (sprint.getStatus() == SprintStatus.READY.getRepositoryId()) {
                 throw new SprintHasNotStartedException("Sprint task board has not yet started.");
             }
             model.addAttribute("allUsers", userService.findAllUsers());
             model.addAttribute("projectId", projectId);
-            model.addAttribute("sprint", sprint);
             Optional<List<ItemSprintHistory>> todoAssociations = itemSprintHistoryService.
                     findAllAssociationsByStatus(new Sprint(sprintId), TaskBoardStatus.TO_DO,
                             ItemType.TASK, ItemType.BUG);
@@ -426,7 +425,7 @@ public class UserController {
 
     /**
      * this method shows to the user the progress of a project, which includes all the sprints that took place and
-     * a burn down chart for all the project
+     * a burn down chart for all the projects
      *
      * @param projectId: the project that the user requested to see the history of
      * @param model:     the interface that the user sees
@@ -437,7 +436,12 @@ public class UserController {
     @RequestMapping(value = "/project/{projectId}/projectProgress")
     public String viewProjectProgress(@PathVariable long projectId,
                                       Model model) throws ProjectDoesNotExistException {
-        if (projectService.findProjectById(projectId).isPresent()) {
+        Optional<Project> projectOptional = projectService.findProjectById(projectId);
+        if (projectOptional.isPresent()) {
+            Project project = projectOptional.get();
+            model.addAttribute("project", project);
+            Optional<Sprint> sprintOptional = sprintService.findActiveSprintInProject(project);
+            sprintOptional.ifPresent(sprint -> model.addAttribute("sprint", sprint));
             Optional<List<Sprint>> finishedSprintsOptional =
                     sprintService.findSprintsByProjectAndStatus(new Project(projectId), SprintStatus.FINISHED);
             BurnDownChartData burnDownChartData;
@@ -447,8 +451,8 @@ public class UserController {
                 model.addAttribute("finishedSprints", finishedSprints);
                 //burn down chart data are needed to be shown  for project total effort and current sprint if it's running
                 burnDownChartData = projectService.calculateBurnDownChartData(projectId, finishedSprints);
+                //else do not show any sprints, only the ideal burning (if it applies)
             } else {
-                //burn down chart data are needed to be shown  for project total effort and current sprint if it's running
                 burnDownChartData = projectService.calculateBurnDownChartData(projectId, null);
             }
             model.addAttribute("burnDownChartData", burnDownChartData);
@@ -480,6 +484,11 @@ public class UserController {
             Sprint sprint = sprintOptional.get();
             model.addAttribute("tasksDoneByDateList", itemSprintHistoryService.sortTasksByDate(sprint));
             model.addAttribute("burnDownChartData", itemSprintHistoryService.calculateBurnDownChartData(sprint));
+            Optional<Project> projectOptional = projectService.findProjectById(projectId);
+            Project project = projectOptional.get();
+            model.addAttribute("project", projectOptional.get());
+            Optional<Sprint> sprintActiveOptional = sprintService.findActiveSprintInProject(project);
+            sprintActiveOptional.ifPresent(activeSprint -> model.addAttribute("sprint", activeSprint));
         } else {
             throw new SprintDoesNotExistException("Sprint with id '" + sprintId + "' does not exist in this project.");
         }

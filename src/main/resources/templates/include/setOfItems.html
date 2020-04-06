@@ -12,7 +12,7 @@
             <!--            if item is an epic-->
                         <span th:if="${item.type == 1}">
                         <span th:insert="include/epic :: updateForm"
-                              th:class="'epic'"></span>
+                              th:class="'item epic'"></span>
                             <!--                if the epic has children-->
                             <span th:if="${item.children}">
                                 <span th:each="item : ${item.children}">
@@ -20,14 +20,14 @@
                                     <span th:if="${item.type == 2}">
                                         <ul>
                                             <span th:insert="include/story :: updateForm"
-                                                  th:class="'story'"></span>
+                                                  th:class="'item story'"></span>
                                             <!--                            if the child story has any children on its own-->
                                                 <span th:if="${item.children}">
                                                     <span th:each="item: ${item.children}">
                                                         <span th:if="${item.status != 4}">
                                                         <ul>
                                                             <span th:insert="include/task :: updateForm"
-                                                                  th:class="${item.type == 3} ? 'task' : 'bug'"></span>
+                                                                  th:class="${item.type == 3} ? 'item task' : 'item bug'"></span>
                                                         </ul>
                                                          </span>
                                                     </span>
@@ -39,7 +39,7 @@
                                         <span th:if="${item.status != 4}">
                                         <ul>
                                             <span th:insert="include/task :: updateForm"
-                                                  th:class="${item.type == 3} ? 'task' : 'bug'"></span>
+                                                  th:class="${item.type == 3} ? 'item task' : 'item bug'"></span>
                                         </ul>
                                         </span>
                                     </span>
@@ -50,7 +50,7 @@
                         <!--            if item is a story-->
                         <span th:if="${item.type == 2}">
                             <span th:insert="include/story :: updateForm"
-                                  th:class="'story'"></span>
+                                  th:class="'item story'"></span>
                             <!--                if the story has children-->
                                 <span th:if="${item.children}">
 
@@ -58,7 +58,7 @@
                                             <span th:if="${item.status != 4}">
                                                 <ul>
                                         <span th:insert="include/task :: updateForm"
-                                              th:class="${item.type == 3} ? 'task' : 'bug'">
+                                              th:class="${item.type == 3} ? 'item task' : 'item bug'">
                                         </span>
                                                 </ul>
                                             </span>
@@ -69,7 +69,7 @@
             <!--        if item is not an epic nor a story (without a parent), but a task/bug etc-->
                     <span th:unless="${item.type == 1 or item.type == 2}">
                         <span th:insert="include/task :: updateForm"
-                              th:class="${item.type == 3} ? 'task' : 'bug'">
+                              th:class="${item.type == 3} ? 'item task' : 'item bug'">
                         </span>
                     </span>
                 </span>

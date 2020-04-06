@@ -5,6 +5,7 @@ import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.User;
+import gr.university.thesis.entity.enumeration.ItemStatus;
 import gr.university.thesis.entity.enumeration.ItemType;
 import gr.university.thesis.entity.enumeration.SprintStatus;
 import gr.university.thesis.exceptions.ProjectAlreadyExistsException;
@@ -51,6 +52,9 @@ public class ProjectService {
         List<Project> allProjects = projectRepository.findAll();
         for (Project project : allProjects) {
             calculateTotalEffort(project);
+            calculateRemainingEffort(project);
+            calculateEstimatedTotalEffort(project);
+            calculateSprintsNeeded(project);
         }
         return allProjects;
     }
@@ -67,12 +71,82 @@ public class ProjectService {
         itemService.calculatedCombinedEffort(project.getItems());
         int totalEffort = 0;
         for (Item item : project.getItems()) {
-            if (item.getType() == ItemType.EPIC.getRepositoryId() || (item.getType() == ItemType.STORY.getRepositoryId() && item.getParent() == null)
+            if (item.getType() == ItemType.EPIC.getRepositoryId()
+                    || (item.getType() == ItemType.STORY.getRepositoryId()
+                    && item.getParent() == null)
                     || (item.getParent() == null)) {
                 totalEffort += item.getEffort();
             }
         }
         project.setTotal_effort(totalEffort);
+    }
+
+    /**
+     * this method takes a project and calculates the remaining effort of all its children items within, it does not
+     * take into account any items that have been finished, it only adds the items that are either in the backlog, or
+     * in the sprint and are stray, for example a story without a parent or a task without a parent will also be
+     * added into the calculations, unlike the calculateTotalEffort method,
+     *
+     * @param project: the project that the remaining effort needs to be calculated
+     */
+    public void calculateRemainingEffort(Project project) {
+        itemService.calculateEffortOfUnfinishedItems(project.getItems());
+        int remainingEffort = 0;
+        for (Item item : project.getItems()) {
+            if (item.getType() == ItemType.EPIC.getRepositoryId()
+                    || (item.getType() == ItemType.STORY.getRepositoryId()
+                    && item.getParent() == null)
+                    || (item.getParent() == null && item.getStatus() != ItemStatus.FINISHED.getRepositoryId())) {
+                remainingEffort += item.getEffort();
+            }
+        }
+        project.setRemaining_effort(remainingEffort);
+    }
+
+    /**
+     * this method takes a project and calculates the estimated effort of all its chilrden within, the items that are
+     * taken under consideration include the epics and stories(that are stray), and the estimated effort of those
+     * is summed to form the total estimated effort needed to finish the project
+     *
+     * @param project: the project that the estimated total effort needs to be calculated
+     */
+    public void calculateEstimatedTotalEffort(Project project) {
+        int estimatedTotalEffort = 0;
+        for (Item item : project.getItems()) {
+            if (item.getType() == ItemType.EPIC.getRepositoryId()
+                    || (item.getType() == ItemType.STORY.getRepositoryId()
+                    && item.getParent() == null)) {
+                estimatedTotalEffort += item.getEstimatedEffort();
+            }
+        }
+        project.setEstimated_total_effort(estimatedTotalEffort);
+    }
+
+    /**
+     * this method takes a project and calculates the estimated sprints needed for that project to finish,
+     * the formula used is this: total effort / team velocity
+     * if the total effort is 0, then the estimated total effort from all the epics and stories is used instead
+     * if both are 0, then the estimation also returns 0
+     *
+     * @param project: the project that the estimated total effort needs to be calculated
+     */
+    public void calculateSprintsNeeded(Project project) {
+        double sprintsNeeded = 0.0;
+        //can't divide by 0
+        if (project.getTeam_velocity() != 0) {
+            ///if the project has no tasks in it, then calculate it based on the estimated effort of each epic/story
+            if (project.getTotal_effort() == 0) {
+                sprintsNeeded = project.getEstimated_total_effort() / (double) project.getTeam_velocity();
+            }
+            //if it has tasks, then calculate the sprints needed based on the effort of the tasks
+            else {
+                sprintsNeeded = project.getTotal_effort() / (double) project.getTeam_velocity();
+            }
+        }
+        //always round the double up, if the total effort is 25 and the velocity 20, then 2 sprints will be needed
+        //and not 1
+        sprintsNeeded = Math.ceil(sprintsNeeded);
+        project.setEstimated_sprints_needed((long) sprintsNeeded);
     }
 
     /**
@@ -88,18 +162,19 @@ public class ProjectService {
     /**
      * this method allows the creation of a project, and is stored in the repository
      *
-     * @param title                      :       title of the new project
-     * @param description                : description of the new project
-     * @param developersWorkingStr       : the number of developers working on this project, helps in estimating
-     * @param estimatedSprintsNeededStr: the estimated sprints needed to finish this project
-     * @param owner                      :       the owner of this project
+     * @param title                :       title of the new project
+     * @param description          : description of the new project
+     * @param developersWorkingStr : the number of developers working on this project, helps in estimating
+     * @param teamVelocityStr:     the velocity of the team during the execution of the sprints
+     * @param sprintDurationStr    : the duration of each sprint executed in the project
+     * @param owner                :       the owner of this project
      * @throws ProjectAlreadyExistsException       : if the user tries to update a project with a title of another project that already
      *                                             exists
      * @throws ProjectHasEmptyTitleException       : the user cannot create a project with no title
      * @throws MethodArgumentTypeMismatchException : in case the user inputs strings as numbers for the developers
      *                                             working and estimated sprints needed
      */
-    public void createProject(String title, String description, String developersWorkingStr, String estimatedSprintsNeededStr, User owner)
+    public void createProject(String title, String description, String developersWorkingStr, String teamVelocityStr, String sprintDurationStr, User owner)
             throws ProjectAlreadyExistsException, ProjectHasEmptyTitleException {
         if (title.isEmpty()) {
             throw new ProjectHasEmptyTitleException("Project cannot be created without a title.");
@@ -107,7 +182,8 @@ public class ProjectService {
         title = title.trim();
         Optional<Project> projectOptional = projectRepository.findFirstByTitle(title);
         int developersWorking = 0;
-        int estimatedSprintsNeeded = 0;
+        int teamVelocity = 0;
+        int sprint_duration = 0;
         if (projectOptional.isPresent()) {
             throw new ProjectAlreadyExistsException("Project with name '" + title + "' already exists.");
         }
@@ -125,14 +201,21 @@ public class ProjectService {
             }
         }
         //example of input handling, not in the scope of this project
-        if (!estimatedSprintsNeededStr.isEmpty()) {
+        if (!teamVelocityStr.isEmpty()) {
             //might throw exception
-            estimatedSprintsNeeded = Integer.parseInt(estimatedSprintsNeededStr);
-            if (estimatedSprintsNeeded < 0) {
-                estimatedSprintsNeeded = 0;
+            teamVelocity = Integer.parseInt(teamVelocityStr);
+            if (teamVelocity < 0) {
+                teamVelocity = 0;
             }
         }
-        Project project = new Project(title, description, developersWorking, estimatedSprintsNeeded, owner);
+        if (!sprintDurationStr.isEmpty()) {
+            //might throw exception
+            sprint_duration = Integer.parseInt(sprintDurationStr);
+            if (sprint_duration < 0) {
+                sprint_duration = 0;
+            }
+        }
+        Project project = new Project(title, description, developersWorking, teamVelocity, sprint_duration, owner);
         //saving it to get the id from the DB
         project = projectRepository.save(project);
         sprintService.createSprint(project);
@@ -145,12 +228,12 @@ public class ProjectService {
      * @param title                      :       the title that the admin has possibly updated
      * @param description                : the description that the admin has possibly updated
      * @param developersWorkingStr       : the number of developers working on this project, helps in estimating
-     * @param estimatedSprintsNeededStr: update to the estimation needed to finish the project might be needed
+     * @param sprintDurationStr          : update to the duration of each sprint in the project
      * @throws ProjectAlreadyExistsException : if the user tries to update a project with a title of another project that already
      *                                       exists
      * @throws ProjectHasEmptyTitleException : if the user tries to update a project and sets the title to blank
      */
-    public void updateProject(long projectId, String title, String description, String developersWorkingStr, String estimatedSprintsNeededStr)
+    public void updateProject(long projectId, String title, String description, String developersWorkingStr, String sprintDurationStr)
             throws ProjectAlreadyExistsException, ProjectHasEmptyTitleException {
         if (title.isEmpty()) {
             throw new ProjectHasEmptyTitleException("Project cannot be created without a title.");
@@ -167,7 +250,7 @@ public class ProjectService {
                 }
             }
             int developersWorking = 0;
-            int estimatedSprintsNeeded = 0;
+            int sprintDuration = 1;
             if (description.isEmpty()) {
                 description = "No Description";
             } else {
@@ -182,17 +265,17 @@ public class ProjectService {
                 }
             }
             //example of input handling, not in the scope of this project
-            if (!estimatedSprintsNeededStr.isEmpty()) {
+            if (!sprintDurationStr.isEmpty()) {
                 //might throw exception
-                estimatedSprintsNeeded = Integer.parseInt(estimatedSprintsNeededStr);
-                if (estimatedSprintsNeeded < 0) {
-                    estimatedSprintsNeeded = 0;
+                sprintDuration = Integer.parseInt(sprintDurationStr);
+                if (sprintDuration < 1) {
+                    sprintDuration = 1;
                 }
             }
             project.setTitle(title);
             project.setDescription(description);
             project.setDevelopers_working(developersWorking);
-            project.setEstimated_sprints_needed(estimatedSprintsNeeded);
+            project.setSprint_duration(sprintDuration);
             projectRepository.save(project);
         }
     }
@@ -272,6 +355,8 @@ public class ProjectService {
             project = projectOptional.get();
         }
         calculateTotalEffort(project);
+        calculateEstimatedTotalEffort(project);
+        calculateSprintsNeeded(project);
 
         //here, the sprint names (in order) are written in an array called categories
         //counting the Start cell and the current Sprint

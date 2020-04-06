@@ -17,8 +17,9 @@ function modifyItem() {
     $('#uniqueItemOwnerInput').show();
     $('#uniqueItemDateCreatedInput').show();
     document.getElementById("uniqueItemAssigneeId").removeAttribute("onchange");
-    $('#viewUniqueItemTable .uniqueItemInput').attr('hidden', false);
-    $('#viewUniqueItemTable .uniqueItemInput').attr('readonly', false);
+    let uniqueItemInputClass = $('#viewUniqueItemTable .uniqueItemInput');
+    uniqueItemInputClass.attr('hidden', false);
+    uniqueItemInputClass.attr('readonly', false);
     $('.uniqueItemUpdateAndDeleteButtons').attr('hidden', false);
 }
 
@@ -32,4 +33,16 @@ function modifyComment(commentItemId) {
 function openPopup() {
     var popup = document.getElementById("commentHintPopup");
     popup.classList.toggle("show");
+}
+
+function expandList() {
+    document.getElementById("uniqueItemChildren").hidden = false;
+    $("#uniqueItemChildrenButtonExpand").hide();
+    $("#uniqueItemChildrenButtonClose").show();
+}
+
+function closeList() {
+    document.getElementById("uniqueItemChildren").hidden = true;
+    $("#uniqueItemChildrenButtonClose").hide();
+    $("#uniqueItemChildrenButtonExpand").show();
 }

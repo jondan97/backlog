@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8">
 </head>
@@ -7,8 +7,8 @@
 <span th:fragment="sprintForm">
 
         <table style="width: 100%">
-            <form method="post" th:action="@{/pm/editSprint}">
-            <tr>
+            <form id="sprintForm" method="post" th:action="@{/pm/editSprint}">
+            <tr style="text-align: center">
                 <th>
                     Goal
                     <img class="hintSymbol" hidden onclick="openHintModal('sprint-goal')"
@@ -16,8 +16,6 @@
                 </th>
                 <th>
                     Duration
-                    <img class="hintSymbol" hidden onclick="openHintModal('sprint-duration')"
-                         src="../../images/hintSymbol.png" style="width: 20px;height: 20px;">
                 </th>
                 <th>
                     Start Date
@@ -34,39 +32,30 @@
                     Total Effort
                 </th>
                 <th>
-                    Velocity
-                    <img class="hintSymbol" hidden onclick="openHintModal('sprint-velocity')"
-                         src="../../images/hintSymbol.png" style="width: 20px;height: 20px;">
+                    Effort Burned
                 </th>
             </tr>
 
                 <input hidden id="sprintId" name="sprintId" readonly th:value="${sprint.id}">
                 <input hidden id="sprintProjectId" name="sprintProjectId" th:value="${project.id}">
 
+
+                <tr style="text-align: center">
                 <td>
         <input id="sprintGoal" name="sprintGoal" placeholder="Short sentence about goal"
-               th:readonly="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
+               th:readonly="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')')
                and sprint.status == 1
                ? 'false' : 'true'}" th:value="${sprint.goal}">
                 </td>
                 <td>
-        <select id="sprintDuration" name="sprintDuration"
-                th:disabled="${#authorization.expression('hasAnyAuthority(''PROJECT_MANAGER'',''ADMIN'')')
-                and sprint.status == 1
-                ? 'false' : 'true'}">
-                <option th:selected="${sprint.duration == 1 ? 'true' : 'false'}" value="1">
-                    1 week
-                </option>
-                <option th:selected="${sprint.duration == 2 or sprint.duration == 0 ? 'true' : 'false'}" value="2">
-                        2 weeks
-                    </option>
-                <option th:selected="${sprint.duration == 3 ? 'true' : 'false'}" value="3">
-                        3 weeks
-                    </option>
-                <option th:selected="${sprint.duration == 4 ? 'true' : 'false'}" value="4">
-                        4 weeks
-                    </option>
-        </select>
+                    <span th:if="${project.sprint_duration == 1}">
+                        <input id="sprintDuration" name="sprintDuration" readonly size="4"
+                               th:value="${project.sprint_duration + ' week'}">
+                    </span>
+                    <span th:unless="${project.sprint_duration == 1}">
+                        <input id="sprintDuration" name="sprintDuration" readonly size="4"
+                               th:value="${project.sprint_duration + ' weeks'}">
+                    </span>
                 </td>
             <td>
         <input id="sprintStartDate" name="sprintStartDate" placeholder="autofilled" readonly size="9"
@@ -79,36 +68,20 @@
                 </td>
                 <td>
         <input id="sprintDaysRemaining" name="sprintDaysRemaining" readonly size="1"
-               th:value="${sprint.days_remaining}">
+               th:value="${sprint.days_remaining == 0 ? '<0' : sprint.days_remaining}">
                     </td>
 
 
                 <td>
-        <input id="sprintTotalEffort" name="sprintTotalEffort" readonly size="4" th:value="${sprint.total_effort}">
+        <input id="sprintTotalEffort" name="sprintTotalEffort" readonly size="2" th:value="${sprint.total_effort}">
                 </td>
                 <td>
-        <input id="sprintVelocity" name="sprintVelocity" readonly size="4" th:value="${sprint.velocity}">
+        <input id="sprintRemaining" name="sprintRemaining" readonly size="2" th:value="${sprint.velocity}">
                 </td>
 
                 <td>
-        <span th:if="${sprint.status == 1}">
-            <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
-                    value="start">
-                Start
-            </button>
-        </span>
-
-        <span th:if="${sprint.status == 2}">
-            <button name="action"
-                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/sprint/' + ${sprint.id}} + '\''"
-                    type="button" value="view">View Board
-            </button>
-            <button name="action" sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')" type="submit"
-                    value="finish">
-                Finish
-            </button>
-        </span>
-                </td>
+                    </td>
+                </tr>
     </form>
         </table>
 </span>

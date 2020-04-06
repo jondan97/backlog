@@ -57,6 +57,12 @@ public class Item {
     private int effort;
 
     /**
+     * the estimated effort that is required to finish the item
+     */
+    @Column
+    private int estimatedEffort;
+
+    /**
      * the priority of the item, is it important or low priority?
      */
     @Column
@@ -126,13 +132,14 @@ public class Item {
     /**
      * custom constructor
      */
-    public Item(String title, String description, String acceptanceCriteria, int type, int priority, int effort, Project project, User assignee, User owner, Item parent) {
+    public Item(String title, String description, String acceptanceCriteria, int type, int priority, int effort, int estimatedEffort, Project project, User assignee, User owner, Item parent) {
         this.title = title;
         this.description = description;
         this.acceptanceCriteria = acceptanceCriteria;
         this.type = type;
         this.priority = priority;
         this.effort = effort;
+        this.estimatedEffort = estimatedEffort;
         this.project = project;
         this.assignee = assignee;
         this.owner = owner;

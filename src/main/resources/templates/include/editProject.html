@@ -20,9 +20,9 @@
         </tr>
         <tr>
             <td>
-                                            <textarea cols="45" form="modifyProjectForm" id="projectDescription"
-                                                      maxlength="200"
-                                                      name="projectDescription" rows="4"></textarea>
+                <textarea cols="45" form="modifyProjectForm" id="projectDescription"
+                          maxlength="200"
+                          name="projectDescription" rows="4"></textarea>
             </td>
         </tr>
         <tr>
@@ -33,8 +33,22 @@
         </tr>
         <tr>
             <td>
-                <label for="projectEstimatedSprintsNeeded">Estimated Sprints Needed:</label>
-                <input id="projectEstimatedSprintsNeeded" name="projectEstimatedSprintsNeeded" type="number">
+                <label for="projectSprintDuration">Sprint Duration:</label>
+                <select id="projectSprintDuration" name="projectSprintDuration">
+                    <option id="projectSprintDurationOption1" value="1">
+                        1 week
+                    </option>
+                    <option id="projectSprintDurationOption2" value="2">
+                        2 weeks
+                    </option>
+                    <option id="projectSprintDurationOption3" value="3">
+                        3 weeks
+                    </option>
+                    <option id="projectSprintDurationOption4" value="4">
+                        4 weeks
+                    </option>
+                </select>
+            </td>
             </td>
         </tr>
         <tr>

@@ -5,19 +5,34 @@ function showCreateItemTable() {
 function toggleInputs() {
     const x = document.getElementById("type").value;
     if (x === "BUG" || x === "TASK") {
-        document.getElementById("fakeEffort").disabled = false;
+        document.getElementById("taskBugEffort").hidden = false;
+        document.getElementById("epicStoryEffort").hidden = true;
+        document.getElementById("estimatedEffort").value = null;
         document.getElementById("fakeStoryParentId").hidden = false;
         document.getElementById("fakeStoryParentId").disabled = false;
         document.getElementById("fakeEpicParentId").hidden = true;
-        document.getElementById("disabledParentInput").remove();
+        //check if it exists, if yes remove
+        const epicParentDisabledInput = document.getElementById("disabledParentInput");
+        if (epicParentDisabledInput) {
+            epicParentDisabledInput.remove();
+        }
+
     } else if (x === "STORY") {
-        document.getElementById("fakeEffort").disabled = true;
+        document.getElementById("taskBugEffort").hidden = true;
+        document.getElementById("effort").value = null;
+        document.getElementById("epicStoryEffort").hidden = false;
         document.getElementById("fakeStoryParentId").hidden = true;
         document.getElementById("fakeEpicParentId").hidden = false;
         document.getElementById("fakeEpicParentId").disabled = false;
-        document.getElementById("disabledParentInput").remove();
+        //check if it exists, if yes remove
+        const epicParentDisabledInput = document.getElementById("disabledParentInput");
+        if (epicParentDisabledInput) {
+            epicParentDisabledInput.remove();
+        }
     } else if (x === "EPIC") {
-        document.getElementById("fakeEffort").disabled = true;
+        document.getElementById("taskBugEffort").hidden = true;
+        document.getElementById("effort").value = null;
+        document.getElementById("epicStoryEffort").hidden = false;
         const x = document.getElementById("fakeStoryParentId");
         const option = document.createElement("option");
         option.text = "Disabled";
@@ -34,10 +49,8 @@ function toggleInputs() {
 function checkInputs() {
     const x = document.getElementById("type").value;
     if (x === "BUG" || x === "TASK") {
-        document.getElementById("effort").value = document.getElementById("fakeEffort").value;
         document.getElementById("parentId").value = document.getElementById("fakeStoryParentId").value;
     } else if (x === "STORY") {
-        document.getElementById("effort").value = document.getElementById("fakeEffort").value;
         document.getElementById("parentId").value = document.getElementById("fakeEpicParentId").value;
     }
 }

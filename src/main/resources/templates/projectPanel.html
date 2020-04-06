@@ -11,12 +11,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 <body>
-<button th:onclick="'window.location.href=\'' + @{/} + '\''"
-        type="button">Home
-</button>
-<button onclick="window.location.href='/logout'" style="float: right"
-        type="button">Log Out
-</button>
+<span th:insert="include/navigation :: bar"></span>
 <br>
 <span class="textHeader">Existing Projects</span>
 <img class="hintSymbol" hidden onclick="openHintModal('existingProjects')" src="../images/hintSymbol.png"
@@ -31,13 +26,30 @@
             <img class="hintSymbol" hidden onclick="openHintModal('projectDescription')" src="../images/hintSymbol.png"
                  style="width: 25px;height: 25px;">
         </th>
-        <th>
-            Total Effort
-        </th>
+
         <th>
             Developers Working
             <img class="hintSymbol" hidden onclick="openHintModal('projectDevelopersWorking')"
                  src="../images/hintSymbol.png" style="width: 25px;height: 25px;">
+        </th>
+        <th>
+            Team Velocity
+            <img class="hintSymbol" hidden onclick="openHintModal('sprint-velocity')"
+                 src="../../images/hintSymbol.png" style="width: 20px;height: 20px;">
+        </th>
+        <th>
+            Sprint Duration
+            <img class="hintSymbol" hidden onclick="openHintModal('sprint-duration')"
+                 src="../../images/hintSymbol.png" style="width: 20px;height: 20px;">
+        </th>
+        <th>
+            Total Effort
+        </th>
+        <th>
+            Remaining Effort
+        </th>
+        <th>
+            Estimated Total Effort
         </th>
         <th>
             Estimated Sprints Needed
@@ -63,23 +75,36 @@
                            th:value="${project.description}">
                 </td>
                 <td th:onclick="|window.location='project/${project.id}'|">
-                    <span th:text="${project.total_effort}"></span>
-                    <input hidden id="projectTotalEffort" name="projectTotalEffort" readonly
-                           th:value="${project.total_effort}">
-                </td>
-                <td th:onclick="|window.location='project/${project.id}'|">
                     <span th:text="${project.developers_working}"></span>
                     <input hidden name="projectDevelopersWorking"
                            th:id="|projectDevelopersWorking${projectStat.count}|"
                            th:value="${project.developers_working}" type="number">
                 </td>
                 <td th:onclick="|window.location='project/${project.id}'|">
-                    <span th:text="${project.estimated_sprints_needed}"></span>
-                    <input hidden name="projectEstimatedSprintsNeeded"
-                           th:id="|projectEstimatedSprintsNeeded${projectStat.count}|"
-                           th:value="${project.estimated_sprints_needed}" type="number">
+                    <span th:text="${project.team_velocity}"></span>
                 </td>
-                <span sec:authorize="hasAnyAuthority('ADMIN','PROJECT_MANAGER')">
+                <td th:onclick="|window.location='project/${project.id}'|">
+                    <span th:if="${project.sprint_duration != 1}"
+                          th:text="${project.sprint_duration + ' weeks'}"></span>
+                    <span th:text="${project.sprint_duration + ' week'}"
+                          th:unless="${project.sprint_duration != 1}"></span>
+                    <input hidden name="projectSprintDuration"
+                           th:id="|projectSprintDuration${projectStat.count}|"
+                           th:value="${project.sprint_duration}" type="number">
+                </td>
+                <td th:onclick="|window.location='project/${project.id}'|">
+                    <span th:text="${project.total_effort}"></span>
+                </td>
+                <td th:onclick="|window.location='project/${project.id}'|">
+                    <span th:text="${project.remaining_effort}"></span>
+                </td>
+                <td th:onclick="|window.location='project/${project.id}'|">
+                    <span th:text="${project.estimated_total_effort}"></span>
+                </td>
+                <td th:onclick="|window.location='project/${project.id}'|">
+                    <span th:text="${project.estimated_sprints_needed == 0 ? 'Not Known Yet' : project.estimated_sprints_needed}"></span>
+                </td>
+                <span sec:authorize="hasAnyAuthority('ADMIN','PRODUCT_OWNER')">
         <td>
             <button th:id="${'modifyProjectButton' + projectStat.count}"
                     th:onclick="|modifyProject(${projectStat.count})|" type="button">
@@ -98,48 +123,23 @@
             </form>
         </tr>
     </div>
+    <div th:if="${projects.size() == 0}">
+        <tr class="projectRow">
+            <td colspan="9">
+                No projects yet.
+            </td>
+        </tr>
+    </div>
 </table>
 
-<span sec:authorize="hasAnyAuthority('PROJECT_MANAGER', 'ADMIN')">
+<span sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')">
     <br>
     <div id="createElementButtonSet">
         <span class="textHeader"> Create a Project</span>
         <input id="createElementPlusSymbol" onclick="showCreateProjectTable()" th:src="@{/images/add.png}" type="image">
     </div>
-    <table hidden id="createProjectTable">
-        <form id="createProjectForm" method="post" th:action="@{/pm/createProject}">
-            <tr>
-                <td>
-                    <label for="title">Title:</label>
-                    <input id="title" name="title" placeholder="Name of the project">
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label for="description">Description:</label>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <textarea cols="50" form="createProjectForm" id="description" maxlength="200" name="description"
-                              placeholder="Short description about the project" rows="4"></textarea>
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label for="developersWorking"> Developers Working:</label>
-                    <input id="developersWorking" name="developersWorking" placeholder="0 to 7 or more" type="number">
-                </td>
-            </tr>
-             <tr>
-                <td>
-                    <label for="estimatedSprintsNeeded">Estimated Sprints Needed:</label>
-                    <input id="estimatedSprintsNeeded" name="estimatedSprintsNeeded" placeholder="0 and above"
-                           type="number">
-                    <button type="submit">Create Project</button>
-                </td>
-            </tr>
-        </form>
+    <table hidden id="createProjectTable" th:insert="include/createProject :: createForm">
+
     </table>
 </span>
 <span th:insert="include/modals :: editProjectModal"></span>

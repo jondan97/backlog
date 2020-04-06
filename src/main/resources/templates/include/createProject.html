@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<form id="createProjectForm" method="post" th:action="@{/pm/createProject}" th:fragment="createForm">
+    <tr>
+        <td>
+            <label for="title">Title:</label>
+            <input id="title" name="title" placeholder="Name of the project">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="description">Description:</label>
+        </td>
+    </tr>
+    <tr>
+        <td>
+                    <textarea cols="50" form="createProjectForm" id="description" maxlength="200" name="description"
+                              placeholder="Short description about the project" rows="4"></textarea>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="developersWorking">Developers Working:</label>
+            <input id="developersWorking" name="developersWorking" placeholder="0 to 7 or more" type="number">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="teamVelocity">Initial Team Velocity:</label>
+            <input id="teamVelocity" name="teamVelocity" placeholder="0 and above"
+                   type="number">
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <label for="sprintDuration">Sprint Duration:</label>
+            <select id="sprintDuration" name="sprintDuration">
+                <option value="1">
+                    1 week
+                </option>
+                <option selected value="2">
+                    2 weeks
+                </option>
+                <option value="3">
+                    3 weeks
+                </option>
+                <option value="4">
+                    4 weeks
+                </option>
+            </select>
+            <button style="float: right" type="submit">Create Project</button>
+        </td>
+    </tr>
+</form>
+</body>
+</html>

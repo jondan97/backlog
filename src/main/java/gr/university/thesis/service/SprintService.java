@@ -93,14 +93,13 @@ public class SprintService {
     /**
      * this methods starts a sprint and moves it to an active state
      *
-     * @param sprintId        : the sprint that the user wants to start
-     * @param sprintGoal:     the goal of the sprint, what do the users want to achieve by the time this sprint has
-     *                        finished?
-     * @param sprintDuration: the duration of the sprint, counted in weeks
+     * @param sprintId    : the sprint that the user wants to start
+     * @param sprintGoal: the goal of the sprint, what do the users want to achieve by the time this sprint has
+     *                    finished?
      * @throws SprintHasZeroEffortException : this exception is thrown when there are no tasks/bugs in the sprint, and the user
      *                                      * is trying to start it
      */
-    public void startSprint(long sprintId, String sprintGoal, int sprintDuration) throws SprintHasZeroEffortException {
+    public void startSprint(long sprintId, String sprintGoal) throws SprintHasZeroEffortException {
         Optional<Sprint> sprintOptional = findSprintById(new Sprint(sprintId));
         if (sprintOptional.isPresent()) {
             Sprint sprint = sprintOptional.get();
@@ -111,6 +110,7 @@ public class SprintService {
             sprint.setStatus((byte) SprintStatus.ACTIVE.getRepositoryId());
             Date now = new Date();
             sprint.setStart_date(now);
+            int sprintDuration = sprint.getProject().getSprint_duration();
             Date endDate = Time.calculateEndDate(now, sprintDuration);
             sprint.setEnd_date(endDate);
             //example of input handling, not in the scope of this project
@@ -139,6 +139,7 @@ public class SprintService {
         if (sprintOptional.isPresent()) {
             Sprint sprint = sprintOptional.get();
             sprint.setStatus((byte) SprintStatus.FINISHED.getRepositoryId());
+            sprint.setEnd_date(new Date());
             sprintOptional = Optional.of(sprintRepository.save(sprint));
             return sprintOptional;
         }

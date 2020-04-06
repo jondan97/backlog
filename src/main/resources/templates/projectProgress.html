@@ -12,20 +12,13 @@
     <title>Project Progress</title>
 </head>
 <body>
-<button th:onclick="'window.location.href=\'' + @{/} + '\''"
-        type="button">Home
-</button>
-<button
-        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId}} + '\''"
-        type="button">Project
-</button>
-<button onclick="window.location.href='/logout'" style="float: right"
-        type="button">Log Out
-</button>
-<div id="burndown"></div>
+<span th:insert="include/navigation :: bar"></span>
 <br>
 
+<div id="burndown"></div>
 <br>
+<br>
+
 <h2 align="center">
     Sprint History
     <img class="hintSymbol" hidden onclick="openHintModal('projectProgress-sprintHistory')"
@@ -66,8 +59,11 @@
             </td>
         </tr>
         <tr>
-            <th class="taskHeader" colspan="2" style="text-align: center;">
+            <th class="taskHeader" style="text-align: center;">
                 Task Name
+            </th>
+            <th class="taskHeader" style="text-align: center;">
+                Effort
             </th>
             <th class="taskHeader" colspan="2" style="text-align: center;">
                 Status
@@ -77,8 +73,11 @@
              <span th:if="${association.item.type == 3 or association.item.type == 4}">
                 <tr class="infoRow"
                     th:onclick="|openViewItemModal(${association.item.project.id},${association.item.id})|">
-                    <td colspan="2" style="text-align: center;">
+                    <td style="text-align: center;">
                         <span th:text="${association.item.title}"></span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span th:text="${association.item.effort}"></span>
                     </td>
                     <td colspan="2" style="text-align: center;">
                         <span th:text="${association.status.name}"></span>
@@ -91,7 +90,6 @@
 </span>
 <span th:insert="include/modals :: viewItemModal"></span>
 <script th:src="@{/js/projectProgress.js}"></script>
-<script th:src="@{/js/modalFunctions.js}"></script>
 
 <span th:insert="include/modals :: hintModal"></span>
 <span th:insert="include/hints :: hints"></span>

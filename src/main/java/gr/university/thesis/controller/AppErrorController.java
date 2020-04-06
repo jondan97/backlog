@@ -27,6 +27,14 @@ public class AppErrorController
     @ResponseBody
     public String handleError(HttpServletRequest request) {
 
+        String message = "User input caused errors.";
+
+        int httpErrorCode = getErrorCode(request);
+
+        if (httpErrorCode == 403) {
+            message = "Forbidden to access.";
+        }
+
         Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
         Exception exception = (Exception) request.getAttribute("javax.servlet.error.exception");
 
@@ -39,7 +47,7 @@ public class AppErrorController
                         "<input type='button' value='Go to Previous Page' onclick='history.back()'>" +
                         "</form>" +
                         "<body></html>",
-                statusCode, exception == null ? "User input caused errors." : exception.getCause().getMessage());
+                statusCode, exception == null ? message : exception.getCause().getMessage());
     }
 
     /**
@@ -51,5 +59,16 @@ public class AppErrorController
     @Override
     public String getErrorPath() {
         return "/error";
+    }
+
+    /**
+     * this method takes as input a 'bad' http request and returns the error code that this request is associated with
+     *
+     * @param httpRequest: the request received from the user
+     * @return: returns the error code that was associated with this 'bad' request
+     */
+    private int getErrorCode(HttpServletRequest httpRequest) {
+        return (Integer) httpRequest
+                .getAttribute("javax.servlet.error.status_code");
     }
 }
