@@ -45,3 +45,7 @@
     filter: grayscale(0%);
     cursor: pointer;
 }
+
+.warningMessage {
+    color: red;
+}

@@ -15,10 +15,11 @@
 <br>
 <span th:style="'border-style: solid;display:block;'">
 <span th:if="${sprint.status == 1}">
-    <span class="textHeader readySprintLines">Ready Sprint
+    <span class="textHeader readySprintLines">Ready Sprint</span>
     <img class="hintSymbol" hidden onclick="openHintModal('readySprint')" src="../../images/hintSymbol.png"
          style="width: 30px;height: 30px;margin: 0 0 11px 1px;">
-    </span>
+    <span class="warningMessage" th:if="${sprint.total_effort >= project.team_velocity}">Warning: The total effort of the sprint backlog is more than the last velocity of the team. The sprint might not be
+        completed in time.</span>
     <span style="float: right">
         <button class="btn btn-success btn-primary btn-lg" form="sprintForm" name="action"
                 sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')" type="submit" value="start">
@@ -48,9 +49,17 @@
 <span class="textHeader">Sprint Backlog</span>
     <img class="hintSymbol" hidden onclick="openHintModal('sprintBacklog')" src="../../images/hintSymbol.png"
          style="width: 30px;height: 30px;margin: 0 0 10px 1px;">
-<span style="float: right;line-height: 40px;" th:if="${sprint.status == 2}">
-    <button class="btn btn-sml btn-info" th:onclick="createSprintTask()" type="button">Add new Task</button>
-</span>
+    <span style="float: right;line-height: 33px;">
+    <img class="hintSymbol" hidden onclick="openHintModal('sprintAddTask')" src="../../images/hintSymbol.png"
+         style="width: 30px;height: 30px;margin: 0 0 1px 1px;">
+        <span th:if="${sprint.status == 1}">
+        <button class="btn btn-sml btn-outline-info" th:onclick="openHintModal('sprintAddTaskNotAvailable')"
+                title="Only available during sprint execution" type="button">Add new Task</button>
+        </span>
+        <span th:if="${sprint.status == 2}">
+            <button class="btn btn-sml btn-info" th:onclick="createSprintTask()" type="button">Add new Task</button>
+        </span>
+        </span>
 
 <span th:if="${sprint}" th:style="'border-style: solid;display:block;'">
     <div th:each="itemSprintHistory : ${sprint.associatedItems}">
