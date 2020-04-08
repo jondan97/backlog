@@ -8,7 +8,9 @@ public enum RoleEnum {
     MASTER_ADMIN(1, "MASTER_ADMIN"),
     ADMIN(2, "ADMIN"),
     PRODUCT_OWNER(3, "PRODUCT_OWNER"),
-    DEVELOPER(4, "DEVELOPER");
+    DEVELOPER(4, "DEVELOPER"),
+    SCRUM_MASTER(5, "SCRUM_MASTER");
+
 
     private final String name;
     private final int repositoryId; //database id, known beforehand

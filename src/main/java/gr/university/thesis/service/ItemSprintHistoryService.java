@@ -44,6 +44,19 @@ public class ItemSprintHistoryService {
     }
 
     /**
+     * this method creates an association between a sprint and an item, and stores it in the repository with a
+     * TO_DO status
+     *
+     * @param item:   the item that the association is created for
+     * @param sprint: the sprint that this association belongs to
+     */
+    public void createAssociationAndSaveToRepository(Item item, Sprint sprint) {
+        ItemSprintHistory ItemSprintHistory = new ItemSprintHistory(item, sprint,
+                TaskBoardStatus.TO_DO);
+        itemSprintHistoryRepository.save(ItemSprintHistory);
+    }
+
+    /**
      * this method moves an item to a sprint, and creates the necessary associations in the item-sprint history table in
      * the repository
      *

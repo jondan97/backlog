@@ -6,7 +6,10 @@ import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.ItemPriority;
 import gr.university.thesis.entity.enumeration.ItemType;
-import gr.university.thesis.exceptions.*;
+import gr.university.thesis.exceptions.ItemAlreadyExistsException;
+import gr.university.thesis.exceptions.ItemHasEmptyTitleException;
+import gr.university.thesis.exceptions.ProjectAlreadyExistsException;
+import gr.university.thesis.exceptions.ProjectHasEmptyTitleException;
 import gr.university.thesis.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -17,15 +20,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
-import java.util.Optional;
 
 /**
- * This is the project manager controller, here, a project manager can request actions such as viewing all projects
- * or creating one
+ * This is the project manager controller, here, a project manager can request actions such as creating a project
+ * or an item
  */
 @Controller
 @RequestMapping("/pm")
-public class ProjectManagerController {
+public class ProductOwnerController {
 
     ProjectService projectService;
     SessionService sessionService;
@@ -44,9 +46,9 @@ public class ProjectManagerController {
      * @param itemSprintHistoryService : services that manages all the associations between sprint and items
      */
     @Autowired
-    public ProjectManagerController(ProjectService projectService, SessionService sessionService,
-                                    ItemService itemService, SprintService sprintService,
-                                    ItemSprintHistoryService itemSprintHistoryService) {
+    public ProductOwnerController(ProjectService projectService, SessionService sessionService,
+                                  ItemService itemService, SprintService sprintService,
+                                  ItemSprintHistoryService itemSprintHistoryService) {
         this.projectService = projectService;
         this.sessionService = sessionService;
         this.itemService = itemService;
@@ -117,8 +119,8 @@ public class ProjectManagerController {
     /**
      * this method calls the project service in order to create a new item and store it in the repository
      *
-     * @param title:       input for the title of the new project
-     * @param description: input for the description of the new project
+     * @param title:       input for the title of the new item
+     * @param description: input for the description of the new item
      * @param acceptanceCriteria: under what conditions, is this item considered done
      * @param type:        input for the type of item
      * @param priority:    input for the priority of the item
@@ -248,75 +250,5 @@ public class ProjectManagerController {
         return "redirect:/";
     }
 
-    /**
-     * this method calls the ItemSprintHistory service in order to move an item to a ready sprint
-     *
-     * @param itemId:        required id in order to know which item to move to the sprint
-     * @param sprintId:      require id in order to know to which sprint it should move the item to
-     * @param itemProjectId: required for the redirection to the project backlog
-     * @return : returns a redirection to the current project backlog
-     */
-    @RequestMapping(value = "/editItem", params = "action=move", method = RequestMethod.POST)
-    public String moveItemToSprint(@RequestParam long itemId,
-                                   @RequestParam long sprintId,
-                                   @RequestParam long itemProjectId) {
-        itemSprintHistoryService.moveItemToSprint(new Item(itemId), new Sprint(sprintId), null);
-        return "redirect:/user/project/" + itemProjectId;
-    }
 
-    /**
-     * this method calls the ItemSprintHistory service in order to remove an item to a ready sprint
-     *
-     * @param itemId:        required id in order to know which item to move to the sprint
-     * @param sprintId:      require id in order to know to which sprint it should move the item to
-     * @param itemProjectId: required for the redirection to the project backlog
-     * @return : returns a redirection to the current project backlog
-     */
-    @RequestMapping(value = "/editItem", params = "action=remove", method = RequestMethod.POST)
-    public String removeItemFromSprint(@RequestParam long itemId,
-                                       @RequestParam long sprintId,
-                                       @RequestParam long itemProjectId) {
-        System.out.println(itemId + " " + sprintId);
-        itemSprintHistoryService.removeItemFromSprint(new Item(itemId), new Sprint(sprintId), null);
-        return "redirect:/user/project/" + itemProjectId;
-    }
-
-    /**
-     * this method moves a ready sprint to the state of active
-     *
-     * @param sprintId:        the sprint that the user wants to start
-     * @param sprintProjectId: the project that this sprint belongs to
-     * @param sprintGoal       : the goal the users are trying to achieve by the end of this sprint
-     * @return : redirection to project page
-     * @throws SprintHasZeroEffortException : this exception is thrown when there are no tasks/bugs in the sprint, and the user
-     *                                      is trying to start it
-     */
-    @RequestMapping(value = "/editSprint", params = "action=start", method = RequestMethod.POST)
-    public String startSprint(@RequestParam long sprintId,
-                              @RequestParam long sprintProjectId,
-                              @RequestParam String sprintGoal) throws SprintHasZeroEffortException {
-        sprintService.startSprint(sprintId, sprintGoal);
-        return "redirect:/user/project/" + sprintProjectId;
-    }
-
-    /**
-     * this methods finishes a sprint and moves it to a finish state, and creates a new one for the current project,
-     * it also transfers all unfinished items to the next sprint
-     *
-     * @param sprintId:        the sprint that the user wants to finish
-     * @param sprintProjectId: the project that this sprint belongs to
-     * @return : redirection to project page
-     */
-    @RequestMapping(value = "/editSprint", params = "action=finish", method = RequestMethod.POST)
-    public String finishSprint(@RequestParam long sprintId,
-                               @RequestParam long sprintProjectId) {
-        Optional<Sprint> oldSprintOptional = sprintService.finishSprint(sprintId);
-        if (oldSprintOptional.isPresent()) {
-            Sprint sprint = oldSprintOptional.get();
-            sprintService.calculateVelocity(sprint);
-            projectService.findProjectById(sprint.getProject().getId()).ifPresent(project -> project.setTeam_velocity(sprint.getVelocity()));
-        }
-        oldSprintOptional.ifPresent(sprint -> itemSprintHistoryService.transferUnfinishedItemsFromOldSprint(sprint));
-        return "redirect:/user/project/" + sprintProjectId;
-    }
 }

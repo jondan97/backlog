@@ -28,6 +28,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     //avoiding magic numbers here
     static final String ADMIN_EMAIL = "mcjohn1@windowslive.com";
     static final String ADMIN_PASSWORD = "321";
+    static final String ADMIN_FIRST_NAME = "John";
+    static final String ADMIN_SECOND_NAME = "Daniel";
     UserRepository userRepository;
     RoleRepository roleRepository;
 
@@ -79,8 +81,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (!userRepository.findFirstByEmail(ADMIN_EMAIL).isPresent()) {
             User user = new User();
             user.setEmail(ADMIN_EMAIL);
-            user.setFirstName("John");
-            user.setLastName("Daniel");
+            user.setFirstName(ADMIN_FIRST_NAME);
+            user.setLastName(ADMIN_SECOND_NAME);
             //encrypt password
             BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(4);
             String encodedPassword = bCryptPasswordEncoder.encode(ADMIN_PASSWORD);
@@ -95,14 +97,18 @@ public class UserDetailsServiceImpl implements UserDetailsService {
             adminRole.setId((long) 2);
             adminRole.setRole("ADMIN");
             allRoles.add(adminRole);
-            Role projectManagerRole = new Role();
-            projectManagerRole.setId((long) 3);
-            projectManagerRole.setRole("PRODUCT_OWNER");
-            allRoles.add(projectManagerRole);
+            Role productOwnerRole = new Role();
+            productOwnerRole.setId((long) 3);
+            productOwnerRole.setRole("PRODUCT_OWNER");
+            allRoles.add(productOwnerRole);
             Role userRole = new Role();
             userRole.setId((long) 4);
             userRole.setRole("DEVELOPER");
             allRoles.add(userRole);
+            Role scrumMasterRole = new Role();
+            scrumMasterRole.setId((long) 5);
+            scrumMasterRole.setRole("SCRUM_MASTER");
+            allRoles.add(scrumMasterRole);
             roleRepository.saveAll(allRoles);
             user.setRoles(allRoles);
             userRepository.save(user);

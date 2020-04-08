@@ -7,7 +7,7 @@
 <span th:fragment="sprintForm">
 
         <table style="width: 100%">
-            <form id="sprintForm" method="post" th:action="@{/pm/editSprint}">
+            <form id="sprintForm" method="post" th:action="@{/sm/editSprint}">
             <tr style="text-align: center">
                 <th>
                     Goal
@@ -43,7 +43,7 @@
                 <tr style="text-align: center">
                 <td>
         <input id="sprintGoal" name="sprintGoal" placeholder="Short sentence about goal"
-               th:readonly="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')')
+               th:readonly="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
                and sprint.status == 1
                ? 'false' : 'true'}" th:value="${sprint.goal}">
                 </td>

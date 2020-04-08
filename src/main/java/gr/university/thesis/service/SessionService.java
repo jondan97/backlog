@@ -57,6 +57,8 @@ public class SessionService {
             return "Admin";
         else if (authorityList.contains("PRODUCT_OWNER")) {
             return "Product Owner";
+        } else if (authorityList.contains("SCRUM_MASTER")) {
+            return "Scrum Master";
         } else {
             return "Developer";
         }

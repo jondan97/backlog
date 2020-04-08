@@ -56,7 +56,7 @@ function checkInputs() {
 }
 
 function openViewItemModal(projectId, itemId) {
-    $('.modal-body').load('/user/project/' + projectId + '/item/' + itemId + '/?source=projectPage', function () {
+    $('#viewItemModalBody').load('/user/project/' + projectId + '/item/' + itemId + '/?source=projectPage', function () {
         $('#viewItemModal').modal({show: true});
     });
 }
@@ -66,7 +66,11 @@ function updateAssignee(itemId) {
 }
 
 function redirectToModal(projectId, itemId) {
-    $('.modal-body').load('/user/project/' + projectId + '/item/' + itemId + '/?source=projectPage', function () {
+    $('#viewItemModalBody').load('/user/project/' + projectId + '/item/' + itemId + '/?source=projectPage', function () {
         $('#viewItemModal').modal({show: true});
     });
+}
+
+function createSprintTask() {
+    $('#createSprintTaskFormModal').modal({show: true});
 }

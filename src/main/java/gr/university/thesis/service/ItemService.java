@@ -194,7 +194,7 @@ public class ItemService {
         } else {
             acceptanceCriteria = acceptanceCriteria.trim();
         }
-        Item item = new Item(title, description, acceptanceCriteria, type.getRepositoryId(), priority.getRepositoryId(), effort, estimatedEffort, project, assignee, owner, parent);
+        Item item = new Item(title, description, acceptanceCriteria, type.getRepositoryId(), priority.getRepositoryId(), effort, estimatedEffort, project, assignee, owner, parent, (byte) ItemStatus.BACKLOG.getRepositoryId());
         itemRepository.save(item);
     }
 
@@ -450,5 +450,61 @@ public class ItemService {
             }
         }
         return hasFinishedChildren;
+    }
+
+    /**
+     * this method creates a new task for the active sprint backlog and saves it into the repository
+     *
+     * @param title              :       the title of the new task
+     * @param description        : the description of the new task
+     * @param acceptanceCriteria : the criteria requires to be fulfilled in order for the task to be complete
+     * @param type               :        the type of the new task
+     * @param priority           :    the priority of the new task
+     * @param effortStr          :   the effort required for this task to complete
+     * @param project            :     the project that this task belongs to
+     * @param assignee           :    the user that this task has been assigned to
+     * @param owner              :       the user who created this task
+     * @param parent             :      the parent (epic/story) of this task
+     * @throws ItemAlreadyExistsException : user has tried to create an item with the same title
+     * @throws ItemHasEmptyTitleException : user has tried to create a task with no title
+     */
+    public Item createSprintTask(String title, String description, String acceptanceCriteria, ItemType type,
+                                 ItemPriority priority, String effortStr,
+                                 Project project, User assignee, User owner, Item parent)
+            throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
+        if (title.isEmpty()) {
+            throw new ItemHasEmptyTitleException("Task cannot be created without a title.");
+        }
+        title = title.trim();
+        if (itemRepository.findFirstByTitleAndProject(title, project).isPresent()) {
+            throw new ItemAlreadyExistsException("An Item with title '" + title + "' already exists.");
+        }
+        int effort = 0;
+        //if the item has no parent
+        if (parent.getId() == 0) {
+            parent = null;
+        }
+        //example of input handling, not in the scope of this project
+        if (!effortStr.isEmpty()) {
+            effort = Integer.parseInt(effortStr);
+            if (effort > 10) {
+                effort = 10;
+            } else if (effort < 0) {
+                effort = 0;
+            }
+        }
+        if (description.isEmpty()) {
+            description = "No description";
+        } else {
+            description = description.trim();
+        }
+        if (acceptanceCriteria.isEmpty()) {
+            acceptanceCriteria = "No Acceptance Criteria";
+        } else {
+            acceptanceCriteria = acceptanceCriteria.trim();
+        }
+
+        Item item = new Item(title, description, acceptanceCriteria, type.getRepositoryId(), priority.getRepositoryId(), effort, 0, project, assignee, owner, parent, (byte) ItemStatus.ACTIVE.getRepositoryId());
+        return itemRepository.save(item);
     }
 }

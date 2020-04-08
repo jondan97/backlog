@@ -4,10 +4,7 @@ package gr.university.thesis.controller;
 import gr.university.thesis.dto.BurnDownChartData;
 import gr.university.thesis.entity.*;
 import gr.university.thesis.entity.enumeration.*;
-import gr.university.thesis.exceptions.ItemDoesNotExistException;
-import gr.university.thesis.exceptions.ProjectDoesNotExistException;
-import gr.university.thesis.exceptions.SprintDoesNotExistException;
-import gr.university.thesis.exceptions.SprintHasNotStartedException;
+import gr.university.thesis.exceptions.*;
 import gr.university.thesis.service.*;
 import gr.university.thesis.util.Time;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -493,6 +490,44 @@ public class UserController {
             throw new SprintDoesNotExistException("Sprint with id '" + sprintId + "' does not exist in this project.");
         }
         return "sprintHistory";
+    }
+
+    /**
+     * this method calls the project service in order to create a new task in the current sprint
+     * and store it in the repository
+     *
+     * @param title:              input for the title of the new task
+     * @param description:        input for the description of the new task
+     * @param acceptanceCriteria: under what conditions, is this task considered done
+     * @param type:               input for the type of task
+     * @param priority:           input for the priority of the task
+     * @param effort:             input for the effort needed to complete the task
+     * @param projectId:          project that this task belongs to
+     * @param assigneeId:         id of the assigned user
+     * @param parentId            : the parent of the task
+     * @param session:            current session, needed to find the creator of this task
+     * @return : returns a redirection to the project page
+     * @throws ItemAlreadyExistsException : user has tried to create a task with the same title
+     * @throws ItemHasEmptyTitleException : user has tried to create a task with no title
+     */
+    @PostMapping("/createSprintTask")
+    public String createSprintTask(@RequestParam String title,
+                                   @RequestParam String description,
+                                   @RequestParam String acceptanceCriteria,
+                                   @RequestParam String type,
+                                   @RequestParam String priority,
+                                   @RequestParam String effort,
+                                   @RequestParam long projectId,
+                                   @RequestParam long sprintId,
+                                   @RequestParam long assigneeId,
+                                   @RequestParam long parentId,
+                                   HttpSession session) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
+        Item item = itemService.createSprintTask(title, description, acceptanceCriteria, ItemType.valueOf(type),
+                ItemPriority.valueOf(priority), effort, new Project(projectId),
+                new User(assigneeId), sessionService.getUserWithSessionId(session),
+                new Item(parentId));
+        itemSprintHistoryService.createAssociationAndSaveToRepository(item, new Sprint(sprintId));
+        return "redirect:/user/project/" + projectId;
     }
 
 }

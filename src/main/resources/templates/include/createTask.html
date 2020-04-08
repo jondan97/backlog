@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<table th:fragment="createSprintTaskForm">
+    <form id="modifyProjectForm" method="post" th:action="@{/user/createSprintTask}">
+        <tr>
+            <td>
+                <label for="title">Title:</label>
+                <input id="title" name="title" placeholder="Name of the item">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="type">Type:</label>
+                <select id="type" name="type">
+        <span th:each="itemType : ${itemTypes}">
+            <span th:if="${itemType.repositoryId != 0 and itemType.repositoryId != 1 and itemType.repositoryId != 2}">
+                <option th:selected="${itemType.repositoryId == 3}" th:text="${itemType.name}"
+                        th:value="${itemType}"></option>
+            </span>
+        </span>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="description">Description:</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                    <textarea cols="50" id="description" maxlength="200" name="description"
+                              placeholder="Short description about the item"
+                              rows="4" style="width: 99%"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="description">Acceptance Criteria:</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                    <textarea cols="50" id="acceptanceCriteria" maxlength="200" name="acceptanceCriteria"
+                              placeholder="Under what conditions, is this item considered done"
+                              rows="4" style="width: 99%"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="parentId">Parent:</label>
+                <select id="parentId" name="parentId">
+                    <option selected value="0">No Parent</option>
+                    <span th:each="itemSprintHistory : ${sprint.associatedItems}">
+                            <span th:with="story =${itemSprintHistory.item}">
+                                <span th:if="${story.type == 2 and (story.status != 4 and story.status == 3)}">
+                                    <option th:text="${story.title}" th:value="${story.id}"></option>
+                                </span>
+                            </span>
+        </span>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="priority">Priority:</label>
+                <select id="priority" name="priority">
+        <span th:each="itemPriority : ${itemPriorities}">
+            <span th:if="${itemPriority.repositoryId != 0}">
+                <option th:selected="${itemPriority.repositoryId == 3}" th:text="${itemPriority.name}"
+                        th:value="${itemPriority}"></option>
+            </span>
+        </span>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span id="taskBugEffort">
+                    <label for="effort">Effort:</label>
+                    <input id="effort" name="effort" placeholder="0 to 10" type="number">
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="assigneeId">Assignee:</label>
+                <select id="assigneeId" name="assigneeId">
+                <span th:each="user : ${allUsers}">
+                    <option th:selected="${user.id == session.userId}"
+                            th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                            th:value="${user.id}"></option>
+                </span>
+                </select>
+                <input hidden id="projectId" name="projectId" th:value="${project.id}">
+                <input hidden id="sprintId" name="sprintId" th:value="${sprint.id}">
+            </td>
+        </tr>
+        <tr>
+            <td style="float: right;margin-right: 2px">
+                <button type="submit">Create Task</button>
+            </td>
+        </tr>
+    </form>
+</table>
+</body>
+</html>

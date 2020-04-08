@@ -15,7 +15,8 @@
     <span th:if="${item.status != 4}">
             <button id="uniqueItemChangeAssigneeButton"
                     onclick="toggleAssigneeInput()"
-                    th:if="${item.assignee.id == session.userId and not #authorization.expression('hasAnyAuthority(''ADMIN'', ''PRODUCT_OWNER'')')}"
+                    th:if="${(item.assignee.id == session.userId or #authorization.expression('hasAnyAuthority(''SCRUM_MASTER'')'))
+                     and not #authorization.expression('hasAnyAuthority(''ADMIN'', ''PRODUCT_OWNER'')')}"
                     type="button"
                     value="projectPage">Change Assignee
             </button>
@@ -413,7 +414,8 @@
                 <label for="uniqueItemAssigneeId">Assignee:</label>
                 <select class="uniqueItemInput" hidden id="uniqueItemAssigneeId" name="itemAssigneeId"
                         onchange="updateUniqueAssignee()"
-                        th:disabled="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')') or (session.userId == item.assignee.id) ? 'false' : 'true'}">
+                        th:disabled="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')') or (session.userId == item.assignee.id
+                        or #authorization.expression('hasAnyAuthority(''SCRUM_MASTER'')')) ? 'false' : 'true'}">
                 <span th:each="user : ${allUsers}">
                     <option th:selected="${item.assignee.id == user.id ? true : false}"
                             th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"

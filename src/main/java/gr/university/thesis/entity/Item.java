@@ -132,7 +132,7 @@ public class Item {
     /**
      * custom constructor
      */
-    public Item(String title, String description, String acceptanceCriteria, int type, int priority, int effort, int estimatedEffort, Project project, User assignee, User owner, Item parent) {
+    public Item(String title, String description, String acceptanceCriteria, int type, int priority, int effort, int estimatedEffort, Project project, User assignee, User owner, Item parent, byte status) {
         this.title = title;
         this.description = description;
         this.acceptanceCriteria = acceptanceCriteria;
@@ -143,8 +143,7 @@ public class Item {
         this.project = project;
         this.assignee = assignee;
         this.owner = owner;
-        //ready to be taken from backlog
-        this.status = 1;
+        this.status = status;
         this.date_created = new Date();
         this.parent = parent;
     }

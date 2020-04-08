@@ -67,7 +67,7 @@
                     </span>
                 </span>
             </span>
-            <span th:if="${user.roles.get(0).role == 'DEVELOPER' or user.roles.get(0).role == 'PRODUCT_OWNER'}">
+            <span th:if="${user.roles.get(0).role == 'DEVELOPER' or user.roles.get(0).role == 'PRODUCT_OWNER' or user.roles.get(0).role == 'SCRUM_MASTER'}">
                 <select id="userRole" name="userRole">
                 <span th:if="${session.role == 'Master Admin'}">
                     <span th:each="roleEnum : ${allRoleEnums}">

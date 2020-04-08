@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<form method="post" th:action="@{/pm/editItem}" th:fragment="updateForm">
+<!--span needed here because there are actually two forms, one for updating assignee, the other for moving to sprint etc.-->
+<span th:fragment="updateForm">
+<form method="post" th:action="@{/pm/editItem}">
     <input hidden id="itemId" name="itemId" readonly th:value="${item.id}">
     <input hidden id="itemProjectId" name="itemProjectId" th:value="${project.id}">
     <input hidden id="sprintId" name="sprintId" th:value="${sprint.id}">
@@ -42,7 +44,7 @@
             <td>
                 <select id="itemAssigneeId" name="itemAssigneeId" th:onchange="|updateAssignee(${item.id})|"
                         title="Assignee"
-                        th:disabled="${#authorization.expression('hasAnyAuthority(''PRODUCT_OWNER'',''ADMIN'')') or (session.userId == item.assignee.id) ? 'false' : 'true'}">
+                        th:disabled="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')') or (session.userId == item.assignee.id) ? 'false' : 'true'}">
                 <span th:each="user : ${allUsers}">
                     <option th:selected="${item.assignee.id == user.id ? true : false}"
                             th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
@@ -54,7 +56,8 @@
             <td>
     <span th:if="${item.status != 3}">
         <span th:if="${item.status == 2}">
-            <button name="action" sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')" type="submit"
+            <button name="action" sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')"
+                    th:form="|moveForm${item.id}|" type="submit"
                     value="remove">
             Remove from Sprint
         </button>
@@ -63,7 +66,8 @@
 
                 <span th:if="${sprint.status != 2}">
         <span th:if="${item.status == 1}">
-            <button name="action" sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')" type="submit"
+            <button name="action" sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')"
+                    th:form="|moveForm${item.id}|" type="submit"
                     value="move">
             Move to Sprint
         </button>
@@ -73,5 +77,11 @@
         </tr>
     </table>
 </form>
+<form method="post" th:action="@{/sm/moveItem}" th:id="|moveForm${item.id}|">
+    <input hidden id="moveInput" name="itemId" readonly th:value="${item.id}">
+    <input hidden id="moveProjectId" name="itemProjectId" th:value="${project.id}">
+    <input hidden id="moveId" name="sprintId" th:value="${sprint.id}">
+</form>
+</span>
 </body>
 </html>

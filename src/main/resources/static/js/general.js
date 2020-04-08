@@ -45,6 +45,12 @@ function openHintModal(id) {
     $(newHintBody).clone().appendTo("#hintBody");
 }
 
+//delete content on close
+$(".modal").on("hidden.bs.modal", function () {
+    $("#hintTitle").html("");
+    $("#hintBody").html("");
+});
+
 function showHints() {
     let cookieExists = checkCookie("hints");
     if (cookieExists) {
@@ -52,8 +58,3 @@ function showHints() {
     }
 }
 
-//delete content on close
-$(".modal").on("hidden.bs.modal", function () {
-    $("#hintTitle").html("");
-    $("#hintBody").html("");
-});
