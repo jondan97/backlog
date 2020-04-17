@@ -23,17 +23,19 @@
     font-weight: bold;
 }
 
-#uniqueItemModifyButton {
-    position: absolute;
-    right: 5%;
+#uniqueItemModifyProductOwnerButton {
+    float: right;
 }
 
-#uniqueItemChangeAssigneeButton {
-    position: absolute;
-    right: 5%;
+#uniqueItemModifyDeveloperButton {
+    float: right;
 }
 
-.uniqueItemUpdateAndDeleteButtons {
+#uniqueItemUpdateButton {
+    float: right;
+}
+
+#uniqueItemDeleteButton {
     float: right;
 }
 

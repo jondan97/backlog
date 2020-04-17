@@ -2,7 +2,6 @@ package gr.university.thesis.controller;
 
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
-import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.ItemPriority;
 import gr.university.thesis.entity.enumeration.ItemType;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 
@@ -152,103 +150,4 @@ public class ProductOwnerController {
                 new Item(parentId));
         return "redirect:/user/project/" + projectId;
     }
-
-    /**
-     * this method calls the item service in order to update an existing item and store it in the repository
-     *
-     * @param itemProjectId:   the id of the project, needed for the redirection
-     * @param itemId:          id of the item, needed to find it on the repository
-     * @param itemTitle:       title of the item
-     * @param itemDescription: description of the item
-     * @param itemAcceptanceCriteria: under what conditions, is this item considered done
-     * @param itemType:        ItemType of the item
-     * @param itemPriority:    ItemPriority of the item
-     * @param itemEffort:      effort required to finish this item
-     * @param itemEstimatedEffort: estimated effort required to finish this item
-     * @param itemAssigneeId:  the user that thisitem is assigned to
-     * @param itemParentId    : the parent of the item
-     * @param sprintId : the sprint that this item belongs to
-     * @param modifyItemPage: allows the controller to know, which page this request comes from
-     * @param redir: allows the controller to add 'flash' attributes, which will only be valid during redirection
-     * @return : returns a redirection to the current project backlog
-     * @throws ItemAlreadyExistsException : user has tried to set the item's title to one that already exists
-     * @throws ItemHasEmptyTitleException : user has tried to set the item's title to blank
-     */
-    @RequestMapping(value = "/editItem", params = "action=update", method = RequestMethod.POST)
-    public String updateItem(@RequestParam long itemProjectId,
-                             @RequestParam long itemId,
-                             @RequestParam String itemTitle,
-                             @RequestParam String itemDescription,
-                             @RequestParam String itemAcceptanceCriteria,
-                             @RequestParam String itemType,
-                             @RequestParam String itemPriority,
-                             @RequestParam String itemEffort,
-                             @RequestParam String itemEstimatedEffort,
-                             @RequestParam long itemAssigneeId,
-                             @RequestParam long itemParentId,
-                             @RequestParam long sprintId,
-                             @RequestParam String modifyItemPage,
-                             RedirectAttributes redir
-    ) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
-        //the associations need to be defined before the item is updated
-        itemSprintHistoryService.manageItemSprintAssociation(new Item(itemId), new Sprint(sprintId), new Item(itemParentId));
-        itemService.updateItem(itemId, itemTitle, itemDescription, itemAcceptanceCriteria, itemType, itemPriority,
-                itemEffort, itemEstimatedEffort,
-                new User(itemAssigneeId), new Item(itemParentId));
-        if (modifyItemPage.equals("projectPage"))
-            return "redirect:/user/project/" + itemProjectId;
-        else {
-            redir.addFlashAttribute("itemId", itemId);
-            switch (modifyItemPage) {
-                case "viewItem":
-                    return "redirect:/user/project/" + itemProjectId;
-                case "projectProgressPage":
-                    return "redirect:/user/project/" + itemProjectId + "/projectProgress";
-                case "taskBoardPage":
-                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
-                case "sprintHistoryPage":
-                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId + "/history";
-            }
-        }
-        return "redirect:/";
-    }
-
-    /**
-     * this method calls the item service in order to delete an existing item from the repository
-     *
-     * @param itemId:         required id in order to delete the item from the repository
-     * @param itemProjectId:  required for the redirection to the project backlog
-     * @param sprintId        : the sprint that this item belongs to
-     * @param modifyItemPage: allows the controller to know, which page this request comes from
-     * @param redir:          allows the controller to add 'flash' attributes, which will only be valid during redirection
-     * @return : returns a redirection to the current project backlog
-     */
-    @RequestMapping(value = "/editItem", params = "action=delete", method = RequestMethod.POST)
-    public String deleteItem(@RequestParam long itemId,
-                             @RequestParam long itemProjectId,
-                             @RequestParam long sprintId,
-                             @RequestParam String modifyItemPage,
-                             RedirectAttributes redir) {
-        //need to delete its associations first (if they exist)
-        itemSprintHistoryService.removeItemFromSprint(new Item(itemId), new Sprint(sprintId), null);
-        itemService.deleteItem(itemId);
-        if (modifyItemPage.equals("projectPage"))
-            return "redirect:/user/project/" + itemProjectId;
-        else {
-            redir.addFlashAttribute("itemId", -1);
-            switch (modifyItemPage) {
-                case "viewItem":
-                    return "redirect:/user/project/" + itemProjectId;
-                case "projectProgressPage":
-                    return "redirect:/user/project/" + itemProjectId + "/projectProgress";
-                case "taskBoardPage":
-                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
-                case "sprintHistoryPage":
-                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId + "/history";
-            }
-        }
-        return "redirect:/";
-    }
-
-
 }

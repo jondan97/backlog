@@ -260,10 +260,10 @@
         <p><b>Some notes:</b></p>
         <ul>
             <li>
-                A <b>PBI</b> is more about the <b>what</b>, whereas a <b>Task</b> or a <b>Bug</b> is more about the <b>how</b>.
+                A <b>product backlog item</b> is more about the <b>what</b>, whereas a <b>Task</b> or a <b>Bug</b> is more about the <b>how</b>.
             </li>
             <li>
-                A well-formed description of a PBI represents a distinct business value, whereas a task represents a step from the team to create that value.
+                A well-formed description of a product backlog item represents a distinct business value, whereas a task represents a step from the team to create that value.
             </li>
         </ul>
 
@@ -288,7 +288,7 @@
                 </li>
             </ul>
         </b>
-            <p><b>Some notes</b>: These specifications mainly concern tasks and bugs during a sprint execution, but they can also be used in the definition of a PBI and outside sprints.</p>
+            <p><b>Some notes</b>: These specifications mainly concern tasks and bugs during a sprint execution, but they can also be used in the definition of a product backlog item and outside sprints.</p>
 
     </div>
 
@@ -313,8 +313,24 @@
     <h4 id="hintTitle-createItem-itemPriority" style="display: none">Item Priority</h4>
     <div id="hintBody-createItem-itemPriority" style="display: none">
             <p><b>This is the priority of an item.</b></p>
-            <p>It describes how <b>important</b> an <b>item</b> is. This mainly concerns the product backlog, as it is <b>sorted</b> from the most important item to the least important one. This clarifies to the team, which of the PBIs, are the most <b>essential</b> to <b>complete</b> and the most important from the perspective of the <b>customer</b>. Finishing important items first, adds customer value to the product.</p>
-            <p><b>Some notes</b>: Priority can be given to any of the items created, whether they are epics or tasks, as they help the team prioritize in any case, but only the PBIs are sorted and not their children.</p>
+            <p>It describes how <b>important</b> an <b>item</b> is. This mainly concerns the product backlog, as it is <b>sorted</b> from the most important item to the least important one. This clarifies to the team, which of the product backlog items, are the most <b>essential</b> to <b>complete</b> and the most important from the perspective of the <b>customer</b>. Finishing important items first, adds customer value to the product.</p>
+            <p>For this application, the <b>MoSCoW Method</b> is the prioritization technique used to determine the <b>importance</b> of each item. The items are labeled with the level of importance based on the customer and their requirements.</p>
+            <p>The <b>acronym</b> stands for:</p>
+            <ul>
+                <li>
+                    <p><b>M</b>ust have: items that should be finished and delivered to the customer as fast as possible. If by the end of the project, a "Must Have" item is not finished, the project has failed to be completed in time.</p>
+                </li>
+                <li>
+                    <p><b>S</b>hould have: items that can be equally important with a "Must Have" item, but there is enough time to finish them at a later date or there may be other ways to satisfy the same requirement.</p>
+                </li>
+                <li>
+                    <p><b>C</b>ould have: items that are desirable by the customer but are not essential features of the product developed. These are usually included if enough resources (time, development cost etc.) can be spared.</p>
+                </li>
+                <li>
+                    <p><b>W</b>on't have: items that are of least importance during the development of the product. The customer has concluded that these items are not needed or they need further reconsideration as they may not be appropriate at that time.</p>
+                </li>
+            </ul>
+            <p><b>Some notes</b>: Priority can be given to any of the items created, whether they are epics or tasks, as they help the team prioritize in any case, but only the product backlog items are sorted and not their children.</p>
     </div>
 
     <h4 id="hintTitle-createItem-effort" style="display: none">Item Effort</h4>
@@ -326,7 +342,7 @@
             <p>Agile enthusiasts may not use the effort system, but one of their own. It depends on the team and their ability to understand and <b>represent effort</b> in their own way. For example, a team may use as a metric, the number of cookies that are consumed during the development and implementation of an item.</p>
             <p>In this application, the effort is estimated using the <b>decimal system</b>. <b>1</b> is for the <b>lowest</b> effort, whereas <b>10</b> is for the <b>highest</b> effort. Any more or less than that is not possible, and the system will reset it to one of the edge numbers.</p>
             <p><b>Some notes:</b></p>
-            <p>Epics and stories have a <b>different</b> meaning of effort compared to tasks and bugs. The epics and stories have an <b>"Estimated Effort"</b> which is estimated in case tasks have not yet been created for each epic and its children stories. One of the reasons this happens, is because the development team needs to realise the <b>amount of work</b> they <b>believe</b> an epic or a story will need in order to be finished. On the other hand, tasks and bugs have a clearer definition of <b>"Effort"</b>, where a more pragmatic estimation is done as the PBI has now been broken down into the <b>lowest level possible</b>. Epics and stories also have a second attribute, which is the <b>"Total Effort"</b> of all the tasks and bugs that are included within them.</p>
+            <p>Epics and stories have a <b>different</b> meaning of effort compared to tasks and bugs. The epics and stories have an <b>"Estimated Effort"</b> which is estimated in case tasks have not yet been created for each epic and its children stories. One of the reasons this happens, is because the development team needs to realise the <b>amount of work</b> they <b>believe</b> an epic or a story will need in order to be finished. On the other hand, tasks and bugs have a clearer definition of <b>"Effort"</b>, where a more pragmatic estimation is done as the product backlog item has now been broken down into the <b>lowest level possible</b>. Epics and stories also have a second attribute, which is the <b>"Total Effort"</b> of all the tasks and bugs that are included within them.</p>
     </div>
 
     <h4 id="hintTitle-createItem-assignee" style="display: none">Item Assignee</h4>
@@ -435,7 +451,7 @@
             <p><b>This is the Product Burndown Chart.</b></p>
             <p>The <b>product burndown chart</b> is a <b>graphical representation</b> of the amount of <b>work</b> left to do in comparison with the <b>number</b> of <b>sprints</b> forecasted by the product owner or the team.</p>
             <p>Depending on the number of previous sprints and the velocity of each sprint, the <b>forecast</b> will constantly <b>change</b> and become more and more accurate.</p>
-            <p>Studying this chart, helps the product owner in <b>re-adjusting deadlines</b> or <b>changing</b> the <b>priority</b> of <b>PBIs</b> and <b>user stories</b>.</p>
+            <p>Studying this chart, helps the product owner in <b>re-adjusting deadlines</b> or <b>changing</b> the <b>priority</b> of <b>product backlog items</b> and <b>user stories</b>.</p>
             <p>In this application, the vertical axis describes the <b>total effort</b> of the <b>product</b> burned each sprint, and the horizontal axis shows the <b>number</b> of <b>sprints</b> that have been executed. It also includes the current sprint, if there is one currently executing.</p>
             <p><b>Ideally</b>, there will be a <b>steep downward slope</b> which leads to <b>0</b> effort remaining. When it reaches <b>0</b>, it means that all the items in the product backlog have been finished, and the <b>product</b> has been <b>completed</b>.</p>
             <p><b>Some notes</b>: Some teams may completely <b>ignore</b> the <b>idea</b> of a product burndown chart. This chart is <b>not necessary</b>, but the developer has opted to leave it in the application, for <b>educational purposes</b>.</p>
@@ -543,8 +559,26 @@
                 <li>
                    Create/Delete an item.
                 </li>
+                <li>
+                   Edit Epics and Stories.
+                </li>
             </ul>
-            <p>Scrum Master:</p>
+            <p>Development Team:</p>
+                 <ul>
+                     <li>
+                         Create/Delete Tasks and Bugs.
+                     </li>
+                     <li>
+                         Edit Tasks and Bugs.
+                     </li>
+                    <li>
+                        Move item in the task board</b> (if item is assigned to self).<b>
+                    </li>
+        <li>
+                        Change assignee of item</b> (if item is assigned to self).<b>
+                    </li>
+        </ul>
+        <p>Scrum Master:</p>
             <ul>
                 <li>
                    Start/Finish sprint.
@@ -558,19 +592,10 @@
                 <li>
                     Change assignee of item.
                 </li>
-            </ul>
-            <p>Development Team:</p>
-                 <ul>
                 <li>
-                    Move item in the task board</b> (if item is assigned to self).<b>
+                    Everything that the other roles can do.
                 </li>
-        <li>
-                    Change assignee of item</b> (if item is assigned to self).<b>
-                </li>
-        <li>
-                    Create tasks during sprint execution </b> (this applies for all role but only developers should use it, as intended).<b>
-                </li>
-        </ul></b>
+            </ul></b>
             <p><b>Some notes</b>: If the team does not wish to have separated functionalities but would like to have all functionalities in one role, then they should choose the <b>admin</b> role for each user.</p>
     </div>
 
@@ -609,6 +634,15 @@
         <p>This functionality is only available to the developers <b>during</b> the <b>sprint execution</b>.</p>
         <p>For more information, please read the <b>hint</b> that is located to the left of this button (if hints are turned ON).</p>
     </div>
+
+    <h4 id="hintTitle-viewItem-comment" style="display: none">Commect Section</h4>
+    <div id="hintBody-viewItem-comment" style="display: none">
+            <p><b>This is the comment section.</b><p>
+            <p>The comment section is used in order to <b>share information</b> between the team and as a way for the current assignee to leave <b>documentation</b> for the next assignee.<p>
+            <p>An assignee will usually post a comment after they are done working on the task in order to help the next assignee by either writing short sentences such as <b>descriptions</b> of the work done, <b>problems</b> they might have encountered and need help with or simply <b>reminders</b> for the team to see.<p>
+            <p>In Agile and especially Scrum, <b>collaboration</b> between the team members is encouraged and a comment section contributes to that vision.<p>
+    </div>
+
     <h4 id="hintTitle-" style="display: none"></h4>
     <div id="hintBody-" style="display: none">
 

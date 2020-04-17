@@ -31,7 +31,7 @@ public enum ItemStatus {
      * @param id: the repository id of the status the user requested
      * @return : returns the item status with that certain id
      */
-    public static ItemStatus findItemTypeByRepositoryId(int id) {
+    public static ItemStatus findItemStatusByRepositoryId(int id) {
         for (ItemStatus itemStatus : ItemStatus.values()) {
             if (itemStatus.repositoryId == id)
                 return itemStatus;

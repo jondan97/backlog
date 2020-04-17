@@ -134,6 +134,8 @@ public class UserController {
                            RedirectAttributes redir) throws ItemDoesNotExistException {
         Optional<Item> itemOptional = itemService.findItemInProject(itemId, projectId);
         Optional<Project> projectOptional = projectService.findProjectById(projectId);
+        //the following was included because the developer doesn't want the item to be deleted if it has finished
+        //children, as the finished children will be also deleted unless they turn to stray manually
         if (itemOptional.isPresent()) {
             Item item = itemOptional.get();
             boolean itemHasFinishedChildren = false;
@@ -186,31 +188,31 @@ public class UserController {
      * this method updates the assignee of an item to another assignee, and only admins/projects managers or current
      * assignees can change that
      *
-     * @param itemId:         the id of the item that we want the new assignee to 'own'
-     * @param itemAssigneeId: the new assignee
-     * @param itemProjectId:  the project that this item belongs to
-     * @param sprintId             : the sprint that this assignee belongs to
-     * @param updateAssigneeButton : the source that this request comes from, is it from the project page or the
-     *                             task board page
-     * @param redir: allows the controller to add 'flash' attributes, which will only be valid during redirection
+     * @param itemId:               the id of the item that we want the new assignee to 'own'
+     * @param itemAssigneeId:       the new assignee
+     * @param itemProjectId:        the project that this item belongs to
+     * @param sprintId              : the sprint that this assignee belongs to
+     * @param modifyDeveloperButton : the source that this request comes from, is it from the project page or the
+     *                              task board page
+     * @param redir:                allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : redirection to project page if assignment was done in project page, taskBoard page if assignment
      * was done in taskBoard page or home page if assignment failed to be recognised where it came from
      */
-    @RequestMapping(value = "/updateAssignee")
-    public String updateAssignee(@RequestParam long itemId,
-                                 @RequestParam long itemAssigneeId,
-                                 @RequestParam long itemProjectId,
-                                 @RequestParam long sprintId,
-                                 @RequestParam String updateAssigneeButton,
-                                 RedirectAttributes redir) {
+    @RequestMapping(value = "/modifyItemByDeveloper")
+    public String modifyItemByDeveloper(@RequestParam long itemId,
+                                        @RequestParam long itemAssigneeId,
+                                        @RequestParam long itemProjectId,
+                                        @RequestParam long sprintId,
+                                        @RequestParam String modifyDeveloperButton,
+                                        RedirectAttributes redir) {
         itemService.updateAssignee(itemId, new User(itemAssigneeId));
-        if (updateAssigneeButton.equals("projectPage"))
+        if (modifyDeveloperButton.equals("projectPage"))
             return "redirect:/user/project/" + itemProjectId;
-        else if (updateAssigneeButton.equals("taskBoard"))
+        else if (modifyDeveloperButton.equals("taskBoard"))
             return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
         else {
             redir.addFlashAttribute("itemId", itemId);
-            switch (updateAssigneeButton) {
+            switch (modifyDeveloperButton) {
                 case "viewItem":
                     return "redirect:/user/project/" + itemProjectId;
                 case "projectProgressPage":
@@ -350,10 +352,9 @@ public class UserController {
         Optional<Sprint> sprintOptional = projectService.findSprintInProject(projectId, sprintId);
         if (sprintOptional.isPresent()) {
             Project project = projectOptional.get();
-            model.addAttribute("project", project);
-            Optional<Sprint> sprintActiveOptional = sprintService.findActiveSprintInProject(project);
-            sprintActiveOptional.ifPresent(sprint -> model.addAttribute("sprint", sprint));
             Sprint sprint = sprintOptional.get();
+            model.addAttribute("project", project);
+            model.addAttribute("sprint", sprint);
             if (sprint.getStatus() == SprintStatus.READY.getRepositoryId()) {
                 throw new SprintHasNotStartedException("Sprint task board has not yet started.");
             }
@@ -493,8 +494,10 @@ public class UserController {
     }
 
     /**
-     * this method calls the project service in order to create a new task in the current sprint
-     * and store it in the repository
+     * this method calls the project service in order to create a new item in the current project
+     * and store it in the repository. The user can click on a button that is right next to the parents that are shown
+     * in the project and sprint backlogs. Depending on which backlog the user clicks and on which parent, a child item
+     * will be created.
      *
      * @param title:              input for the title of the new task
      * @param description:        input for the description of the new task
@@ -510,24 +513,137 @@ public class UserController {
      * @throws ItemAlreadyExistsException : user has tried to create a task with the same title
      * @throws ItemHasEmptyTitleException : user has tried to create a task with no title
      */
-    @PostMapping("/createSprintTask")
-    public String createSprintTask(@RequestParam String title,
-                                   @RequestParam String description,
-                                   @RequestParam String acceptanceCriteria,
-                                   @RequestParam String type,
-                                   @RequestParam String priority,
-                                   @RequestParam String effort,
-                                   @RequestParam long projectId,
-                                   @RequestParam long sprintId,
-                                   @RequestParam long assigneeId,
-                                   @RequestParam long parentId,
-                                   HttpSession session) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
-        Item item = itemService.createSprintTask(title, description, acceptanceCriteria, ItemType.valueOf(type),
-                ItemPriority.valueOf(priority), effort, new Project(projectId),
-                new User(assigneeId), sessionService.getUserWithSessionId(session),
-                new Item(parentId));
-        itemSprintHistoryService.createAssociationAndSaveToRepository(item, new Sprint(sprintId));
+    @PostMapping("/createItemOnTheGo")
+    public String createItemOnTheGo(@RequestParam String title,
+                                    @RequestParam String description,
+                                    @RequestParam String acceptanceCriteria,
+                                    @RequestParam String type,
+                                    @RequestParam String priority,
+                                    @RequestParam String effort,
+                                    @RequestParam long projectId,
+                                    @RequestParam long sprintId,
+                                    @RequestParam long assigneeId,
+                                    @RequestParam long parentId,
+                                    @RequestParam long parentStatus,
+                                    HttpSession session) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
+        //1 is for item with parent in project backlog
+        if (parentStatus == 1) {
+            Item item = itemService.createItemOnTheGo(null, title, description, acceptanceCriteria, ItemType.valueOf(type),
+                    ItemPriority.valueOf(priority), effort, new Project(projectId),
+                    new User(assigneeId), sessionService.getUserWithSessionId(session),
+                    new Item(parentId));
+        }
+        //0 is for item without a parent in the sprint backlog, 2 for ready sprint and 3 for active
+        else if (parentStatus == 0 || parentStatus == 2 || parentStatus == 3) {
+            Optional<Sprint> sprintOptional = sprintService.findActiveSprintInProject(new Project(projectId));
+            if (sprintOptional.isPresent()) {
+                Sprint sprint = sprintOptional.get();
+                Item item = itemService.createItemOnTheGo(sprint, title, description, acceptanceCriteria, ItemType.valueOf(type),
+                        ItemPriority.valueOf(priority), effort, new Project(projectId),
+                        new User(assigneeId), sessionService.getUserWithSessionId(session),
+                        new Item(parentId));
+                itemSprintHistoryService.createAssociationAndSaveToRepository(item, new Sprint(sprintId));
+            }
+        }
+
         return "redirect:/user/project/" + projectId;
+    }
+
+    /**
+     * this method calls the item service in order to update an existing item and store it in the repository
+     *
+     * @param itemProjectId:          the id of the project, needed for the redirection
+     * @param itemId:                 id of the item, needed to find it on the repository
+     * @param itemTitle:              title of the item
+     * @param itemDescription:        description of the item
+     * @param itemAcceptanceCriteria: under what conditions, is this item considered done
+     * @param itemType:               ItemType of the item
+     * @param itemPriority:           ItemPriority of the item
+     * @param itemEffort:             effort required to finish this item
+     * @param itemEstimatedEffort:    estimated effort required to finish this item
+     * @param itemAssigneeId:         the user that thisitem is assigned to
+     * @param itemParentId            : the parent of the item
+     * @param sprintId                : the sprint that this item belongs to
+     * @param modifyItemPage:         allows the controller to know, which page this request comes from
+     * @param redir:                  allows the controller to add 'flash' attributes, which will only be valid during redirection
+     * @return : returns a redirection to the current project backlog
+     * @throws ItemAlreadyExistsException : user has tried to set the item's title to one that already exists
+     * @throws ItemHasEmptyTitleException : user has tried to set the item's title to blank
+     */
+    @RequestMapping(value = "/editItem", params = "action=update", method = RequestMethod.POST)
+    public String updateItem(@RequestParam long itemProjectId,
+                             @RequestParam long itemId,
+                             @RequestParam String itemTitle,
+                             @RequestParam String itemDescription,
+                             @RequestParam String itemAcceptanceCriteria,
+                             @RequestParam String itemType,
+                             @RequestParam String itemPriority,
+                             @RequestParam String itemEffort,
+                             @RequestParam String itemEstimatedEffort,
+                             @RequestParam long itemAssigneeId,
+                             @RequestParam long itemParentId,
+                             @RequestParam long sprintId,
+                             @RequestParam String modifyItemPage,
+                             RedirectAttributes redir
+    ) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
+        //the associations need to be defined before the item is updated
+        itemSprintHistoryService.manageItemSprintAssociation(new Item(itemId), new Sprint(sprintId), new Item(itemParentId));
+        itemService.updateItem(itemId, itemTitle, itemDescription, itemAcceptanceCriteria, itemType, itemPriority,
+                itemEffort, itemEstimatedEffort,
+                new User(itemAssigneeId), new Item(itemParentId));
+        if (modifyItemPage.equals("projectPage"))
+            return "redirect:/user/project/" + itemProjectId;
+        else {
+            redir.addFlashAttribute("itemId", itemId);
+            switch (modifyItemPage) {
+                case "viewItem":
+                    return "redirect:/user/project/" + itemProjectId;
+                case "projectProgressPage":
+                    return "redirect:/user/project/" + itemProjectId + "/projectProgress";
+                case "taskBoardPage":
+                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
+                case "sprintHistoryPage":
+                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId + "/history";
+            }
+        }
+        return "redirect:/";
+    }
+
+    /**
+     * this method calls the item service in order to delete an existing item from the repository
+     *
+     * @param itemId:         required id in order to delete the item from the repository
+     * @param itemProjectId:  required for the redirection to the project backlog
+     * @param sprintId        : the sprint that this item belongs to
+     * @param modifyItemPage: allows the controller to know, which page this request comes from
+     * @param redir:          allows the controller to add 'flash' attributes, which will only be valid during redirection
+     * @return : returns a redirection to the current project backlog
+     */
+    @RequestMapping(value = "/editItem", params = "action=delete", method = RequestMethod.POST)
+    public String deleteItem(@RequestParam long itemId,
+                             @RequestParam long itemProjectId,
+                             @RequestParam long sprintId,
+                             @RequestParam String modifyItemPage,
+                             RedirectAttributes redir) {
+        //need to delete its associations first (if they exist)
+        itemSprintHistoryService.removeItemFromSprint(new Item(itemId), new Sprint(sprintId), null);
+        itemService.deleteItem(itemId);
+        if (modifyItemPage.equals("projectPage"))
+            return "redirect:/user/project/" + itemProjectId;
+        else {
+            redir.addFlashAttribute("itemId", -1);
+            switch (modifyItemPage) {
+                case "viewItem":
+                    return "redirect:/user/project/" + itemProjectId;
+                case "projectProgressPage":
+                    return "redirect:/user/project/" + itemProjectId + "/projectProgress";
+                case "taskBoardPage":
+                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId;
+                case "sprintHistoryPage":
+                    return "redirect:/user/project/" + itemProjectId + "/sprint/" + sprintId + "/history";
+            }
+        }
+        return "redirect:/";
     }
 
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<table th:fragment="createSprintTaskForm">
+<table th:fragment="createStoryForm">
     <form id="modifyProjectForm" method="post" th:action="@{/user/createItemOnTheGo}">
         <tr>
             <td>
@@ -17,7 +17,7 @@
                 <label for="type">Type:</label>
                 <select id="type" name="type">
         <span th:each="itemType : ${itemTypes}">
-            <span th:if="${itemType.repositoryId != 0 and itemType.repositoryId != 1 and itemType.repositoryId != 2}">
+            <span th:if="${itemType.repositoryId == 2}">
                 <option th:selected="${itemType.repositoryId == 3}" th:text="${itemType.name}"
                         th:value="${itemType}"></option>
             </span>
@@ -52,23 +52,23 @@
         <tr>
             <td>
                 <label for="parentId">Parent:</label>
-                <span hidden id="createSprintTaskForSprint">
+                <span hidden id="createStoryItemForSprint">
                     <select id="parentId" name="parentId">
                     <option selected value="0">No Parent</option>
                     <span th:each="itemSprintHistory : ${sprint.associatedItems}">
-                            <span th:with="story =${itemSprintHistory.item}">
-                                <span th:if="${story.type == 2 and (story.status != 4 and (story.status == 2 or story.status == 3))}">
-                                    <option th:text="${story.title}" th:value="${story.id}"></option>
+                            <span th:with="epic =${itemSprintHistory.item}">
+                                <span th:if="${epic.type == 1 and (epic.status != 4 and (epic.status == 2 or epic.status == 3))}">
+                                    <option th:text="${epic.title}" th:value="${epic.id}"></option>
                                 </span>
                             </span>
                     </span>
                     </select>
                 </span>
-                <span hidden id="createSprintTaskForProject">
+                <span hidden id="createStoryItemForProject">
                     <select id="parentId" name="parentId">
                     <option selected value="0">No Parent</option>
                     <span th:each="parent : ${backlog}">
-                                <span th:if="${parent.type == 2 and (parent.status != 4 and parent.status == 1)}">
+                                <span th:if="${parent.type == 1 and (parent.status != 4 and parent.status == 1)}">
                                     <option th:text="${parent.title}" th:value="${parent.id}"></option>
                                 </span>
                     </span>
@@ -92,35 +92,16 @@
         </tr>
         <tr>
             <td>
-                <span id="taskBugEffort">
-                    <label for="effort">Effort:</label>
-                    <input id="effort" name="effort" placeholder="0 to 10" type="number">
-                </span>
-            </td>
-        </tr>
-        <tr>
-            <td>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="assigneeId">Assignee:</label>
-                <select id="assigneeId" name="assigneeId">
-                    <option selected value="0">No assignee</option>
-                <span th:each="user : ${allUsers}">
-                    <option th:selected="${user.id == session.userId}"
-                            th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
-                            th:value="${user.id}"></option>
-                </span>
-                </select>
+                <input hidden id="assigneeId" name="assigneeId" placeholder="0 to 10" type="number" value="0">
                 <input hidden id="projectId" name="projectId" th:value="${project.id}">
                 <input hidden id="sprintId" name="sprintId" th:value="${sprint.id}">
-                <input hidden id="createSprintTaskParentStatus" name="parentStatus">
+                <input hidden id="createStoryItemParentStatus" name="parentStatus">
+                <input hidden id="effort" name="effort" placeholder="0 to 10" type="number" value="0">
             </td>
         </tr>
         <tr>
             <td style="float: right;margin-right: 2px">
-                <button type="submit">Create Task</button>
+                <button type="submit">Create Story</button>
             </td>
         </tr>
     </form>

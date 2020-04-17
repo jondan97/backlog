@@ -82,6 +82,12 @@ public class Project {
     private long estimated_sprints_needed;
 
     /**
+     * the executed sprints that have happened during this project, does not include current sprint running
+     */
+    @Transient
+    private long executed_sprints;
+
+    /**
      * the associated sprints
      */
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)

@@ -67,6 +67,27 @@
 </div>
 </span>
 
+<span th:fragment="createStoryModal">
+        <!-- Create Story Modal -->
+<div class="modal fade" id="createStoryFormModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Create Story</h4>
+                <button class="close" data-dismiss="modal" type="button">&times;</button>
+            </div>
+            <div class="modal-body">
+            </div>
+            <span style="margin-left: 1%;" th:insert="include/createStory :: createStoryForm"></span>
+            <div class="modal-footer">
+                <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+</span>
+
 <span th:fragment="hintModal">
     <!-- Hint Modal -->
 <div class="modal fade" id="hintModal" role="dialog">

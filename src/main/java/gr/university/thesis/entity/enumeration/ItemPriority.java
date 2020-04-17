@@ -7,11 +7,11 @@ package gr.university.thesis.entity.enumeration;
 public enum ItemPriority {
     //'NONE' just in case something goes wrong, and we don't want the system to crash
     NONE(0, "N/A"),
-    LOWEST(1, "Lowest"),
-    LOW(2, "Low"),
-    MEDIUM(3, "Medium"),
-    HIGH(4, "High"),
-    HIGHEST(5, "Highest");
+    HIGH(4, "Must Have"),
+    MEDIUM(3, "Should Have"),
+    LOW(2, "Could Have"),
+    LOWEST(1, "Won't Have");
+
 
     private final String name;
     private final int repositoryId; //database id, known beforehand

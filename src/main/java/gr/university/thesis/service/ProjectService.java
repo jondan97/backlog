@@ -55,6 +55,7 @@ public class ProjectService {
             calculateRemainingEffort(project);
             calculateEstimatedTotalEffort(project);
             calculateSprintsNeeded(project);
+            calculateNumberOfExecutedSprints(project);
         }
         return allProjects;
     }
@@ -147,6 +148,18 @@ public class ProjectService {
         //and not 1
         sprintsNeeded = Math.ceil(sprintsNeeded);
         project.setEstimated_sprints_needed((long) sprintsNeeded);
+    }
+
+    /**
+     * @param project: the project that the number of already executed sprints needs to be calculated
+     */
+    public void calculateNumberOfExecutedSprints(Project project) {
+        Optional<List<Sprint>> finishedSprintsOptional =
+                sprintService.findSprintsByProjectAndStatus(project, SprintStatus.FINISHED);
+        if (finishedSprintsOptional.isPresent()) {
+            List<Sprint> sprints = finishedSprintsOptional.get();
+            project.setExecuted_sprints(sprints.size());
+        }
     }
 
     /**

@@ -49,7 +49,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //.antMatchers("/**").permitAll() //remove this to make security work again !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 .antMatchers("/admin/*").access("hasAuthority('ADMIN')")
                 .antMatchers("/user/*").access("hasAuthority('DEVELOPER') or hasAuthority('PRODUCT_OWNER') or hasAuthority('SCRUM_MASTER') or hasAuthority('ADMIN')")
-                .antMatchers("/pm/*").access("hasAuthority('PRODUCT_OWNER') or hasAuthority('ADMIN')")
+                .antMatchers("/pm/*").access("hasAuthority('PRODUCT_OWNER') or hasAuthority('SCRUM_MASTER') or hasAuthority('ADMIN')")
                 .antMatchers("/sm/*").access("hasAuthority('SCRUM_MASTER') or hasAuthority('ADMIN')")
                 .anyRequest().authenticated()
                 .and()

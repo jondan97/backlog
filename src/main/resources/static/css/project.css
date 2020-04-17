@@ -51,4 +51,8 @@ table.itemTable tr:hover {
     border-color: purple;
 }
 
+.deleteAndUpdateButton {
+    float: right;
+}
+
 

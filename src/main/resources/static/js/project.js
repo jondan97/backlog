@@ -4,24 +4,21 @@ function showCreateItemTable() {
 
 function toggleInputs() {
     const x = document.getElementById("type").value;
-    if (x === "BUG" || x === "TASK") {
-        document.getElementById("taskBugEffort").hidden = false;
-        document.getElementById("epicStoryEffort").hidden = true;
-        document.getElementById("estimatedEffort").value = null;
-        document.getElementById("fakeStoryParentId").hidden = false;
-        document.getElementById("fakeStoryParentId").disabled = false;
-        document.getElementById("fakeEpicParentId").hidden = true;
-        //check if it exists, if yes remove
-        const epicParentDisabledInput = document.getElementById("disabledParentInput");
-        if (epicParentDisabledInput) {
-            epicParentDisabledInput.remove();
-        }
-
-    } else if (x === "STORY") {
-        document.getElementById("taskBugEffort").hidden = true;
-        document.getElementById("effort").value = null;
-        document.getElementById("epicStoryEffort").hidden = false;
-        document.getElementById("fakeStoryParentId").hidden = true;
+    // if (x === "BUG" || x === "TASK") {
+    //     document.getElementById("taskBugEffort").hidden = false;
+    //     document.getElementById("epicStoryEffort").hidden = true;
+    //     document.getElementById("estimatedEffort").value = null;
+    //     document.getElementById("fakeStoryParentId").hidden = false;
+    //     document.getElementById("fakeStoryParentId").disabled = false;
+    //     document.getElementById("fakeEpicParentId").hidden = true;
+    //     //check if it exists, if yes remove
+    //     const epicParentDisabledInput = document.getElementById("disabledParentInput");
+    //     if (epicParentDisabledInput) {
+    //         epicParentDisabledInput.remove();
+    //     }
+    //
+    // } else if (x === "STORY") {
+    if (x === "STORY") {
         document.getElementById("fakeEpicParentId").hidden = false;
         document.getElementById("fakeEpicParentId").disabled = false;
         //check if it exists, if yes remove
@@ -30,27 +27,20 @@ function toggleInputs() {
             epicParentDisabledInput.remove();
         }
     } else if (x === "EPIC") {
-        document.getElementById("taskBugEffort").hidden = true;
-        document.getElementById("effort").value = null;
-        document.getElementById("epicStoryEffort").hidden = false;
-        const x = document.getElementById("fakeStoryParentId");
+        const x = document.getElementById("fakeEpicParentId");
         const option = document.createElement("option");
         option.text = "Disabled";
         option.id = "disabledParentInput";
         option.setAttribute('selected', 'selected');
         x.add(option);
-        document.getElementById("fakeStoryParentId").disabled = true;
         document.getElementById("fakeEpicParentId").disabled = true;
-        document.getElementById("fakeStoryParentId").hidden = false;
-        document.getElementById("fakeEpicParentId").hidden = true;
+        document.getElementById("fakeEpicParentId").hidden = false;
     }
 }
 
 function checkInputs() {
     const x = document.getElementById("type").value;
-    if (x === "BUG" || x === "TASK") {
-        document.getElementById("parentId").value = document.getElementById("fakeStoryParentId").value;
-    } else if (x === "STORY") {
+    if (x === "STORY") {
         document.getElementById("parentId").value = document.getElementById("fakeEpicParentId").value;
     }
 }
@@ -71,6 +61,31 @@ function redirectToModal(projectId, itemId) {
     });
 }
 
-function createSprintTask() {
-    $('#createSprintTaskFormModal').modal({show: true});
+function createItemOnTheGo(modal, backlog, parentId) {
+    let typeString;
+    if (modal === 1) {
+        $('#createSprintTaskFormModal').modal({show: true});
+        typeString = "SprintTask";
+    } else if (modal === 2) {
+        $('#createStoryFormModal').modal({show: true});
+        typeString = "StoryItem";
+    }
+
+    let itemForm;
+    let alternativeItemForm;
+    if (backlog === 1) {
+        itemForm = $("#create" + typeString + "ForProject");
+        alternativeItemForm = $("#create" + typeString + "ForSprint");
+    }
+    if (backlog === 0 || backlog === 2 || backlog === 3) {
+        itemForm = $("#create" + typeString + "ForSprint");
+        alternativeItemForm = $("#create" + typeString + "ForProject");
+    }
+    $("#create" + typeString + "ParentStatus").val(backlog);
+    alternativeItemForm.attr('hidden', true);
+    itemForm.attr('hidden', false);
+    itemForm.find("select").val(parentId);
+    itemForm.find("select").attr('name', 'parentId');
+    alternativeItemForm.find("select").attr('name', 'fakeParentId');
 }
+

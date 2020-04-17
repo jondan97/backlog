@@ -2,10 +2,12 @@ package gr.university.thesis.service;
 
 import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.Project;
+import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.User;
 import gr.university.thesis.entity.enumeration.ItemPriority;
 import gr.university.thesis.entity.enumeration.ItemStatus;
 import gr.university.thesis.entity.enumeration.ItemType;
+import gr.university.thesis.entity.enumeration.SprintStatus;
 import gr.university.thesis.exceptions.ItemAlreadyExistsException;
 import gr.university.thesis.exceptions.ItemHasEmptyTitleException;
 import gr.university.thesis.repository.ItemRepository;
@@ -164,6 +166,10 @@ public class ItemService {
         if (parent.getId() == 0) {
             parent = null;
         }
+        //if the item has no assignee
+        if (assignee.getId() == 0) {
+            assignee = null;
+        }
         //example of input handling, not in the scope of this project
         if (!effortStr.isEmpty()) {
             effort = Integer.parseInt(effortStr);
@@ -267,6 +273,9 @@ public class ItemService {
                 }
             }
             item.setEstimatedEffort(estimatedEffort);
+            if (assignee.getId() == 0) {
+                assignee = null;
+            }
             item.setAssignee(assignee);
             // if item was updated to no parent
             if (parent.getId() == 0) {
@@ -277,7 +286,7 @@ public class ItemService {
                 Optional<Item> parentOptional = itemRepository.findById(parent.getId());
                 //updating status to match that of the parent's
                 if (parentOptional.isPresent()) {
-                    setStatusToItemAndChildren(item, ItemStatus.findItemTypeByRepositoryId(parentOptional.get().getStatus()));
+                    setStatusToItemAndChildren(item, ItemStatus.findItemStatusByRepositoryId(parentOptional.get().getStatus()));
                     item.setParent(parentOptional.get());
                 }
             }
@@ -318,6 +327,9 @@ public class ItemService {
         Optional<Item> itemOptional = itemRepository.findById(itemId);
         if (itemOptional.isPresent()) {
             Item item = itemOptional.get();
+            if (assignee.getId() == 0) {
+                assignee = null;
+            }
             item.setAssignee(assignee);
             itemRepository.save(item);
         }
@@ -453,7 +465,10 @@ public class ItemService {
     }
 
     /**
-     * this method creates a new task for the active sprint backlog and saves it into the repository
+     * this method creates a new item in the current project
+     * and stores it in the repository. The user can click on a button that is right next to the parents that are shown
+     * in the project and sprint backlogs. Depending on which backlog the user clicks and on which parent, a child item
+     * will be created.
      *
      * @param title              :       the title of the new task
      * @param description        : the description of the new task
@@ -468,9 +483,9 @@ public class ItemService {
      * @throws ItemAlreadyExistsException : user has tried to create an item with the same title
      * @throws ItemHasEmptyTitleException : user has tried to create a task with no title
      */
-    public Item createSprintTask(String title, String description, String acceptanceCriteria, ItemType type,
-                                 ItemPriority priority, String effortStr,
-                                 Project project, User assignee, User owner, Item parent)
+    public Item createItemOnTheGo(Sprint sprint, String title, String description, String acceptanceCriteria, ItemType type,
+                                  ItemPriority priority, String effortStr,
+                                  Project project, User assignee, User owner, Item parent)
             throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
         if (title.isEmpty()) {
             throw new ItemHasEmptyTitleException("Task cannot be created without a title.");
@@ -503,8 +518,17 @@ public class ItemService {
         } else {
             acceptanceCriteria = acceptanceCriteria.trim();
         }
+        if (assignee.getId() == 0) {
+            assignee = null;
+        }
+        byte itemStatus;
+        if (sprint == null) {
+            itemStatus = (byte) ItemStatus.BACKLOG.getRepositoryId();
+        } else {
+            itemStatus = (byte) (SprintStatus.findSprintStatusByRepositoryId(sprint.getStatus()).getRepositoryId() + 1);
+        }
 
-        Item item = new Item(title, description, acceptanceCriteria, type.getRepositoryId(), priority.getRepositoryId(), effort, 0, project, assignee, owner, parent, (byte) ItemStatus.ACTIVE.getRepositoryId());
+        Item item = new Item(title, description, acceptanceCriteria, type.getRepositoryId(), priority.getRepositoryId(), effort, 0, project, assignee, owner, parent, itemStatus);
         return itemRepository.save(item);
     }
 }

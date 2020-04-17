@@ -12,7 +12,8 @@
     <input hidden id="sprintId" name="sprintId" th:value="${sprint.id}">
     <input name="itemType" type="hidden" value="EPIC">
     <input name="itemParentId" type="hidden" value="0">
-    <input formaction="/user/updateAssignee" hidden name="updateAssigneeButton" th:id="|updateAssignee${item.id}|"
+    <input formaction="/user/modifyItemByDeveloper" hidden name="modifyDeveloperButton"
+           th:id="|updateAssignee${item.id}|"
            type="submit" value="projectPage">
     <table class="itemTable">
         <tr>
@@ -29,7 +30,7 @@
     </span>
             </td>
             <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
-                <span class="informationText" id="itemEffort" th:text="${item.effort}" title="Total Effort"></span>
+                <span class="informationText" id="itemEffort" th:text="${item.effort}" title="Total Task Effort"></span>
             </td>
             <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
                 <span th:if="${item.estimatedEffort == 0}">
@@ -44,14 +45,32 @@
             <td>
                 <select id="itemAssigneeId" name="itemAssigneeId" th:onchange="|updateAssignee(${item.id})|"
                         title="Assignee"
-                        th:disabled="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')') or (session.userId == item.assignee.id) ? 'false' : 'true'}">
+                        th:disabled="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
+                        or (item.assignee != null and session.userId == item.assignee.id)
+                        or (item.assignee == null and #authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')'))
+                        ? 'false' : 'true'}">
+                    <option selected value="0">No assignee</option>
                 <span th:each="user : ${allUsers}">
+                    <span th:if="${item.assignee}">
                     <option th:selected="${item.assignee.id == user.id ? true : false}"
                             th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
                             th:value="${user.id}">
                     </option>
+                        </span>
+                    <span th:unless="${item.assignee}">
+                    <option th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                            th:value="${user.id}">
+                    </option>
+                        </span>
             </span>
                 </select>
+            </td>
+            <td>
+                <button class="btn btn-outline-success btn-sm"
+                        sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN', 'PRODUCT_OWNER')"
+                        th:onclick="|createItemOnTheGo(2,${item.status},${item.id})|"
+                        type="button"
+                >Create Story</button>
             </td>
             <td>
     <span th:if="${item.status != 3}">

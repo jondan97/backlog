@@ -7,8 +7,15 @@
     cursor: pointer;
 }
 
-.projectRow {
-    text-align: left;
+.projectsTable th {
+    text-align: center;
+}
+
+.projectRow td {
+    border-left-style: groove;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    text-align: center;
 }
 
 .spanDescription {

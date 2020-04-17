@@ -9,7 +9,7 @@
     <input hidden id="itemId" name="itemId" readonly th:value="${association.item.id}">
     <input hidden id="associationStatus" name="associationStatus" readonly th:value="${association.status}">
     <input hidden id="itemProjectId" name="itemProjectId" readonly th:value="${projectId}">
-    <input formaction="/user/updateAssignee" hidden name="updateAssigneeButton"
+    <input formaction="/user/modifyItemByDeveloper" hidden name="modifyDeveloperButton"
            th:id="|updateAssignee${association.item.id}|"
            type="submit" value="taskBoard">
 
@@ -18,8 +18,9 @@
             <td height="100px" rowspan="3">
                 <span th:if="${sprint.status != 3}">
                     <button name="action" style="height:100%"
-                            th:hidden="${#authorization.expression('hasAnyAuthority(''ADMIN'')')
-                            or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
+                            th:hidden="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
+                            or (session.userId == association.item.assignee.id)
+                            ? 'false' : 'true'}"
                             type="submit"
                             value="previousStatus">
                         <
@@ -34,7 +35,7 @@
             <td height="100px" rowspan="3">
                 <span th:if="${sprint.status != 3}">
                     <button name="action" style="height:100%"
-                            th:hidden="${#authorization.expression('hasAnyAuthority(''ADMIN'')')
+                            th:hidden="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
                             or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
                             type="submit"
                             value="nextStatus">
