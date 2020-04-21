@@ -431,6 +431,13 @@ public class ProjectService {
 
             }
         }
-        return new BurnDownChartData(categories, ideal_burn, actual_burn);
+        boolean possibleDelay = false;
+        //if the latest ideal burn is 0, then there is no point in warning the user
+        //if the latest actual remaining is more than the latest ideal remaining, then there is something wrong
+        //and the project may be delayed
+        if (ideal_burn[ideal_burn.length - 1] != 0 && actual_burn[actual_burn.length - 1] > ideal_burn[ideal_burn.length - 1]) {
+            possibleDelay = true;
+        }
+        return new BurnDownChartData(categories, ideal_burn, actual_burn, possibleDelay);
     }
 }

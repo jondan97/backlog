@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Optional;
 
@@ -108,14 +109,20 @@ public class ScrumMasterController {
      */
     @RequestMapping(value = "/editSprint", params = "action=finish", method = RequestMethod.POST)
     public String finishSprint(@RequestParam long sprintId,
-                               @RequestParam long sprintProjectId) {
+                               @RequestParam long sprintProjectId,
+                               RedirectAttributes redir) {
         Optional<Sprint> oldSprintOptional = sprintService.finishSprint(sprintId);
         if (oldSprintOptional.isPresent()) {
             Sprint sprint = oldSprintOptional.get();
             sprintService.calculateVelocity(sprint);
             projectService.findProjectById(sprint.getProject().getId()).ifPresent(project -> project.setTeam_velocity(sprint.getVelocity()));
+            sprintService.calculateTotalEffort(sprint);
+            redir.addFlashAttribute("sprintFinished", true);
+            redir.addFlashAttribute("previousSprintVelocity", sprint.getVelocity());
+            redir.addFlashAttribute("previousSprintTotalEffort", sprint.getTotal_effort());
         }
         oldSprintOptional.ifPresent(sprint -> itemSprintHistoryService.transferUnfinishedItemsFromOldSprint(sprint));
+
         return "redirect:/user/project/" + sprintProjectId;
     }
 }

@@ -7,6 +7,7 @@ import gr.university.thesis.entity.ItemSprintHistory;
 import gr.university.thesis.entity.Sprint;
 import gr.university.thesis.entity.enumeration.ItemStatus;
 import gr.university.thesis.entity.enumeration.ItemType;
+import gr.university.thesis.entity.enumeration.SprintStatus;
 import gr.university.thesis.entity.enumeration.TaskBoardStatus;
 import gr.university.thesis.repository.ItemSprintHistoryRepository;
 import gr.university.thesis.util.Time;
@@ -391,7 +392,6 @@ public class ItemSprintHistoryService {
                         break;
                     } else {
                         for (ItemSprintHistory association : associationsOrderedByDate) {
-//                            if(association.getItem().get)
                             int difference = Time.compare(date, association.getLast_moved());
                             //if the dates are equal
                             if (difference == 0) {
@@ -423,16 +423,34 @@ public class ItemSprintHistoryService {
                     }
                     //if the date checked had no associations with actual burns for that day, for example Saturday/Sunday
                     else if (Time.compare(date, today) <= 0) {
-                        //set the effort for that cell, the same as the previous, for example the same as Friday (as not
+                        //set the effort for that cell, the same as the previous, for example the same as Friday (as no
                         //tasks were completed during off days)
                         actualBurn[i + 1] = previousEffort;
                     }
                 }
             }
             //if there are no tasks with status done, just take the first cell, which is the total effort of
-            //the sprint
+            //the sprint and fill it up to the latest day
             else {
-                actualBurn = Arrays.copyOfRange(actualBurn, 0, 1);
+                //+1 for the starting cell
+                //+1 for the return of the method which is int and normally should be double
+                //may be slightly inaccurate if compared to the current hour, but the days shown display based on the
+                //starting date of the sprint
+                int daysInBetween = Time.calculateDaysInBetween(sprint.getStart_date(), new Date()) + 1 + 1;
+                //this is the point that the array will be 'cut', based on the current day (now)
+                int arrayLimit = 0;
+                for (int i = 0; i < daysInBetween; i++) {
+                    //in case there is a out of bounds exception
+                    if (i < actualBurn.length) {
+                        actualBurn[i] = totalSprintEffort;
+                        arrayLimit = i + 1;
+                    }
+                    //if let's say 500 days have passed, the iteration should break and not count more than needed
+                    if (i >= actualBurn.length) {
+                        break;
+                    }
+                }
+                actualBurn = Arrays.copyOfRange(actualBurn, 0, arrayLimit);
             }
 
             //here, the ideal burn for each sprint is calculated
@@ -456,7 +474,14 @@ public class ItemSprintHistoryService {
                 // previous cell, for the next subtraction
                 nextEffort = ideal_burn[i];
             }
-            return new BurnDownChartData(categories, ideal_burn, actualBurn);
+            boolean possibleDelay = false;
+            //if the sprint is not the current active one, then there is no point in warning the user
+            //if the latest actual burn is more than the ideal burn of that day, then there is a problem
+            //and the user needs to be warned
+            if (sprint.getStatus() == SprintStatus.ACTIVE.getRepositoryId() && actualBurn[actualBurn.length - 1] > ideal_burn[actualBurn.length - 1]) {
+                possibleDelay = true;
+            }
+            return new BurnDownChartData(categories, ideal_burn, actualBurn, possibleDelay);
         }
         return null;
     }

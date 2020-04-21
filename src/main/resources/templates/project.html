@@ -18,8 +18,12 @@
     <span class="textHeader readySprintLines">Ready Sprint</span>
     <img class="hintSymbol" hidden onclick="openHintModal('readySprint')" src="../../images/hintSymbol.png"
          style="width: 30px;height: 30px;margin: 0 0 11px 1px;">
-    <span class="warningMessage" th:if="${sprint.total_effort >= project.team_velocity}">Warning: The total effort of the sprint backlog is more than the last velocity of the team. The sprint might not be
-        completed in time.</span>
+    <span class="warningMessage" th:if="${project.team_velocity != 0 and sprint.total_effort > project.team_velocity}">
+        <span th:insert="include/warnings :: removeEffort"></span>
+    </span>
+    <span class="warningMessage" th:if="${project.team_velocity != 0 and sprint.total_effort < project.team_velocity}">
+        <span th:insert="include/warnings :: addEffort"></span>
+    </span>
     <span style="float: right">
         <button class="btn btn-success btn-primary btn-lg" form="sprintForm" name="action"
                 sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')" type="submit" value="start">
@@ -49,6 +53,9 @@
 <span class="textHeader">Sprint Backlog</span>
     <img class="hintSymbol" hidden onclick="openHintModal('sprintBacklog')" src="../../images/hintSymbol.png"
          style="width: 30px;height: 30px;margin: 0 0 10px 1px;">
+    <span class="warningMessage" th:if="${!MostImportantItemsIncluded}">
+        <span th:insert="include/warnings :: sprintBacklogNotMostImportantItem"></span>
+    </span>
     <span style="float: right;line-height: 33px;">
         <img class="hintSymbol" hidden onclick="openHintModal('sprintAddTask')" src="../../images/hintSymbol.png"
              style="width: 30px;height: 30px;margin: 0 0 1px 1px;">
@@ -108,6 +115,12 @@
             const projectId = [[${project.id}]];
             const itemId = [[${itemId}]];
             redirectToModal(projectId, itemId);
+    </script>
+</span>
+<span th:if="${sprintFinished}">
+    <span th:insert="include/modals :: sprintHasFinishedModal"></span>
+    <script>
+        showSprintFinishedModal();
     </script>
 </span>
 <script>

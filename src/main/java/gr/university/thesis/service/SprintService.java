@@ -4,10 +4,7 @@ import gr.university.thesis.entity.Item;
 import gr.university.thesis.entity.ItemSprintHistory;
 import gr.university.thesis.entity.Project;
 import gr.university.thesis.entity.Sprint;
-import gr.university.thesis.entity.enumeration.ItemStatus;
-import gr.university.thesis.entity.enumeration.ItemType;
-import gr.university.thesis.entity.enumeration.SprintStatus;
-import gr.university.thesis.entity.enumeration.TaskBoardStatus;
+import gr.university.thesis.entity.enumeration.*;
 import gr.university.thesis.exceptions.SprintHasZeroEffortException;
 import gr.university.thesis.repository.SprintRepository;
 import gr.university.thesis.util.Time;
@@ -15,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * service that is associated with the management of the sprints
@@ -80,7 +78,7 @@ public class SprintService {
                 Sprint sprint = activeSprintOptional.get();
                 calculateTotalEffort(sprint);
 
-                int daysRemaining = Time.calculateDaysRemaining(new Date(), sprint.getEnd_date());
+                int daysRemaining = Time.calculateDaysInBetween(new Date(), sprint.getEnd_date());
                 sprint.setDays_remaining(daysRemaining);
                 calculateVelocity(sprint);
                 return activeSprintOptional;
@@ -250,5 +248,77 @@ public class SprintService {
             }
         }
         sprint.setVelocity(totalVelocity);
+    }
+
+    /**
+     * this method compares the sprint backlog and the project backlog, and notifies the user if more important items,
+     * than the ones already existing in the sprint backlog, could be added to it
+     * only the epics and stories are taken into the account and the tasks/bugs are ignored in the comparison
+     * NOTE: this method fulfils the most common cases, but edge cases are ignored for example: only the most important
+     * items are taken into consideration and not the second most important, which means that this method is incomplete
+     *
+     * @param sprint:         the sprint that the user wants to examine the backlog of
+     * @param projectBacklog: the project backlog that needs to be examined and compared
+     * @return: returns true if the sprint backlog contains the most important items, returns false if the sprint
+     * backlog does not contain the most important items or at least one more important item can be added to it
+     */
+    public boolean findIfMostImportantItemsWereIncludedInSprint(Sprint sprint, Iterable projectBacklog) {
+        ArrayList<Item> sprintBacklogParents = new ArrayList<>();
+        ArrayList<Item> projectBacklogParents = new ArrayList<>();
+        Set<ItemSprintHistory> associatedItems = sprint.getAssociatedItems();
+        int mostImportantItemValueInSprintBacklog = 0;
+        for (ItemSprintHistory itemSprintHistory : associatedItems) {
+            //tasks are not included in this comparison, only epics and stories
+            if (itemSprintHistory.getItem().getParent() == null
+                    && (itemSprintHistory.getItem().getType() != ItemType.TASK.getRepositoryId()
+                    && itemSprintHistory.getItem().getType() != ItemType.BUG.getRepositoryId())) {
+                sprintBacklogParents.add(itemSprintHistory.getItem());
+                if (itemSprintHistory.getItem().getPriority() > mostImportantItemValueInSprintBacklog) {
+                    mostImportantItemValueInSprintBacklog = itemSprintHistory.getItem().getPriority();
+                }
+            }
+        }
+        int mostImportantItemValueInProjectBacklog = 0;
+        for (Object objects : projectBacklog) {
+            Item itemInProjectBacklog = (Item) objects;
+            //again, tasks not included, only epics and stories
+            if (itemInProjectBacklog.getType() == ItemType.EPIC.getRepositoryId() ||
+                    (itemInProjectBacklog.getType() == ItemType.STORY.getRepositoryId() && itemInProjectBacklog.getParent() == null)) {
+                projectBacklogParents.add(itemInProjectBacklog);
+                if (itemInProjectBacklog.getPriority() > mostImportantItemValueInProjectBacklog) {
+                    mostImportantItemValueInProjectBacklog = itemInProjectBacklog.getPriority();
+                }
+            }
+        }
+        if (mostImportantItemValueInSprintBacklog > mostImportantItemValueInProjectBacklog) {
+            return true;
+        } else if (mostImportantItemValueInSprintBacklog < mostImportantItemValueInProjectBacklog
+                && mostImportantItemValueInSprintBacklog != 0) {
+            return false;
+        }
+        //the following else clause is entirely based on the current total effort of the sprint
+        else {
+            int finalMostImportantItemValueInSprintBacklog = mostImportantItemValueInSprintBacklog;
+            //removing all items from the list that are not 'the most important value'
+            List<Item> mostImportantItemsInSprintBacklog =
+                    sprintBacklogParents.stream().filter(item -> item.getPriority() ==
+                            ItemPriority.findItemPriorityByRepositoryId(finalMostImportantItemValueInSprintBacklog)
+                                    .getRepositoryId()).collect(Collectors.toList());
+            //calculating the effort of the remaining parents
+            int effortOfRemainingParents = mostImportantItemsInSprintBacklog.stream().mapToInt(item -> item.getEffort()).sum();
+            int sprintTotalEffort = (int) sprint.getTotal_effort();
+
+            for (Item projectBacklogParent : projectBacklogParents) {
+                if (projectBacklogParent.getPriority() == finalMostImportantItemValueInSprintBacklog) {
+                    effortOfRemainingParents += projectBacklogParent.getEffort();
+                    //if the sprint backlog can fit at least one more 'most important item', then notify the user that
+                    //they should remove the 'least important items' and add a more 'most important item' instead
+                    if (effortOfRemainingParents < sprintTotalEffort) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
     }
 }

@@ -31,7 +31,7 @@ public enum ItemPriority {
      * @param id: the repository id of the item priority the user requested
      * @return : returns the item priority with that certain id
      */
-    public static ItemPriority findItemTypeByRepositoryId(int id) {
+    public static ItemPriority findItemPriorityByRepositoryId(int id) {
         for (ItemPriority itemPriority : ItemPriority.values()) {
             if (itemPriority.repositoryId == id)
                 return itemPriority;

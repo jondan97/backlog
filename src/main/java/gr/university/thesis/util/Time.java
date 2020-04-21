@@ -38,7 +38,7 @@ public class Time implements Comparator<Calendar> {
      * @param endDate:   the ending date
      * @return : the number of days between these two
      */
-    public static int calculateDaysRemaining(Date startDate, Date endDate) {
+    public static int calculateDaysInBetween(Date startDate, Date endDate) {
         long differenceInMs = endDate.getTime() - startDate.getTime();
         return (int) TimeUnit.DAYS.convert(differenceInMs, TimeUnit.MILLISECONDS);
     }

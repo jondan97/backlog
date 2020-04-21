@@ -84,6 +84,7 @@ public class UserController {
         if (projectOptional.isPresent()) {
             Project project = projectOptional.get();
             model.addAttribute("project", project);
+            Iterable<Item> allItemsInProjectBacklog = itemService.findAllItemsInBacklogByProjectId(projectId, ItemStatus.BACKLOG);
             Optional<Sprint> sprintOptional = sprintService.findActiveSprintInProject(project);
             Sprint sprint;
             if (sprintOptional.isPresent()) {
@@ -97,10 +98,19 @@ public class UserController {
                     sprint = sprintService.findActiveSprintInProject(project).get();
                 }
                 model.addAttribute("sprint", sprint);
+                boolean mostImportantItemsIncluded;
+                if (sprint.getStatus() == SprintStatus.READY.getRepositoryId()) {
+                    mostImportantItemsIncluded =
+                            sprintService.findIfMostImportantItemsWereIncludedInSprint(sprint, allItemsInProjectBacklog);
+
+                } else {
+                    mostImportantItemsIncluded = true;
+                }
+                model.addAttribute("MostImportantItemsIncluded", mostImportantItemsIncluded);
             }
             //perhaps not the most sufficient but this application is not supposed to be scalable
             model.addAttribute("allUsers", userService.findAllUsers());
-            model.addAttribute("backlog", itemService.findAllItemsInBacklogByProjectId(projectId, ItemStatus.BACKLOG));
+            model.addAttribute("backlog", allItemsInProjectBacklog);
             model.addAttribute("itemTypes", ItemType.values());
             model.addAttribute("itemPriorities", ItemPriority.values());
         } else {

@@ -33,4 +33,11 @@ public class BurnDownChartData {
      * sprint in the project, for example [100(total project effort), 92, ...]
      */
     int[] actual_burn;
+
+    /**
+     * possibleDelay is the boolean that warns the user whether the project will be delayed or not,
+     * the ideal remaining is compared with the actual remaining and if the actual remaining is more than the ideal
+     * remaining, then the user is notified that something is wrong
+     */
+    boolean possibleDelay;
 }

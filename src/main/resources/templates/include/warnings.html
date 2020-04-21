@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<span th:fragment="addEffort">
+    Warning: The team can finish more items based on the velocity of the previous sprint
+    <span th:text="${'(' + project.team_velocity + ')'}"></span>
+    .
+    <b><span th:text="${project.team_velocity - sprint.total_effort + ' '}"></span></b>
+    more effort can still be added.
+</span>
+<span th:fragment="removeEffort">
+    Warning: The total effort of the sprint backlog
+    <b><span th:text="${'(' + sprint.total_effort + ')'}"></span></b>
+    is more than the last velocity of the team
+    <b><span th:text="${'(' + project.team_velocity + ')'}"></span></b>
+    .
+    The sprint might not be completed in time.
+</span>
+<span th:fragment="sprintBacklogNotMostImportantItem">
+    Warning: The sprint backlog is not customer-centric. Please try and add the most important items first.
+</span>
+<span th:fragment="disableDeletionBecauseActiveSprint">
+    Warning: Item cannot be deleted because it is in the current active sprint backlog and may disrupt the
+    proper execution of the sprint. Please wait until the completion of the sprint and try again.
+</span>
+<span th:fragment="disableDeletionBecauseUnfinishedTasks">
+    Warning: Item cannot be deleted because it contains finished children that, if also deleted (automatically),
+    will break the burndown charts. Please finish all the containing items for this parent to disappear.
+</span>
+<span th:fragment="projectProgressAboveIdealLine">
+    Warning: The chart indicates that the team burns less than the expected amount of effort!
+    This may lead to the project being delayed.
+    Please talk with the team and try to find the cause of the problem.
+</span>
+<span th:fragment="sprintProgressAboveIdealLine">
+    Warning: The chart indicates that the team burns less than the expected amount of effort!
+    This may lead to the sprint having unfinished items by the end of it.
+    It also means that the sprint possibly includes more work than expected or that there is a problem within the team that needs to be discussed during the next scrum meeting.
+</span>
+</body>
+</html>

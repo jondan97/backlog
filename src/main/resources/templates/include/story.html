@@ -29,7 +29,9 @@
     </span>
             </td>
             <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
-                <span class="informationText" id="itemEffort" th:text="${item.effort}" title="Total Task Effort"></span>
+                <span class="informationText" id="itemEffort" th:text="${item.effort}"
+                      title="Total Task/Bug Effort"></span>
+                <span style="font-size:11px">(total task/bug effort)</span>
             </td>
             <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
                 <span th:if="${item.estimatedEffort == 0}">

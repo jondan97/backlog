@@ -16,6 +16,9 @@
 <br>
 
 <div id="burndown"></div>
+<span class="warningMessage" th:if="${burnDownChartData.possibleDelay}">
+    <span th:insert="include/warnings :: projectProgressAboveIdealLine"></span>
+</span>
 <br>
 <br>
 

@@ -404,7 +404,7 @@
                 <span class="informationText developerSpan" id="uniqueItemEstimatedEffortInput"
                       th:text="${item.estimatedEffort}"></span>
                 <img class="hintSymbol" hidden onclick="openHintModal('createItem-effort')"
-                     src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 1px;">
+                     style="width: 30px;height: 30px;margin: 0 0 7px 1px;" th:src="@{/images/hintSymbol.png}">
             </td>
         </tr>
         <tr>
@@ -420,12 +420,12 @@
                 <td>
                    <label class="developerLabel" for="uniqueItemEffort">Effort:</label>
                     <input class="uniqueItemInputDeveloper" hidden id="uniqueItemEffort" name="itemEffort"
-                           placeholder="0 to 10" th:value="${item.estimatedEffort != 0 ? item.estimatedEffort : ''}"
+                           placeholder="0 to 10" th:value="${item.effort != 0 ? item.effort : ''}"
                            type="number">
                 <span class="informationText developerSpan" th:text="${item.effort}"></span>
                     <input hidden name="itemEstimatedEffort" th:value="0" type="number">
                     <img class="hintSymbol" hidden onclick="openHintModal('createItem-effort')"
-                         src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 1px;">
+                         style="width: 30px;height: 30px;margin: 0 0 3px 1px;" th:src="@{/images/hintSymbol.png}">
                 </td>
             </tr>
         </span>
@@ -468,7 +468,7 @@
                     </span>
                 </span>
                 <img class="hintSymbol" hidden onclick="openHintModal('createItem-assignee')"
-                     src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 5px;">
+                     style="width: 30px;height: 30px;margin: 0 0 3px 0px;" th:src="@{/images/hintSymbol.png}">
             </td>
         </tr>
         <tr>
@@ -505,13 +505,11 @@
             </td>
         </tr>
         <tr>
-            <td class="warningMessage deletionWarning" hidden th:if="${itemHasFinishedChildren}">Warning: Item cannot be
-                deleted because it contains finished children that if also deleted (automatically), will break the
-                burndown charts. Please finish all the containing items for this parent to disappear.
+            <td class="warningMessage deletionWarning" hidden th:if="${itemHasFinishedChildren}">
+                <span th:insert="include/warnings :: disableDeletionBecauseUnfinishedTasks"></span>
             </td>
             <td class="warningMessage deletionWarning" hidden th:if="${item.status == 3 and !itemHasFinishedChildren}">
-                Warning: Item cannot be deleted because it is in the current active sprint backlog and may disrupt the
-                proper execution of the sprint. Please wait until the completion of the sprint and try again.
+                <span th:insert="include/warnings :: disableDeletionBecauseActiveSprint"></span>
             </td>
         </tr>
 
@@ -522,7 +520,7 @@
 <h4>
     Comments
     <img class="hintSymbol" hidden onclick="openHintModal('viewItem-comment')"
-         src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 1px;">
+         style="width: 30px;height: 30px;margin: 0 0 3px 1px;" th:src="@{/images/hintSymbol.png}">
 </h4>
 <div th:each="comment : ${item.getComments()}" th:style="'border-style: solid'">
     <form method="post" th:action="@{/user/editComment}">

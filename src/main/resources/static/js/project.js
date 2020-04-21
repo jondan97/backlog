@@ -4,20 +4,6 @@ function showCreateItemTable() {
 
 function toggleInputs() {
     const x = document.getElementById("type").value;
-    // if (x === "BUG" || x === "TASK") {
-    //     document.getElementById("taskBugEffort").hidden = false;
-    //     document.getElementById("epicStoryEffort").hidden = true;
-    //     document.getElementById("estimatedEffort").value = null;
-    //     document.getElementById("fakeStoryParentId").hidden = false;
-    //     document.getElementById("fakeStoryParentId").disabled = false;
-    //     document.getElementById("fakeEpicParentId").hidden = true;
-    //     //check if it exists, if yes remove
-    //     const epicParentDisabledInput = document.getElementById("disabledParentInput");
-    //     if (epicParentDisabledInput) {
-    //         epicParentDisabledInput.remove();
-    //     }
-    //
-    // } else if (x === "STORY") {
     if (x === "STORY") {
         document.getElementById("fakeEpicParentId").hidden = false;
         document.getElementById("fakeEpicParentId").disabled = false;
@@ -87,5 +73,9 @@ function createItemOnTheGo(modal, backlog, parentId) {
     itemForm.find("select").val(parentId);
     itemForm.find("select").attr('name', 'parentId');
     alternativeItemForm.find("select").attr('name', 'fakeParentId');
+}
+
+function showSprintFinishedModal() {
+    $('#sprintHasFinishedModal').modal({show: true});
 }
 

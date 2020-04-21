@@ -16,12 +16,15 @@
 <br>
 
 <div id="burndown"></div>
+<span class="warningMessage" th:if="${burnDownChartData.possibleDelay}">
+    <span th:insert="include/warnings :: sprintProgressAboveIdealLine"></span>
+</span>
 <br>
 <br>
 <h2 align="center">
     Sprint History of Tasks Done
     <img class="hintSymbol" hidden onclick="openHintModal('sprintHistory-sprintHistory')"
-         src="../../../../../images/hintSymbol.png" style="width: 35px;height: 35px;margin: 0 0 7px 0px;">
+         src="../../../../../images/hintSymbol.png" style="width: 35px;height: 35px;margin: 0 0 5px 0px;">
 </h2>
 
 <span style="text-align: center;" th:if="${tasksDoneByDateList}">
