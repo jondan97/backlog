@@ -511,13 +511,23 @@ public class ItemSprintHistoryService {
                 nextEffort = ideal_burn[i];
             }
             boolean possibleDelay = false;
+            boolean earlierFinish = false;
             //if the sprint is not the current active one, then there is no point in warning the user
-            //if the latest actual burn is more than the ideal burn of that day, then there is a problem
-            //and the user needs to be warned
-            if (sprint.getStatus() == SprintStatus.ACTIVE.getRepositoryId() && actualBurn[actualBurn.length - 1] > ideal_burn[actualBurn.length - 1]) {
-                possibleDelay = true;
+
+            if (sprint.getStatus() == SprintStatus.ACTIVE.getRepositoryId()) {
+                //if the latest actual burn is more than the ideal burn of that day, then there is a problem
+                //and the user needs to be warned
+                if (actualBurn[actualBurn.length - 1] > ideal_burn[actualBurn.length - 1]) {
+                    possibleDelay = true;
+                }
+                //if the actual burn reaches 0 and the length of the actual burn array is shorter than the ideal burn
+                //array (which means the former reaches 0 first), then notify user about early finish
+                if (actualBurn[actualBurn.length - 1] == 0 && actualBurn.length < ideal_burn.length) {
+                    earlierFinish = true;
+                }
+
             }
-            return new BurnDownChartData(categories, ideal_burn, actualBurn, possibleDelay);
+            return new BurnDownChartData(categories, ideal_burn, actualBurn, possibleDelay, earlierFinish);
         }
         return null;
     }

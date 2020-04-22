@@ -40,4 +40,13 @@ public class BurnDownChartData {
      * remaining, then the user is notified that something is wrong
      */
     boolean possibleDelay;
+
+    /**
+     * earlierFinish is the boolean that notifies the user that they have finished the items in the sprint earlier
+     * than expected
+     * the ideal remaining is compared with the actual remaining, and if the latter reaches 0 before the ideal remaining
+     * then the application informs the user for any possibly solutions (for example add more items in the next sprint
+     * etc.)
+     */
+    boolean earlierFinish;
 }
