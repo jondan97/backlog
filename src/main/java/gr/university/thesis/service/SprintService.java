@@ -321,4 +321,15 @@ public class SprintService {
             return true;
         }
     }
+
+    /**
+     * this method saves in the repository the sprint that the user requested to be saved and returns the sprint with
+     * the newly added unique repository id
+     *
+     * @param sprint: the sprint that the user requested to save
+     * @return: returns the sprint saved in the repository, including the id the repository generated for this object
+     */
+    public Sprint save(Sprint sprint) {
+        return sprintRepository.save(sprint);
+    }
 }

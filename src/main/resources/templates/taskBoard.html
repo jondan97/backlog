@@ -14,12 +14,11 @@
 <span th:insert="include/navigation :: bar"></span>
 <br>
 <span style="float: right">
-    <button class="btn btn-primary btn-lg"
-            name="action"
-            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/sprint/' + ${sprintId}+ '/history'} + '\''"
-            type="button" value="view">View Burndown Chart
-    </button>
-</span>
+        <button class="btn btn-primary btn-lg"
+                name="action"
+                th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/sprint/' + ${sprintId}+ '/history'} + '\''"
+                type="button" value="view">View Burndown Chart</button>
+    </span>
 <br>
 <br>
 <h2 align="center">
@@ -27,7 +26,6 @@
     <img class="hintSymbol" hidden onclick="openHintModal('sprintTaskBoard')" src="../../../../images/hintSymbol.png"
          style="width: 35px;height: 35px;margin: 0 0 6px 0px;">
 </h2>
-
 <div class="container">
     <div class="column">
         <p class="column-title">
@@ -36,12 +34,12 @@
                  style="width: 25px;height: 25px;margin: 0 0 5px 0px;">
         </p>
         <div class="tasks">
-            <span th:if="${todoAssociations}">
-                <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
-                     th:each="association: ${todoAssociations}">
-                        <span th:insert="include/taskBoardItem :: item"></span>
-                </div>
-            </span>
+                <span th:if="${todoAssociations}">
+                    <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
+                         th:each="association: ${todoAssociations}">
+                            <span th:insert="include/taskBoardItem :: item"></span>
+                    </div>
+                </span>
         </div>
     </div>
     <div class="column">
@@ -51,12 +49,12 @@
                  style="width: 25px;height: 25px;margin: 0 0 5px 0px;">
         </p>
         <div class="tasks">
-            <span th:if="${inProgressAssociations}">
-                <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
-                     th:each="association: ${inProgressAssociations}">
-                    <span th:insert="include/taskBoardItem :: item"></span>
-                </div>
-            </span>
+                <span th:if="${inProgressAssociations}">
+                    <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
+                         th:each="association: ${inProgressAssociations}">
+                        <span th:insert="include/taskBoardItem :: item"></span>
+                    </div>
+                </span>
         </div>
     </div>
     <div class="column">
@@ -66,12 +64,12 @@
                  style="width: 25px;height: 25px;margin: 0 0 5px 0px;">
         </p>
         <div class="tasks">
-            <span th:if="${forReviewAssociations}">
-                <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
-                     th:each="association: ${forReviewAssociations}">
-                    <span th:insert="include/taskBoardItem :: item"></span>
-                </div>
-            </span>
+                <span th:if="${forReviewAssociations}">
+                    <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
+                         th:each="association: ${forReviewAssociations}">
+                        <span th:insert="include/taskBoardItem :: item"></span>
+                    </div>
+                </span>
         </div>
     </div>
     <div class="column">
@@ -81,36 +79,33 @@
                  style="width: 25px;height: 25px;margin: 0 0 5px 0px;">
         </p>
         <div class="tasks">
-            <span th:if="${doneAssociations}">
-                <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
-                     th:each="association: ${doneAssociations}">
-                    <span th:insert="include/taskBoardItem :: item"></span>
-                </div>
-            </span>
+                <span th:if="${doneAssociations}">
+                    <div th:class="${association.item.type == 3} ? 'taskType' : 'bugType'"
+                         th:each="association: ${doneAssociations}">
+                        <span th:insert="include/taskBoardItem :: item"></span>
+                    </div>
+                </span>
         </div>
     </div>
 </div>
 <span th:insert="include/modals :: viewItemModal"></span>
-
 <span th:insert="include/modals :: hintModal"></span>
 <span th:insert="include/hints :: hints"></span>
 <script th:src="@{/js/general.js}"></script>
-
 <script th:src="@{/js/taskBoard.js}"></script>
 <!--in the event of redirecting to a modal (after modifying item or clicking on a parent let's say-->
 <span th:if="${itemId}">
-    <script>
+        <script>
             const projectId = [[${projectId}]];
             const itemId = [[${itemId}]];
             const sprintId = [[${sprintId}]];
             redirectToModal(projectId, itemId, sprintId);
-    </script>
-</span>
+        </script>
+    </span>
 <script>
     // self executing function here
     (function () {
         showHints();
-
     })();
 </script>
 </body>

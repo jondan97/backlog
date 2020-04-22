@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
 </head>
 <body>
-
 <nav class="navbar navbar-expand-lg navbar-light bg-light" th:fragment="bar">
-
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <a class="navbar-brand" th:href="@{/}">EduBacklog!</a>
         <ul class="navbar-nav">
@@ -14,34 +12,34 @@
                 <a class="nav-item nav-link mx-2" th:href="@{/user/projectPanel}">Project Dashboard</a>
             </li>
             <span th:if="${project}">
-                <li class="nav-item dropdown">
-                    <a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle mx-2"
-                       data-toggle="dropdown" href="#" role="button" th:text="${project.title}"></a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" th:href="@{'/user/project/' + ${project.id}}">Project Page</a>
-                        <a class="dropdown-item" th:href="@{'/user/project/' + ${project.id}} + '/projectProgress'">Project Progress</a>
-                        <span th:if="${sprint != null and sprint.status == 2}">
-                        <div class="dropdown-divider"></div>
-                        <a class="dropdown-item"
-                           th:href="@{'/user/project/' + ${project.id}} + '/sprint/' + ${sprint.id}">Current Sprint Task Board</a>
-                        <a class="dropdown-item"
-                           th:href="@{'/user/project/' + ${project.id}} + '/sprint/' + ${sprint.id} + '/history'">Burndown Chart</a>
-                        </span>
-                    </div>
-                </li>
-            </span>
+                    <li class="nav-item dropdown">
+                        <a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle mx-2"
+                           data-toggle="dropdown" href="#" role="button" th:text="${project.title}"></a>
+                        <div class="dropdown-menu">
+                            <a class="dropdown-item" th:href="@{'/user/project/' + ${project.id}}">Project Page</a>
+                            <a class="dropdown-item" th:href="@{'/user/project/' + ${project.id}} + '/projectProgress'">Project Progress</a>
+                            <span th:if="${navSprint != null and navSprint.status == 2}">
+                                <div class="dropdown-divider"></div>
+                                <a class="dropdown-item"
+                                   th:href="@{'/user/project/' + ${project.id}} + '/sprint/' + ${navSprint.id}">Current Sprint Task Board</a>
+                                <a class="dropdown-item"
+                                   th:href="@{'/user/project/' + ${project.id}} + '/sprint/' + ${navSprint.id} + '/history'">Burndown Chart</a>
+                            </span>
+                        </div>
+                    </li>
+                </span>
         </ul>
         <ul class="navbar-nav ml-auto">
             <li class="nav-item dropdown">
                 <a aria-expanded="false" aria-haspopup="true" class="nav-link dropdown-toggle" data-toggle="dropdown"
                    href="#" role="button" th:text="${session.userEmail}"></a>
                 <div aria-labelledby="navbarDropdownMenuLink-4" class="dropdown-menu dropdown-menu-right dropdown-info">
-                    <span class="dropdown-item">
-                        <span th:text="|Role: ${session.role}|"></span>
-                        <img class="hintSymbol" hidden onclick="openHintModal('roles')"
-                             th:src="@{/images/hintSymbol.png}"
-                             style="width: 25px;height: 25px">
-                    </span>
+                        <span class="dropdown-item">
+                            <span th:text="|Role: ${session.role}|"></span>
+                            <img class="hintSymbol" hidden onclick="openHintModal('roles')"
+                                 style="width: 25px;height: 25px"
+                                 th:src="@{/images/hintSymbol.png}">
+                        </span>
                     <div class="dropdown-divider"></div>
                     <a class="dropdown-item" th:href="@{/admin/userPanel}"
                        th:if="${#authorization.expression('hasAuthority(''ADMIN'')')}">User Dashboard</a>
@@ -51,6 +49,5 @@
         </ul>
     </div>
 </nav>
-
 </body>
 </html>

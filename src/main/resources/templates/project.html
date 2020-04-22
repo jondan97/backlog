@@ -14,115 +14,110 @@
 <span th:insert="include/navigation :: bar"></span>
 <br>
 <span th:style="'border-style: solid;display:block;'">
-<span th:if="${sprint.status == 1}">
-    <span class="textHeader readySprintLines">Ready Sprint</span>
-    <img class="hintSymbol" hidden onclick="openHintModal('readySprint')" src="../../images/hintSymbol.png"
-         style="width: 30px;height: 30px;margin: 0 0 11px 1px;">
-    <span class="warningMessage" th:if="${project.team_velocity != 0 and sprint.total_effort > project.team_velocity}">
-        <span th:insert="include/warnings :: removeEffort"></span>
+        <span th:if="${sprint.status == 1}">
+            <span class="textHeader readySprintLines">Ready Sprint</span>
+            <img class="hintSymbol" hidden onclick="openHintModal('readySprint')" src="../../images/hintSymbol.png"
+                 style="width: 30px;height: 30px;margin: 0 0 11px 1px;">
+            <span class="warningMessage"
+                  th:if="${project.team_velocity != 0 and sprint.total_effort > project.team_velocity}">
+                <span th:insert="include/warnings :: removeEffort"></span>
+            </span>
+            <span class="warningMessage"
+                  th:if="${project.team_velocity != 0 and sprint.total_effort != 0 and sprint.total_effort < project.team_velocity}">
+                <span th:insert="include/warnings :: addEffort"></span>
+            </span>
+            <span style="float: right">
+                <button class="btn btn-success btn-primary btn-lg" form="sprintForm" name="action"
+                        sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')" type="submit" value="start">
+                    Start</button>
+            </span>
+        </span>
+        <span th:unless="${sprint.status == 1}">
+            <span class="textHeader activeSprintsLines">Active Sprint</span>
+            <img class="hintSymbol" hidden onclick="openHintModal('activeSprint')" src="../../images/hintSymbol.png"
+                 style="width: 30px;height: 30px;margin: 0 0 11px 1px;">
+            <span style="float: right">
+                <button class="btn btn-primary btn-lg"
+                        name="action"
+                        th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/sprint/' + ${sprint.id}} + '\''"
+                        type="button" value="view">View Task Board</button>
+                <button class="btn btn-danger btn-primary btn-lg" form="sprintForm" name="action"
+                        sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')" type="submit" value="finish">
+                    Finish</button>
+            </span>
+        </span>
+        <span th:insert="include/sprint :: sprintForm"></span>
     </span>
-    <span class="warningMessage" th:if="${project.team_velocity != 0 and sprint.total_effort < project.team_velocity}">
-        <span th:insert="include/warnings :: addEffort"></span>
-    </span>
-    <span style="float: right">
-        <button class="btn btn-success btn-primary btn-lg" form="sprintForm" name="action"
-                sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')" type="submit" value="start">
-                Start
-        </button>
-    </span>
-</span>
-<span th:unless="${sprint.status == 1}">
-    <span class="textHeader activeSprintsLines">Active Sprint</span>
-    <img class="hintSymbol" hidden onclick="openHintModal('activeSprint')" src="../../images/hintSymbol.png"
-         style="width: 30px;height: 30px;margin: 0 0 11px 1px;">
-    <span style="float: right">
-        <button class="btn btn-primary btn-lg"
-                name="action"
-                th:onclick="'window.location.href=\'' + @{'/user/project/' + ${project.id} + '/sprint/' + ${sprint.id}} + '\''"
-                type="button" value="view">View Task Board
-        </button>
-        <button class="btn btn-danger btn-primary btn-lg" form="sprintForm" name="action"
-                sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')" type="submit" value="finish">
-            Finish
-        </button>
-    </span>
-</span>
-<span th:insert="include/sprint :: sprintForm"></span>
-</span>
 <span class="backlog">
-<span class="textHeader">Sprint Backlog</span>
-    <img class="hintSymbol" hidden onclick="openHintModal('sprintBacklog')" src="../../images/hintSymbol.png"
-         style="width: 30px;height: 30px;margin: 0 0 10px 1px;">
-    <span class="warningMessage" th:if="${!MostImportantItemsIncluded}">
-        <span th:insert="include/warnings :: sprintBacklogNotMostImportantItem"></span>
+        <span class="textHeader">Sprint Backlog</span>
+            <img class="hintSymbol" hidden onclick="openHintModal('sprintBacklog')" src="../../images/hintSymbol.png"
+                 style="width: 30px;height: 30px;margin: 0 0 10px 1px;">
+        <span class="warningMessage" th:if="${!MostImportantItemsIncluded}">
+            <span th:insert="include/warnings :: sprintBacklogNotMostImportantItem"></span>
+        </span>
+        <span style="float: right;line-height: 33px;">
+            <img class="hintSymbol" hidden onclick="openHintModal('sprintAddTask')" src="../../images/hintSymbol.png"
+                 style="width: 30px;height: 30px;margin: 0 0 1px 1px;">
+            <button class="btn btn-sml btn-info" th:disabled="${#authorization.expression('hasAnyAuthority(''DEVELOPER'',''ADMIN'',''SCRUM_MASTER'')')
+                    ? 'false' : 'true'}"
+                    th:onclick="createItemOnTheGo(1,0,0)" type="button">Add new Task</button>
+        </span>
+        <span th:if="${sprint}" th:style="'border-style: solid;display:block;'">
+                <div th:each="itemSprintHistory : ${sprint.associatedItems}">
+                    <span th:with="item =${itemSprintHistory.item}">
+                        <span th:if="${item.status == 2 or item.status == 3}">
+                            <span th:insert="include/setOfItems :: items"></span>
+                        </span>
+                    </span>
+                </div>
+            <span th:if="${sprint.associatedItems.size() == 0}">There are no items in the Sprint Backlog.</span>
+        </span>
     </span>
-    <span style="float: right;line-height: 33px;">
-        <img class="hintSymbol" hidden onclick="openHintModal('sprintAddTask')" src="../../images/hintSymbol.png"
-             style="width: 30px;height: 30px;margin: 0 0 1px 1px;">
-        <button class="btn btn-sml btn-info" th:disabled="${#authorization.expression('hasAnyAuthority(''DEVELOPER'',''ADMIN'',''SCRUM_MASTER'')')
-                ? 'false' : 'true'}"
-                th:onclick="createItemOnTheGo(1,0,0)" type="button">Add new Task</button>
-    </span>
-
-<span th:if="${sprint}" th:style="'border-style: solid;display:block;'">
-    <div th:each="itemSprintHistory : ${sprint.associatedItems}">
-            <span th:with="item =${itemSprintHistory.item}">
-                <span th:if="${item.status == 2 or item.status == 3}">
+<br>
+<br>
+<span class="backlog">
+        <span class="textHeader">Product Backlog</span>
+            <img class="hintSymbol" hidden onclick="openHintModal('productBacklog')" src="../../images/hintSymbol.png"
+                 style="width: 30px;height: 30px;margin: 0 0 11px 1px;">
+        <span th:style="'border-style: solid;display:block;'">
+            <div th:each="item : ${backlog}">
+                <span th:if="${item.status == 1}">
                     <span th:insert="include/setOfItems :: items"></span>
                 </span>
-            </span>
-    </div>
-    <span th:if="${sprint.associatedItems.size() == 0}">There are no items in the Sprint Backlog.</span>
-</span>
-</span>
-<br>
-<br>
-<span class="backlog">
-<span class="textHeader">Product Backlog</span>
-    <img class="hintSymbol" hidden onclick="openHintModal('productBacklog')" src="../../images/hintSymbol.png"
-         style="width: 30px;height: 30px;margin: 0 0 11px 1px;">
-    <span th:style="'border-style: solid;display:block;'">
-<div th:each="item : ${backlog}">
-    <span th:if="${item.status == 1}">
-        <span th:insert="include/setOfItems :: items"></span>
+            </div>
+            <span th:if="${backlog.size() == 0}">There are no items in the Product Backlog.</span>
+        </span>
     </span>
-</div>
-        <span th:if="${backlog.size() == 0}">There are no items in the Product Backlog.</span>
-    </span>
-</span>
 <!--create a new item-->
 <span sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN')">
-    <div id="createElementButtonSet">
-        <span class="textHeader"> Create an Item</span>
-        <input id="createElementPlusSymbol" onclick="showCreateItemTable()" th:src="@{/images/add.png}" type="image">
-    </div>
-    <span th:insert="include/createItem :: createForm"></span>
-</span>
-
+        <div id="createElementButtonSet">
+            <span class="textHeader"> Create an Item</span>
+            <input id="createElementPlusSymbol" onclick="showCreateItemTable()" th:src="@{/images/add.png}"
+                   type="image">
+        </div>
+        <span th:insert="include/createItem :: createForm"></span>
+    </span>
 <span th:insert="include/modals :: viewItemModal"></span>
-
 <span th:insert="include/modals :: hintModal"></span>
 <span th:insert="include/hints :: hints"></span>
-
 <span th:insert="include/modals :: createSprintTaskModal"></span>
 <span th:insert="include/modals :: createStoryModal"></span>
 <script th:src="@{/js/general.js}"></script>
-
 <script th:src="@{/js/project.js}"></script>
 <!--in the event of redirecting to a modal (after modifying item or clicking on a parent let's say-->
 <span th:if="${itemId}">
-    <script>
+        <script>
             const projectId = [[${project.id}]];
             const itemId = [[${itemId}]];
             redirectToModal(projectId, itemId);
-    </script>
-</span>
+        </script>
+    </span>
 <span th:if="${sprintFinished}">
-    <span th:insert="include/modals :: sprintHasFinishedModal"></span>
-    <script>
-        showSprintFinishedModal();
-    </script>
-</span>
+        <span th:insert="include/modals :: sprintHasFinishedModal"></span>
+        <script>
+            showSprintFinishedModal();
+        </script>
+    </span>
 <script>
     // self executing function here
     (function () {

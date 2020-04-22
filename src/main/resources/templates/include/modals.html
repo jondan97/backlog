@@ -5,136 +5,137 @@
 </head>
 <body>
 <span th:fragment="editProjectModal">
-        <!-- Edit Project Modal -->
-<div class="modal fade" id="editProjectModal" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Edit Project</h4>
-                <button class="close" data-dismiss="modal" type="button">&times;</button>
-            </div>
-            <div class="modal-body">
-                <span th:insert="include/editProject :: editProject"></span>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+                <!-- Edit Project Modal -->
+        <div class="modal fade" id="editProjectModal" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Edit Project</h4>
+                        <button class="close" data-dismiss="modal" type="button">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <span th:insert="include/editProject :: editProject"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-</span>
+        </span>
 
 <span th:fragment="viewItemModal">
-    <!-- View Item Modal -->
-<div class="modal fade" id="viewItemModal" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Item Details</h4>
-                <button class="close" data-dismiss="modal" type="button">&times;</button>
-            </div>
-            <div class="modal-body" id="viewItemModalBody">
-                <p>Item has been deleted!</p>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+            <!-- View Item Modal -->
+        <div class="modal fade" id="viewItemModal" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Item Details</h4>
+                        <button class="close" data-dismiss="modal" type="button">&times;</button>
+                    </div>
+                    <div class="modal-body" id="viewItemModalBody">
+                        <p>Item has been deleted!</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-</span>
+        </span>
 
 <span th:fragment="createSprintTaskModal">
-        <!-- Create Task Modal -->
-<div class="modal fade" id="createSprintTaskFormModal" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Create Task</h4>
-                <button class="close" data-dismiss="modal" type="button">&times;</button>
-            </div>
-            <div class="modal-body">
-                <span style="margin-left: 1%;" th:insert="include/createTask :: createSprintTaskForm"></span>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+                <!-- Create Task Modal -->
+        <div class="modal fade" id="createSprintTaskFormModal" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Create Task</h4>
+                        <button class="close" data-dismiss="modal" type="button">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <span style="margin-left: 1%;" th:insert="include/createTask :: createSprintTaskForm"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-</span>
+        </span>
 
 <span th:fragment="createStoryModal">
-        <!-- Create Story Modal -->
-<div class="modal fade" id="createStoryFormModal" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Create Story</h4>
-                <button class="close" data-dismiss="modal" type="button">&times;</button>
-            </div>
-            <div class="modal-body">
-                <span style="margin-left: 1%;" th:insert="include/createStory :: createStoryForm"></span>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+                <!-- Create Story Modal -->
+        <div class="modal fade" id="createStoryFormModal" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Create Story</h4>
+                        <button class="close" data-dismiss="modal" type="button">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <span style="margin-left: 1%;" th:insert="include/createStory :: createStoryForm"></span>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-</span>
+        </span>
 
 <span th:fragment="hintModal">
-    <!-- Hint Modal -->
-<div class="modal fade" id="hintModal" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title" id="hintTitle"></h4>
-                <button class="close" data-dismiss="modal" type="button">&times;</button>
-            </div>
-            <div class="modal-body" id="hintBody">
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+            <!-- Hint Modal -->
+        <div class="modal fade" id="hintModal" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title" id="hintTitle"></h4>
+                        <button class="close" data-dismiss="modal" type="button">&times;</button>
+                    </div>
+                    <div class="modal-body" id="hintBody">
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-</span>
+        </span>
 
 <span th:fragment="sprintHasFinishedModal">
-        <!-- Sprint Has Finished Modal -->
-<div class="modal fade" id="sprintHasFinishedModal" role="dialog">
-    <div class="modal-dialog">
-        <!-- Modal content-->
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Sprint Finished</h4>
-                <button class="close" data-dismiss="modal" type="button">&times;</button>
-            </div>
-            <div class="modal-body">
-                <span>
-                    <p><b>The sprint has successfully been finished!</b></p>
-                    <p>The total effort of the sprint was <b th:text="${previousSprintTotalEffort}"></b> and the team managed to burn <b
-                            th:text="${previousSprintVelocity}"></b> effort. The 'amount of burn' is also known as <b>velocity</b> of the sprint.</p>
-                    <p>All the tasks and bugs that were included in this sprint can be accessed from the <a
-                            th:href="${project.id + '/projectProgress'}">project progress</a> page.</p>
-                    <p>The items that did not manage to be finished, have been added to the backlog of the next sprint with the task board status they had in this sprint.</p>
-                </span>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+                <!-- Sprint Has Finished Modal -->
+        <div class="modal fade" id="sprintHasFinishedModal" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Sprint Finished</h4>
+                        <button class="close" data-dismiss="modal" type="button">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <span>
+                            <p><b>The sprint has successfully been finished!</b></p>
+                            <p>The total effort of the sprint was <b th:text="${previousSprintTotalEffort}"></b> and the team managed to burn <b
+                                    th:text="${previousSprintVelocity}"></b> effort. The 'amount of burn' is also known as <b>velocity</b> of the sprint.</p>
+                            <p>Have you achieved the <b>goal</b> of this sprint? The goal was: "<b
+                                    th:text="${previousSprintGoal}"></b>"</p>
+                            <p>All the tasks and bugs that were included in this sprint can be accessed from the <a
+                                    th:href="${project.id + '/projectProgress'}">project progress</a> page.</p>
+                            <p>The items that did not manage to be finished, have been added to the backlog of the next sprint with the task board status they had in this sprint.</p>
+                        </span>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-</div>
-</span>
-
+    </span>
 </body>
 </html>

@@ -4,7 +4,6 @@ package gr.university.thesis.service;
 import gr.university.thesis.entity.Role;
 import gr.university.thesis.entity.SessionUser;
 import gr.university.thesis.entity.User;
-import gr.university.thesis.repository.RoleRepository;
 import gr.university.thesis.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -12,7 +11,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,24 +23,16 @@ import java.util.List;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    //avoiding magic numbers here
-    static final String ADMIN_EMAIL = "mcjohn1@windowslive.com";
-    static final String ADMIN_PASSWORD = "321";
-    static final String ADMIN_FIRST_NAME = "John";
-    static final String ADMIN_SECOND_NAME = "Daniel";
     UserRepository userRepository;
-    RoleRepository roleRepository;
 
     /**
      * constructor of this class, correct way to set the autowired attributes
      *
      * @param userRepository: repository that has access to all the users of the system
-     * @param roleRepository  : repository that has access to all the roles of the system
      */
     @Autowired
-    public UserDetailsServiceImpl(UserRepository userRepository, RoleRepository roleRepository) {
+    public UserDetailsServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
     }
 
     /**
@@ -71,47 +61,5 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         }
         SessionUser user = new SessionUser(repoUser.getId(), repoUser.getEmail(), repoUser.getPassword(), enabled, accountNonExpired, credentialsNonExpired, accountNonLocked, grantList);
         return user;
-    }
-
-    /**
-     * initializes some essential data that the system requires in order to work properly
-     * creates roles(ADMIN/USER) and sets a master admin
-     */
-    public void firstTime() {
-        if (!userRepository.findFirstByEmail(ADMIN_EMAIL).isPresent()) {
-            User user = new User();
-            user.setEmail(ADMIN_EMAIL);
-            user.setFirstName(ADMIN_FIRST_NAME);
-            user.setLastName(ADMIN_SECOND_NAME);
-            //encrypt password
-            BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder(4);
-            String encodedPassword = bCryptPasswordEncoder.encode(ADMIN_PASSWORD);
-            user.setPassword(encodedPassword);
-            //create role for user
-            List<Role> allRoles = new ArrayList<>();
-            Role masterRole = new Role();
-            masterRole.setId((long) 1);
-            masterRole.setRole("MASTER_ADMIN");
-            allRoles.add(masterRole);
-            Role adminRole = new Role();
-            adminRole.setId((long) 2);
-            adminRole.setRole("ADMIN");
-            allRoles.add(adminRole);
-            Role productOwnerRole = new Role();
-            productOwnerRole.setId((long) 3);
-            productOwnerRole.setRole("PRODUCT_OWNER");
-            allRoles.add(productOwnerRole);
-            Role userRole = new Role();
-            userRole.setId((long) 4);
-            userRole.setRole("DEVELOPER");
-            allRoles.add(userRole);
-            Role scrumMasterRole = new Role();
-            scrumMasterRole.setId((long) 5);
-            scrumMasterRole.setRole("SCRUM_MASTER");
-            allRoles.add(scrumMasterRole);
-            roleRepository.saveAll(allRoles);
-            user.setRoles(allRoles);
-            userRepository.save(user);
-        }
     }
 }

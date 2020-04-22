@@ -150,7 +150,7 @@ public class ItemService {
      * @throws ItemAlreadyExistsException : user has tried to create an item with the same title
      * @throws ItemHasEmptyTitleException : user has tried to create an item with no title
      */
-    public void createItem(String title, String description, String acceptanceCriteria, ItemType type,
+    public Item createItem(String title, String description, String acceptanceCriteria, ItemType type,
                            ItemPriority priority, String effortStr, String estimatedEffortStr,
                            Project project, User assignee, User owner, Item parent)
             throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
@@ -201,7 +201,7 @@ public class ItemService {
             acceptanceCriteria = acceptanceCriteria.trim();
         }
         Item item = new Item(title, description, acceptanceCriteria, type.getRepositoryId(), priority.getRepositoryId(), effort, estimatedEffort, project, assignee, owner, parent, (byte) ItemStatus.BACKLOG.getRepositoryId());
-        itemRepository.save(item);
+        return itemRepository.save(item);
     }
 
     /**
@@ -340,9 +340,10 @@ public class ItemService {
      * this method saves an item to the repository
      *
      * @param item: the item the user wants to save in the repository
+     * @return: returns the item with the id that it got from the repository
      */
-    public void saveToRepository(Item item) {
-        itemRepository.save(item);
+    public Item saveToRepository(Item item) {
+        return itemRepository.save(item);
     }
 
     /**
@@ -369,14 +370,16 @@ public class ItemService {
             //if it's a story or an epic, then set the same status for the children
             if ((item.getType() == ItemType.EPIC.getRepositoryId() || item.getType() == ItemType.STORY.getRepositoryId())) {
                 item.setStatus((byte) status.getRepositoryId());
-                for (Item child : item.getChildren()) {
-                    if (child.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
-                        child.setStatus((byte) status.getRepositoryId());
-                    }
-                    //if the parent is an epic and the child a story, then set the same status for the children of the story
-                    for (Item childOfChild : child.getChildren()) {
-                        if (childOfChild.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
-                            childOfChild.setStatus((byte) status.getRepositoryId());
+                if (item.getChildren() != null) {
+                    for (Item child : item.getChildren()) {
+                        if (child.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
+                            child.setStatus((byte) status.getRepositoryId());
+                        }
+                        //if the parent is an epic and the child a story, then set the same status for the children of the story
+                        for (Item childOfChild : child.getChildren()) {
+                            if (childOfChild.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
+                                childOfChild.setStatus((byte) status.getRepositoryId());
+                            }
                         }
                     }
                 }

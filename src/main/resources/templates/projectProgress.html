@@ -14,90 +14,86 @@
 <body>
 <span th:insert="include/navigation :: bar"></span>
 <br>
-
 <div id="burndown"></div>
 <span class="warningMessage" th:if="${burnDownChartData.possibleDelay}">
-    <span th:insert="include/warnings :: projectProgressAboveIdealLine"></span>
-</span>
+        <span th:insert="include/warnings :: projectProgressAboveIdealLine"></span>
+    </span>
 <br>
 <br>
-
 <h2 align="center">
     Sprint History
     <img class="hintSymbol" hidden onclick="openHintModal('projectProgress-sprintHistory')"
          src="../../../../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 0px;">
 </h2>
 <span style="text-align: center;" th:if="${finishedSprints}">
-    <table class="sprintHistoryTable">
-        <tr>
-            <th class="sprintHeader">
-                Name
-            </th>
-            <th class="sprintHeader">
-                Start Date
-            </th>
-            <th class="sprintHeader">
-                End Date
-            </th>
-            <th class="sprintHeader">
-                Velocity
-            </th>
-        </tr>
-    <span th:each="sprint : ${finishedSprints}">
-        <tr class="infoRowHeader"
-            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${sprint.project.id} + '/sprint/' + ${sprint.id}} + '\''">
-            <td style="">
-                <!--        <attributeName>Stat is something that thymeleaf offers, amongst those, we can use size and count-->
-                <!--                they come reversed-->
-               <span th:text="${'Sprint ' + ((sprintStat.size + 1) - sprintStat.count)}"></span>
-            </td>
-            <td style="text-align: left;">
-                <span th:text="${#dates.format(sprint.start_date, 'dd-MMM-yyyy')}"></span>
-            </td>
-            <td style="text-align: left;">
-                <span th:text="${#dates.format(sprint.end_date, 'dd-MMM-yyyy')}"></span>
-            </td>
-            <td style="text-align: center;">
-                <span th:text="${sprint.velocity}"></span>
-            </td>
-        </tr>
-        <tr>
-            <th class="taskHeader" style="text-align: center;">
-                Task Name
-            </th>
-            <th class="taskHeader" style="text-align: center;">
-                Effort
-            </th>
-            <th class="taskHeader" colspan="2" style="text-align: center;">
-                Status
-            </th>
-        </tr>
-         <span th:each="association: ${sprint.associatedItems}">
-             <span th:if="${association.item.type == 3 or association.item.type == 4}">
-                <tr class="infoRow"
-                    th:onclick="|openViewItemModal(${association.item.project.id},${association.item.id})|">
-                    <td style="text-align: center;">
-                        <span th:text="${association.item.title}"></span>
+        <table class="sprintHistoryTable">
+            <tr>
+                <th class="sprintHeader">
+                    Name
+                </th>
+                <th class="sprintHeader">
+                    Start Date
+                </th>
+                <th class="sprintHeader">
+                    End Date
+                </th>
+                <th class="sprintHeader">
+                    Velocity
+                </th>
+            </tr>
+            <span th:each="sprint : ${finishedSprints}">
+                <tr class="infoRowHeader"
+                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${sprint.project.id} + '/sprint/' + ${sprint.id}} + '\''">
+                    <td style="">
+                        <!--        <attributeName>Stat is something that thymeleaf offers, amongst those, we can use size and count-->
+                        <!--                they come reversed-->
+                       <span th:text="${'Sprint ' + ((sprintStat.size + 1) - sprintStat.count)}"></span>
+                    </td>
+                    <td style="text-align: left;">
+                        <span th:text="${#dates.format(sprint.start_date, 'dd-MMM-yyyy')}"></span>
+                    </td>
+                    <td style="text-align: left;">
+                        <span th:text="${#dates.format(sprint.end_date, 'dd-MMM-yyyy')}"></span>
                     </td>
                     <td style="text-align: center;">
-                        <span th:text="${association.item.effort}"></span>
+                        <span th:text="${sprint.velocity}"></span>
                     </td>
-                    <td colspan="2" style="text-align: center;">
-                        <span th:text="${association.status.name}"></span>
-                        </td>
                 </tr>
-             </span>
-        </span>
+                <tr>
+                    <th class="taskHeader" style="text-align: center;">
+                        Task Name
+                    </th>
+                    <th class="taskHeader" style="text-align: center;">
+                        Effort
+                    </th>
+                    <th class="taskHeader" colspan="2" style="text-align: center;">
+                        Status
+                    </th>
+                </tr>
+                 <span th:each="association: ${sprint.associatedItems}">
+                     <span th:if="${association.item.type == 3 or association.item.type == 4}">
+                        <tr class="infoRow"
+                            th:onclick="|openViewItemModal(${association.item.project.id},${association.item.id})|">
+                            <td style="text-align: center;">
+                                <span th:text="${association.item.title}"></span>
+                            </td>
+                            <td style="text-align: center;">
+                                <span th:text="${association.item.effort}"></span>
+                            </td>
+                            <td colspan="2" style="text-align: center;">
+                                <span th:text="${association.status.name}"></span>
+                                </td>
+                        </tr>
+                     </span>
+                </span>
+            </span>
+        </table>
     </span>
-    </table>
-</span>
 <span th:insert="include/modals :: viewItemModal"></span>
 <script th:src="@{/js/projectProgress.js}"></script>
-
 <span th:insert="include/modals :: hintModal"></span>
 <span th:insert="include/hints :: hints"></span>
 <script th:src="@{/js/general.js}"></script>
-
 <script th:inline="javascript">
     const categories = [[${burnDownChartData.categories}]];
     const ideal_burn = [[${burnDownChartData.ideal_burn}]];
@@ -105,12 +101,12 @@
     showChart(categories, ideal_burn, actual_burn);
 </script>
 <span th:if="${itemId}">
-    <script>
-            const projectId = [[${projectId}]];
-            const itemId = [[${itemId}]];
-            redirectToModal(projectId, itemId);
-    </script>
-</span>
+        <script>
+                const projectId = [[${projectId}]];
+                const itemId = [[${itemId}]];
+                redirectToModal(projectId, itemId);
+        </script>
+    </span>
 <script>
     // self executing function here
     (function () {

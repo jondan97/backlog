@@ -23,12 +23,12 @@
             <td>
                 <label for="type">Type:</label>
                 <select id="type" name="type" onchange="toggleInputs()">
-        <span th:each="itemType : ${itemTypes}">
-            <span th:if="${itemType.repositoryId != 0 and itemType.repositoryId != 3 and itemType.repositoryId != 4}">
-                <option th:selected="${itemType.repositoryId == 2}" th:text="${itemType.name}"
-                        th:value="${itemType}"></option>
-            </span>
-        </span>
+                        <span th:each="itemType : ${itemTypes}">
+                            <span th:if="${itemType.repositoryId != 0 and itemType.repositoryId != 3 and itemType.repositoryId != 4}">
+                                <option th:selected="${itemType.repositoryId == 2}" th:text="${itemType.name}"
+                                        th:value="${itemType}"></option>
+                            </span>
+                        </span>
                 </select>
                 <img class="hintSymbol" hidden onclick="openHintModal('createItem-itemType')"
                      src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 0px;">
@@ -67,10 +67,10 @@
                 <select id="fakeEpicParentId" name="fakeParentId">
                     <option selected value="0">No Parent</option>
                     <span th:each="item : ${backlog}">
-            <span th:if="${item.type == 1 and (item.status != 4 and item.status != 3)}">
-                <option th:text="${item.title}" th:value="${item.id}"></option>
-            </span>
-        </span>
+                            <span th:if="${item.type == 1 and (item.status != 4 and item.status != 3)}">
+                                <option th:text="${item.title}" th:value="${item.id}"></option>
+                            </span>
+                        </span>
                 </select>
                 <input id="parentId" name="parentId" type="hidden" value="0">
                 <img class="hintSymbol" hidden onclick="openHintModal('createItem-parent')"
@@ -81,12 +81,12 @@
             <td>
                 <label for="priority">Priority:</label>
                 <select id="priority" name="priority">
-        <span th:each="itemPriority : ${itemPriorities}">
-            <span th:if="${itemPriority.repositoryId != 0}">
-                <option th:selected="${itemPriority.repositoryId == 3}" th:text="${itemPriority.name}"
-                        th:value="${itemPriority}"></option>
-            </span>
-        </span>
+                        <span th:each="itemPriority : ${itemPriorities}">
+                            <span th:if="${itemPriority.repositoryId != 0}">
+                                <option th:selected="${itemPriority.repositoryId == 3}" th:text="${itemPriority.name}"
+                                        th:value="${itemPriority}"></option>
+                            </span>
+                        </span>
                 </select>
                 <img class="hintSymbol" hidden onclick="openHintModal('createItem-itemPriority')"
                      src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 1px;">

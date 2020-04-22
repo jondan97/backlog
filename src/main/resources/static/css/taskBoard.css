@@ -18,10 +18,18 @@
     text-align: center;
 }
 
-.taskTitle {
+.taskTitleCell {
     text-align: center;
     border-bottom: 1px solid black;
     cursor: pointer;
+}
+
+.taskTitle {
+    display: inline-block;
+    width: 150px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 }
 
 .taskAdditionalInfo {

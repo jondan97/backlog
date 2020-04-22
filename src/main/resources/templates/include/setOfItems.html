@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
 </head>
 <body>
-<span th:fragment="items">
+    <span th:fragment="items">
         <!-- if the item is an epic (no parent by default) or item is a story without a parent or item is a task/bug etc.  -->
         <span th:if="${(item.type == 1) or (item.type == 2 and item.parent == null) or (item.type != 1 and item.type !=2 and item.parent == null)}">
             <!--        if item is a task or a story-->
@@ -25,10 +25,10 @@
                                                 <span th:if="${item.children}">
                                                     <span th:each="item: ${item.children}">
                                                         <span th:if="${item.status != 4}">
-                                                        <ul>
-                                                            <span th:insert="include/task :: updateForm"
-                                                                  th:class="${item.type == 3} ? 'item task' : 'item bug'"></span>
-                                                        </ul>
+                                                            <ul>
+                                                                <span th:class="${item.type == 3} ? 'item task' : 'item bug'"
+                                                                      th:insert="include/task :: updateForm"></span>
+                                                            </ul>
                                                          </span>
                                                     </span>
                                                 </span>
@@ -37,10 +37,10 @@
                                     <!--                        if the child is a task/bug etc.-->
                                     <span th:unless="${item.type == 2}">
                                         <span th:if="${item.status != 4}">
-                                        <ul>
-                                            <span th:insert="include/task :: updateForm"
-                                                  th:class="${item.type == 3} ? 'item task' : 'item bug'"></span>
-                                        </ul>
+                                            <ul>
+                                                <span th:class="${item.type == 3} ? 'item task' : 'item bug'"
+                                                      th:insert="include/task :: updateForm"></span>
+                                            </ul>
                                         </span>
                                     </span>
                                 </span>

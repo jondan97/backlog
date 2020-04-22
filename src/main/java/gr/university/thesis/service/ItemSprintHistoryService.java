@@ -121,6 +121,27 @@ public class ItemSprintHistoryService {
     }
 
     /**
+     * this method saves a batch of associations into the repository, mainly used to avoid making many calls to the
+     * repository
+     *
+     * @param itemSprintHistories: the list of associations that the user requested to save
+     */
+    public void saveAllAssociations(List<ItemSprintHistory> itemSprintHistories) {
+        itemSprintHistoryRepository.saveAll(itemSprintHistories);
+    }
+
+    /**
+     * this method takes as input an association and saves it into the repository, and then returns the recently
+     * saved association with the addition of the id the repository generated for it
+     *
+     * @param itemSprintHistory: the association the user requested to save
+     * @return: returns the association with the addition of the id the repository generated for it
+     */
+    public ItemSprintHistory save(ItemSprintHistory itemSprintHistory) {
+        return itemSprintHistoryRepository.save(itemSprintHistory);
+    }
+
+    /**
      * this method creates associations between an item and its children with a sprint, and returns a list of
      * associations that will be stored in the item-sprint-history table in the repository
      *
@@ -137,22 +158,24 @@ public class ItemSprintHistoryService {
         associations.add(parentItemSprintHistory);
         //if it's a story or an epic, then create an association for the children
         if (item.getType() == ItemType.EPIC.getRepositoryId() || item.getType() == ItemType.STORY.getRepositoryId()) {
-            for (Item child : item.getChildren()) {
-                if (child.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
-                    ItemSprintHistory childItemSprintHistory = new ItemSprintHistory(child, sprint,
-                            TaskBoardStatus.TO_DO);
-                    childItemSprintHistory.getSprintItemId().setItemId(child.getId());
-                    childItemSprintHistory.getSprintItemId().setSprintId(sprint.getId());
-                    associations.add(childItemSprintHistory);
-                    //if the parent is an epic and the child a story, then also create an association for the
-                    // children of the story
-                    for (Item childOfChild : child.getChildren()) {
-                        if (childOfChild.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
-                            ItemSprintHistory childOfChildItemSprintHistory = new ItemSprintHistory(childOfChild, sprint,
-                                    TaskBoardStatus.TO_DO);
-                            childOfChildItemSprintHistory.getSprintItemId().setSprintId(sprint.getId());
-                            childOfChildItemSprintHistory.getSprintItemId().setItemId(childOfChild.getId());
-                            associations.add(childOfChildItemSprintHistory);
+            if (item.getChildren() != null) {
+                for (Item child : item.getChildren()) {
+                    if (child.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
+                        ItemSprintHistory childItemSprintHistory = new ItemSprintHistory(child, sprint,
+                                TaskBoardStatus.TO_DO);
+                        childItemSprintHistory.getSprintItemId().setItemId(child.getId());
+                        childItemSprintHistory.getSprintItemId().setSprintId(sprint.getId());
+                        associations.add(childItemSprintHistory);
+                        //if the parent is an epic and the child a story, then also create an association for the
+                        // children of the story
+                        for (Item childOfChild : child.getChildren()) {
+                            if (childOfChild.getStatus() != ItemStatus.FINISHED.getRepositoryId()) {
+                                ItemSprintHistory childOfChildItemSprintHistory = new ItemSprintHistory(childOfChild, sprint,
+                                        TaskBoardStatus.TO_DO);
+                                childOfChildItemSprintHistory.getSprintItemId().setSprintId(sprint.getId());
+                                childOfChildItemSprintHistory.getSprintItemId().setItemId(childOfChild.getId());
+                                associations.add(childOfChildItemSprintHistory);
+                            }
                         }
                     }
                 }
@@ -209,6 +232,19 @@ public class ItemSprintHistoryService {
     public Optional<List<ItemSprintHistory>> findAllAssociationsByStatus(Sprint sprint, TaskBoardStatus taskBoardStatus, ItemType itemType1, ItemType itemType2) {
         return itemSprintHistoryRepository.findAllBySprintAndStatusAndItemTypes(sprint.getId(),
                 taskBoardStatus, itemType1.getRepositoryId(), itemType2.getRepositoryId());
+    }
+
+    /**
+     * this method takes as input a sprint, and two types and returns all the items that belong to any of the two
+     * types inputted and belong to that sprint
+     *
+     * @param sprint:    the sprint that the user requested to see the items of
+     * @param itemType1: item type 1 (for example bug)
+     * @param itemType2: item type 2 (for example task)
+     * @return: returns an optional that may contain a list with all the items requested
+     */
+    public Optional<List<ItemSprintHistory>> findAllAssociationsBySprintAndTypes(Sprint sprint, ItemType itemType1, ItemType itemType2) {
+        return itemSprintHistoryRepository.findAllBySprintAndItemTypes(sprint.getId(), itemType1.getRepositoryId(), itemType2.getRepositoryId());
     }
 
     /**

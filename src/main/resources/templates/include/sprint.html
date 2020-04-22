@@ -5,85 +5,85 @@
 </head>
 <body>
 <span th:fragment="sprintForm">
+            <table style="width: 100%">
+                <form id="sprintForm" method="post" th:action="@{/sm/editSprint}">
+                    <tr style="text-align: center">
+                        <th>
+                            Goal
+                            <img class="hintSymbol" hidden onclick="openHintModal('sprint-goal')"
+                                 src="../../images/hintSymbol.png"
+                                 style="width: 20px;height: 20px;margin: 0 0 2px 0px;">
+                        </th>
+                        <th>
+                            Duration
+                        </th>
+                        <th>
+                            Start Date
+                        </th>
+                        <th>
+                            End Date
+                            <img class="hintSymbol" hidden onclick="openHintModal('sprint-endDate')"
+                                 src="../../images/hintSymbol.png"
+                                 style="width: 20px;height: 20px;margin: 0 0 2px 0px;">
+                        </th>
+                        <th>
+                            Days Remaining
+                        </th>
+                        <th>
+                            Total Effort
+                        </th>
+                        <th>
+                            Effort Burned
+                        </th>
+                    </tr>
 
-        <table style="width: 100%">
-            <form id="sprintForm" method="post" th:action="@{/sm/editSprint}">
-            <tr style="text-align: center">
-                <th>
-                    Goal
-                    <img class="hintSymbol" hidden onclick="openHintModal('sprint-goal')"
-                         src="../../images/hintSymbol.png" style="width: 20px;height: 20px;margin: 0 0 2px 0px;">
-                </th>
-                <th>
-                    Duration
-                </th>
-                <th>
-                    Start Date
-                </th>
-                <th>
-                    End Date
-                    <img class="hintSymbol" hidden onclick="openHintModal('sprint-endDate')"
-                         src="../../images/hintSymbol.png" style="width: 20px;height: 20px;margin: 0 0 2px 0px;">
-                </th>
-                <th>
-                    Days Remaining
-                </th>
-                <th>
-                    Total Effort
-                </th>
-                <th>
-                    Effort Burned
-                </th>
-            </tr>
-
-                <input hidden id="sprintId" name="sprintId" readonly th:value="${sprint.id}">
-                <input hidden id="sprintProjectId" name="sprintProjectId" th:value="${project.id}">
-
-
-                <tr style="text-align: center">
-                <td>
-        <input id="sprintGoal" name="sprintGoal" placeholder="Short sentence about goal"
-               th:readonly="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
-               and sprint.status == 1
-               ? 'false' : 'true'}" th:value="${sprint.goal}">
-                </td>
-                <td>
-                    <span th:if="${project.sprint_duration == 1}">
-                        <input id="sprintDuration" name="sprintDuration" readonly size="4"
-                               th:value="${project.sprint_duration + ' week'}">
-                    </span>
-                    <span th:unless="${project.sprint_duration == 1}">
-                        <input id="sprintDuration" name="sprintDuration" readonly size="4"
-                               th:value="${project.sprint_duration + ' weeks'}">
-                    </span>
-                </td>
-            <td>
-        <input id="sprintStartDate" name="sprintStartDate" placeholder="autofilled" readonly size="9"
-               th:value="${#dates.format(sprint.start_date, 'dd-MMM-yyyy')}">
-            </td>
-
-                <td>
-        <input id="sprintEndDate" name="sprintEndDate" placeholder="autofilled" readonly size="9"
-               th:value="${#dates.format(sprint.end_date, 'dd-MMM-yyyy')}">
-                </td>
-                <td>
-        <input id="sprintDaysRemaining" name="sprintDaysRemaining" readonly size="1"
-               th:value="${sprint.days_remaining == 0 ? '<0' : sprint.days_remaining}">
-                    </td>
+                    <input hidden id="sprintId" name="sprintId" readonly th:value="${sprint.id}">
+                    <input hidden id="sprintProjectId" name="sprintProjectId" th:value="${project.id}">
 
 
-                <td>
-        <input id="sprintTotalEffort" name="sprintTotalEffort" readonly size="2" th:value="${sprint.total_effort}">
-                </td>
-                <td>
-        <input id="sprintRemaining" name="sprintRemaining" readonly size="2" th:value="${sprint.velocity}">
-                </td>
-
-                <td>
-                    </td>
-                </tr>
-    </form>
-        </table>
-</span>
+                    <tr style="text-align: center">
+                        <td>
+                            <input id="sprintGoal" name="sprintGoal" placeholder="Short sentence about goal"
+                                   th:readonly="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
+                                   and sprint.status == 1
+                                   ? 'false' : 'true'}" th:value="${sprint.goal}">
+                        </td>
+                        <td>
+                            <span th:if="${project.sprint_duration == 1}">
+                                <input id="sprintDuration" name="sprintDuration" readonly size="4"
+                                       th:value="${project.sprint_duration + ' week'}">
+                            </span>
+                            <span th:unless="${project.sprint_duration == 1}">
+                                <input id="sprintDuration" name="sprintDuration" readonly size="4"
+                                       th:value="${project.sprint_duration + ' weeks'}">
+                            </span>
+                        </td>
+                        <td>
+                            <input id="sprintStartDate" name="sprintStartDate" placeholder="autofilled" readonly
+                                   size="9"
+                                   th:value="${#dates.format(sprint.start_date, 'dd-MMM-yyyy')}">
+                        </td>
+                        <td>
+                            <input id="sprintEndDate" name="sprintEndDate" placeholder="autofilled" readonly size="9"
+                                   th:value="${#dates.format(sprint.end_date, 'dd-MMM-yyyy')}">
+                        </td>
+                        <td>
+                            <input id="sprintDaysRemaining" name="sprintDaysRemaining" readonly size="1"
+                                   th:value="${sprint.days_remaining == 0 ? '<0' : sprint.days_remaining}">
+                            </td>
+                        <td>
+                            <input id="sprintTotalEffort" name="sprintTotalEffort" readonly size="2"
+                                   th:value="${sprint.total_effort}">
+                        </td>
+                        <td>
+                            <input id="sprintRemaining" name="sprintRemaining" readonly size="2"
+                                   th:value="${sprint.velocity}">
+                        </td>
+                        <td>
+                        </td>
+                    </tr>
+                </form>
+            </table>
+    </span>
 </body>
 </html>

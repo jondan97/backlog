@@ -12,36 +12,31 @@
     <input formaction="/user/modifyItemByDeveloper" hidden name="modifyDeveloperButton"
            th:id="|updateAssignee${association.item.id}|"
            type="submit" value="taskBoard">
-
     <table>
         <tr>
             <td height="100px" rowspan="3">
-                <span th:if="${sprint.status != 3}">
-                    <button name="action" style="height:100%"
-                            th:hidden="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
-                            or (session.userId == association.item.assignee.id)
-                            ? 'false' : 'true'}"
-                            type="submit"
-                            value="previousStatus">
-                        <
-                    </button>
-                </span>
+                    <span th:if="${sprint.status != 3}">
+                        <button name="action" style="height:100%"
+                                th:hidden="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
+                                or (session.userId == association.item.assignee.id)
+                                ? 'false' : 'true'}"
+                                type="submit"
+                                value="previousStatus"><</button>
+                    </span>
             </td>
-            <td class="taskTitle" th:onclick="|openViewItemModal(${projectId},${association.item.id},${sprintId})|"
+            <td class="taskTitleCell" th:onclick="|openViewItemModal(${projectId},${association.item.id},${sprintId})|"
                 width="100%">
-             <span class="informationText" th:text="${association.item.title}">
-             </span>
+                 <span class="informationText taskTitle" th:text="${association.item.title}">
+                 </span>
             </td>
             <td height="100px" rowspan="3">
-                <span th:if="${sprint.status != 3}">
-                    <button name="action" style="height:100%"
-                            th:hidden="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
-                            or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
-                            type="submit"
-                            value="nextStatus">
-                        >
-                    </button>
-                </span>
+                    <span th:if="${sprint.status != 3}">
+                        <button name="action" style="height:100%"
+                                th:hidden="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
+                                or (session.userId == association.item.assignee.id) ? 'false' : 'true'}"
+                                type="submit"
+                                value="nextStatus">></button>
+                    </span>
             </td>
         </tr>
         <tr>
@@ -55,29 +50,37 @@
             <td class="taskAdditionalInfo"
                 th:onclick="|openViewItemModal(${projectId},${association.item.id},${sprintId})|"
                 width="100%">
-                <span th:each="itemPriority : ${itemPriorities}">
-                <span class="informationText" th:if="${association.item.priority == itemPriority.repositoryId}"
-                      th:text="${itemPriority.name}"></span>
-                </span>
+                    <span th:each="itemPriority : ${itemPriorities}">
+                        <span class="informationText" th:if="${association.item.priority == itemPriority.repositoryId}"
+                              th:text="${itemPriority.name}"></span>
+                    </span>
             </td>
         </tr>
         <tr>
             <td colspan="3">
                 <select id="itemAssigneeId" name="itemAssigneeId" style="width: 100%"
                         th:disabled="${(#authorization.expression('hasAnyAuthority(''ADMIN'')')
-                        or (session.userId == association.item.assignee.id))
-                        and sprint.status != 3
-                        ? 'false' : 'true'}" th:onchange="|updateAssignee(${association.item.id})|">
+                            or (item.assignee != null and session.userId == item.assignee.id)
+                            or (item.assignee == null and #authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')))
+                            and sprint.status != 3
+                            ? 'false' : 'true'}" th:onchange="|updateAssignee(${association.item.id})|">
+                    <option selected value="0">No assignee</option>
                     <span th:each="user : ${allUsers}">
-                        <option th:selected="${association.item.assignee.id == user.id ? true : false}"
-                                th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
-                                th:value="${user.id}">
-                        </option>
-                    </span>
+                            <span th:if="${association.item.assignee}">
+                                <option th:selected="${association.item.assignee.id == user.id ? true : false}"
+                                        th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                                        th:value="${user.id}">
+                                </option>
+                            </span>
+                            <span th:unless="${association.item.assignee}">
+                                <option th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                                        th:value="${user.id}">
+                                </option>
+                            </span>
+                        </span>
                 </select>
             </td>
         </tr>
-
     </table>
 </form>
 </body>

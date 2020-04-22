@@ -16,12 +16,12 @@
             <td>
                 <label for="type">Type:</label>
                 <select id="type" name="type">
-        <span th:each="itemType : ${itemTypes}">
-            <span th:if="${itemType.repositoryId == 2}">
-                <option th:selected="${itemType.repositoryId == 3}" th:text="${itemType.name}"
-                        th:value="${itemType}"></option>
-            </span>
-        </span>
+                        <span th:each="itemType : ${itemTypes}">
+                            <span th:if="${itemType.repositoryId == 2}">
+                                <option th:selected="${itemType.repositoryId == 3}" th:text="${itemType.name}"
+                                        th:value="${itemType}"></option>
+                            </span>
+                        </span>
                 </select>
             </td>
         </tr>
@@ -53,27 +53,27 @@
             <td>
                 <label for="parentId">Parent:</label>
                 <span hidden id="createStoryItemForSprint">
-                    <select id="parentId" name="parentId">
-                    <option selected value="0">No Parent</option>
-                    <span th:each="itemSprintHistory : ${sprint.associatedItems}">
-                            <span th:with="epic =${itemSprintHistory.item}">
-                                <span th:if="${epic.type == 1 and (epic.status != 4 and (epic.status == 2 or epic.status == 3))}">
-                                    <option th:text="${epic.title}" th:value="${epic.id}"></option>
+                        <select id="parentId" name="parentId">
+                            <option selected value="0">No Parent</option>
+                            <span th:each="itemSprintHistory : ${sprint.associatedItems}">
+                                <span th:with="epic =${itemSprintHistory.item}">
+                                    <span th:if="${epic.type == 1 and (epic.status != 4 and (epic.status == 2 or epic.status == 3))}">
+                                        <option th:text="${epic.title}" th:value="${epic.id}"></option>
+                                    </span>
                                 </span>
                             </span>
+                        </select>
                     </span>
-                    </select>
-                </span>
                 <span hidden id="createStoryItemForProject">
-                    <select id="parentId" name="parentId">
-                    <option selected value="0">No Parent</option>
-                    <span th:each="parent : ${backlog}">
+                        <select id="parentId" name="parentId">
+                            <option selected value="0">No Parent</option>
+                            <span th:each="parent : ${backlog}">
                                 <span th:if="${parent.type == 1 and (parent.status != 4 and parent.status == 1)}">
                                     <option th:text="${parent.title}" th:value="${parent.id}"></option>
                                 </span>
+                            </span>
+                    </select>
                     </span>
-                </select>
-                </span>
 
             </td>
         </tr>
@@ -81,12 +81,12 @@
             <td>
                 <label for="priority">Priority:</label>
                 <select id="priority" name="priority">
-        <span th:each="itemPriority : ${itemPriorities}">
-            <span th:if="${itemPriority.repositoryId != 0}">
-                <option th:selected="${itemPriority.repositoryId == 3}" th:text="${itemPriority.name}"
-                        th:value="${itemPriority}"></option>
-            </span>
-        </span>
+                        <span th:each="itemPriority : ${itemPriorities}">
+                            <span th:if="${itemPriority.repositoryId != 0}">
+                                <option th:selected="${itemPriority.repositoryId == 3}" th:text="${itemPriority.name}"
+                                        th:value="${itemPriority}"></option>
+                            </span>
+                        </span>
                 </select>
             </td>
         </tr>

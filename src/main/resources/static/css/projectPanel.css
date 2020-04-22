@@ -12,7 +12,6 @@
 }
 
 .projectRow td {
-    border-left-style: groove;
     border-left: 1px solid #000;
     border-right: 1px solid #000;
     text-align: center;
@@ -20,7 +19,7 @@
 
 .spanDescription {
     display: block;
-    width: 100px;
+    width: 180px;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;

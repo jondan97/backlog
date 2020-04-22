@@ -14,11 +14,10 @@
 <body>
 <span th:insert="include/navigation :: bar"></span>
 <br>
-
 <div id="burndown"></div>
 <span class="warningMessage" th:if="${burnDownChartData.possibleDelay}">
-    <span th:insert="include/warnings :: sprintProgressAboveIdealLine"></span>
-</span>
+        <span th:insert="include/warnings :: sprintProgressAboveIdealLine"></span>
+    </span>
 <br>
 <br>
 <h2 align="center">
@@ -26,38 +25,36 @@
     <img class="hintSymbol" hidden onclick="openHintModal('sprintHistory-sprintHistory')"
          src="../../../../../images/hintSymbol.png" style="width: 35px;height: 35px;margin: 0 0 5px 0px;">
 </h2>
-
 <span style="text-align: center;" th:if="${tasksDoneByDateList}">
-    <table class="taskHistoryTable">
-        <th>Date</th>
-        <th>Task</th>
-    <div th:each="tasksDoneByDate : ${tasksDoneByDateList}">
-        <tr class="infoRowHeader" style="border-top: 2px solid black;">
-            <td th:rowspan="${tasksDoneByDate.items.size()}">
-        <div th:text="${#dates.format(tasksDoneByDate.date, 'dd-MMM-yyyy')}"></div>
-            </td>
-            <td class="infoCell greyHover"
-                th:onclick="|openViewItemModal(${tasksDoneByDate.items[0].project.id},${tasksDoneByDate.items[0].id},${sprintId})|">
-                <span th:text="${tasksDoneByDate.items[0].title}"></span>
-            </td>
-        </tr>
-        <span th:each="item : ${tasksDoneByDate.items}">
-<!--            skipping the first cell, as it has been printed on the previous row-->
-        <tr class="greyHover" th:if="${itemStat.count != 1}">
-            <td class="infoCell" th:onclick="|openViewItemModal(${item.project.id},${item.id},${sprintId})|">
-            <span th:text="${item.title}"></span>
-            </td>
-        </tr>
-        </span>
-    </div>
-    </table>
-</span>
+        <table class="taskHistoryTable">
+            <th>Date</th>
+            <th>Task</th>
+            <div th:each="tasksDoneByDate : ${tasksDoneByDateList}">
+                <tr class="infoRowHeader" style="border-top: 2px solid black;">
+                    <td th:rowspan="${tasksDoneByDate.items.size()}">
+                        <div th:text="${#dates.format(tasksDoneByDate.date, 'dd-MMM-yyyy')}"></div>
+                    </td>
+                    <td class="infoCell greyHover"
+                        th:onclick="|openViewItemModal(${tasksDoneByDate.items[0].project.id},${tasksDoneByDate.items[0].id},${sprintId})|">
+                        <span th:text="${tasksDoneByDate.items[0].title}"></span>
+                    </td>
+                </tr>
+                <span th:each="item : ${tasksDoneByDate.items}">
+            <!--            skipping the first cell, as it has been printed on the previous row-->
+                    <tr class="greyHover" th:if="${itemStat.count != 1}">
+                        <td class="infoCell"
+                            th:onclick="|openViewItemModal(${item.project.id},${item.id},${sprintId})|">
+                        <span th:text="${item.title}"></span>
+                        </td>
+                    </tr>
+                </span>
+            </div>
+        </table>
+    </span>
 <span th:insert="include/modals :: viewItemModal"></span>
-
 <span th:insert="include/modals :: hintModal"></span>
 <span th:insert="include/hints :: hints"></span>
 <script th:src="@{/js/general.js}"></script>
-
 <script th:src="@{/js/sprintHistory.js}"></script>
 <script th:inline="javascript">
     const categories = [[${burnDownChartData.categories}]];
@@ -66,13 +63,13 @@
     showChart(categories, ideal_burn, actual_burn);
 </script>
 <span th:if="${itemId}">
-    <script>
+        <script>
             const projectId = [[${projectId}]];
             const itemId = [[${itemId}]];
             const sprintId = [[${sprintId}]];
             redirectToModal(projectId, itemId, sprintId);
-    </script>
-</span>
+        </script>
+    </span>
 <script>
     // self executing function here
     (function () {

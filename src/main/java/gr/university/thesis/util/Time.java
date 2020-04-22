@@ -79,6 +79,21 @@ public class Time implements Comparator<Calendar> {
     }
 
     /**
+     * this method takes as input a date and a number (of days), adds to the date the number of days and returns the new
+     * date
+     *
+     * @param date:         date that the user requested to add or remove days from
+     * @param numberOfDays: the number of days the user requested to add or remove from a date
+     * @return: returns the new date
+     */
+    public static Date addOrSubtractDaysFromDate(Date date, int numberOfDays) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.add(Calendar.DAY_OF_YEAR, numberOfDays);
+        return calendar.getTime();
+    }
+
+    /**
      * this method was created to make things easier for the developer, instead of instantiating a Time class,
      * the developer can instantly use this method from a static view point, outside this class, it compares two dates
      * and returns which one is earlier or later of the two

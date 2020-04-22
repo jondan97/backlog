@@ -98,6 +98,8 @@ public class UserController {
                     sprint = sprintService.findActiveSprintInProject(project).get();
                 }
                 model.addAttribute("sprint", sprint);
+                //for the navbar
+                model.addAttribute("navSprint", sprint);
                 boolean mostImportantItemsIncluded;
                 if (sprint.getStatus() == SprintStatus.READY.getRepositoryId()) {
                     mostImportantItemsIncluded =
@@ -360,6 +362,8 @@ public class UserController {
                                 Model model) throws SprintDoesNotExistException, SprintHasNotStartedException {
         Optional<Project> projectOptional = projectService.findProjectById(projectId);
         Optional<Sprint> sprintOptional = projectService.findSprintInProject(projectId, sprintId);
+        Optional<Sprint> activeSprintOptional = sprintService.findActiveSprintInProject(new Project(projectId));
+        activeSprintOptional.ifPresent(sprint -> model.addAttribute("navSprint", sprint));
         if (sprintOptional.isPresent()) {
             Project project = projectOptional.get();
             Sprint sprint = sprintOptional.get();
@@ -450,6 +454,8 @@ public class UserController {
             model.addAttribute("project", project);
             Optional<Sprint> sprintOptional = sprintService.findActiveSprintInProject(project);
             sprintOptional.ifPresent(sprint -> model.addAttribute("sprint", sprint));
+            //for the navbar
+            sprintOptional.ifPresent(sprint -> model.addAttribute("navSprint", sprint));
             Optional<List<Sprint>> finishedSprintsOptional =
                     sprintService.findSprintsByProjectAndStatus(new Project(projectId), SprintStatus.FINISHED);
             BurnDownChartData burnDownChartData;
@@ -496,7 +502,9 @@ public class UserController {
             Project project = projectOptional.get();
             model.addAttribute("project", projectOptional.get());
             Optional<Sprint> sprintActiveOptional = sprintService.findActiveSprintInProject(project);
-            sprintActiveOptional.ifPresent(activeSprint -> model.addAttribute("sprint", activeSprint));
+            sprintActiveOptional.ifPresent(activeSprint -> model.addAttribute("navSprint", activeSprint));
+            //for the navbar
+            sprintOptional.ifPresent(activeSprint -> model.addAttribute("sprint", sprint));
         } else {
             throw new SprintDoesNotExistException("Sprint with id '" + sprintId + "' does not exist in this project.");
         }

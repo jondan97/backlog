@@ -6,83 +6,80 @@
 <body>
 <!--span needed here because there are actually two forms, one for updating assignee, the other for moving to sprint etc.-->
 <span th:fragment="updateForm">
-<form method="post" th:action="@{/pm/editItem}">
-    <input hidden id="modifyItemPage" name="modifyItemPage" value="projectPage">
-    <input hidden id="itemProjectId" name="itemProjectId" th:value="${project.id}">
-    <input hidden id="itemId" name="itemId" readonly th:value="${item.id}">
-    <input hidden id="sprintId" name="sprintId" th:value="${sprint.id}">
-    <input formaction="/user/modifyItemByDeveloper" hidden name="modifyDeveloperButton"
-           th:id="|updateAssignee${item.id}|"
-           type="submit" value="projectPage">
-    <table class="itemTable">
-        <tr>
-            <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
-                <span class="informationText" id="itemTitle" th:text="${item.title}" title="Title"></span>
-            </td>
-            <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
-    <span th:each="itemPriority : ${itemPriorities}">
-        <span th:if="${itemPriority.repositoryId != 0}">
-            <span th:if="${item.priority == itemPriority.repositoryId}">
-                <span class="informationText" id="itemPriority" th:text="${itemPriority.name}" title="Priority"></span>
-            </span>
-        </span>
-    </span>
-            </td>
-            <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
-                <span class="informationText" id="itemEffort" th:text="${item.effort}" title="Effort"></span>
-            </td>
-            <td>
-                <select id="itemAssigneeId" name="itemAssigneeId" th:onchange="|updateAssignee(${item.id})|"
-                        title="Assignee"
-                        th:disabled="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
-                        or (item.assignee != null and session.userId == item.assignee.id)
-                        or (item.assignee == null and #authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')'))
-                        ? 'false' : 'true'}">
-                    <option selected value="0">No assignee</option>
-                <span th:each="user : ${allUsers}">
-                    <span th:if="${item.assignee}">
-                    <option th:selected="${item.assignee.id == user.id ? true : false}"
-                            th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
-                            th:value="${user.id}">
-                    </option>
+        <form method="post" th:action="@{/pm/editItem}">
+            <input hidden id="modifyItemPage" name="modifyItemPage" value="projectPage">
+            <input hidden id="itemProjectId" name="itemProjectId" th:value="${project.id}">
+            <input hidden id="itemId" name="itemId" readonly th:value="${item.id}">
+            <input hidden id="sprintId" name="sprintId" th:value="${sprint.id}">
+            <input formaction="/user/modifyItemByDeveloper" hidden name="modifyDeveloperButton"
+                   th:id="|updateAssignee${item.id}|"
+                   type="submit" value="projectPage">
+            <table class="itemTable">
+                <tr>
+                    <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
+                        <span class="informationText itemTitle" id="itemTitle" th:text="${item.title}"
+                              title="Title"></span>
+                    </td>
+                    <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
+                        <span th:each="itemPriority : ${itemPriorities}">
+                            <span th:if="${itemPriority.repositoryId != 0}">
+                                <span th:if="${item.priority == itemPriority.repositoryId}">
+                                    <span class="informationText" id="itemPriority" th:text="${itemPriority.name}"
+                                          title="Priority"></span>
+                                </span>
+                            </span>
                         </span>
-                    <span th:unless="${item.assignee}">
-                    <option th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
-                            th:value="${user.id}">
-                    </option>
+                    </td>
+                    <td th:onclick="|openViewItemModal(${project.id},${item.id})|">
+                        <span class="informationText" id="itemEffort" th:text="${item.effort}" title="Effort"></span>
+                    </td>
+                    <td>
+                        <select id="itemAssigneeId" name="itemAssigneeId" th:disabled="${#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')')
+                                or (item.assignee != null and session.userId == item.assignee.id)
+                                or (item.assignee == null and #authorization.expression('hasAnyAuthority(''SCRUM_MASTER'',''ADMIN'')'))
+                                ? 'false' : 'true'}"
+                                th:onchange="|updateAssignee(${item.id})|"
+                                title="Assignee">
+                            <option selected value="0">No assignee</option>
+                            <span th:each="user : ${allUsers}">
+                                <span th:if="${item.assignee}">
+                                    <option th:selected="${item.assignee.id == user.id ? true : false}"
+                                            th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                                            th:value="${user.id}">
+                                    </option>
+                                </span>
+                                <span th:unless="${item.assignee}">
+                                    <option th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                                            th:value="${user.id}">
+                                    </option>
+                                </span>
+                            </span>
+                        </select>
+                    </td>
+                    <td>
+                        <span th:if="${item.status != 3}">
+                            <span th:if="${item.status == 2}">
+                                <button name="action" sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')"
+                                        th:form="|moveForm${item.id}|" type="submit"
+                                        value="remove">Remove from Sprint</button>
+                            </span>
                         </span>
-            </span>
-                </select>
-            </td>
-            <td>
-    <span th:if="${item.status != 3}">
-        <span th:if="${item.status == 2}">
-            <button name="action" sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')"
-                    th:form="|moveForm${item.id}|" type="submit"
-                    value="remove">
-            Remove from Sprint
-        </button>
-        </span>
-     </span>
-
-                <span th:if="${sprint.status != 2}">
-        <span th:if="${item.status == 1}">
-            <button name="action" sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')"
-                    th:form="|moveForm${item.id}|" type="submit"
-                    value="move">
-            Move to Sprint
-        </button>
-        </span>
+                        <span th:if="${sprint.status != 2}">
+                            <span th:if="${item.status == 1}">
+                                <button name="action" sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')"
+                                        th:form="|moveForm${item.id}|" type="submit"
+                                        value="move">Move to Sprint</button>
+                            </span>
+                        </span>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <form method="post" th:action="@{/sm/moveItem}" th:id="|moveForm${item.id}|">
+            <input hidden id="moveInput" name="itemId" readonly th:value="${item.id}">
+            <input hidden id="moveProjectId" name="itemProjectId" th:value="${project.id}">
+            <input hidden id="moveId" name="sprintId" th:value="${sprint.id}">
+        </form>
     </span>
-            </td>
-        </tr>
-    </table>
-</form>
-<form method="post" th:action="@{/sm/moveItem}" th:id="|moveForm${item.id}|">
-    <input hidden id="moveInput" name="itemId" readonly th:value="${item.id}">
-    <input hidden id="moveProjectId" name="itemProjectId" th:value="${project.id}">
-    <input hidden id="moveId" name="sprintId" th:value="${sprint.id}">
-</form>
-</span>
 </body>
 </html>

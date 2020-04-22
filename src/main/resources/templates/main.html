@@ -45,16 +45,16 @@
     <br>
     <ul class="infoContainer" style="width: 53.4%">
         <li>
-            <span class="informationText"> Normal Mode: </span>
+            <span class="informationText"> Normal Mode:</span>
             Use the application without any help or hints.
         </li>
         <li>
-            <span class="informationText"> Guided Tour: </span>
+            <span class="informationText"> Guided Tour (Under Development):</span>
             Have a guide show you around the application. They will also try and teach you about the Scrum
             framework.
         </li>
         <li>
-            <span class="informationText"> Hints: </span>
+            <span class="informationText"> Hints:</span>
             Hints will appear in the form of question marks
             (<img class="hintSymbol" onclick="openHintModal('mainPage')" src="images/hintSymbol.png"
                   style="width: 25px;height: 25px;"> click the symbol)
@@ -63,13 +63,10 @@
         </li>
     </ul>
 </div>
-
 <span class="adminLink">If you are the admin, click <a href="/admin/userPanel">here</a>.</span>
-
 <span th:insert="include/modals :: hintModal"></span>
 <span th:insert="include/hints :: hints"></span>
 <script th:src="@{/js/general.js}"></script>
-
 <script th:src="@{/js/main.js}"></script>
 <script>
     // self executing function here

@@ -6,66 +6,59 @@
 </head>
 <body>
 <form id="modifyItemForm" method="post" th:action="@{/user/editItem}" th:onsubmit="|checkItemInputs(${item.id});|">
-
     <table id="viewUniqueItemTable">
         <input hidden id="uniqueItemId" name="itemId" th:value="${item.id}">
         <input hidden id="uniqueSprintId" name="sprintId" th:value="${sprint.id}">
         <input hidden id="uniqueItemProjectId" name="itemProjectId" th:value="${projectId}">
-
         <!--    if the user is a project manager or scrum master-->
         <button id="uniqueItemModifyProductOwnerButton" name="action" onclick="modifyItemProductOwner()"
                 sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN', 'SCRUM_MASTER')"
                 th:if="${item.status != 4 and (item.type == 1 or item.type == 2)}"
-                type="button">
-            Modify(Product Owner)
+                type="button">Modify(Product Owner)
         </button>
         <!--    if the user is a developer or scrum master-->
         <button id="uniqueItemModifyDeveloperButton"
                 th:if="${((#authorization.expression('hasAnyAuthority(''SCRUM_MASTER'', ''ADMIN'', ''DEVELOPER'')'))
-                or ((item.assignee != null and session.userId == item.assignee.id) or (item.assignee == null)))
-                and item.status != 4}"
+                    or ((item.assignee != null and session.userId == item.assignee.id) or (item.assignee == null)))
+                    and item.status != 4}"
                 th:onclick="|modifyItemDeveloper(${item.type})|"
                 type="button"
                 value="projectPage">Modify(Developer)
         </button>
-
         <span th:if="${param.source}">
-            <span th:if="${param.source[0] == 'projectPage'}">
-                <input formaction="/user/modifyItemByDeveloper" hidden id="uniqueModifyDeveloperButton"
-                       name="modifyDeveloperButton"
-                       type="submit" value="viewItem">
-                <!--                                when the user clicks to view the item in the project page-->
-                <input hidden id="modifyItemPage" name="modifyItemPage" value="viewItem">
+                <span th:if="${param.source[0] == 'projectPage'}">
+                    <input formaction="/user/modifyItemByDeveloper" hidden id="uniqueModifyDeveloperButton"
+                           name="modifyDeveloperButton"
+                           type="submit" value="viewItem">
+                    <!--                                when the user clicks to view the item in the project page-->
+                    <input hidden id="modifyItemPage" name="modifyItemPage" value="viewItem">
+                </span>
+                <span th:if="${param.source[0] == 'projectProgressPage'}">
+                    <input formaction="/user/modifyItemByDeveloper" hidden id="uniqueModifyDeveloperButton"
+                           name="modifyDeveloperButton"
+                           type="submit" value="projectProgressPage">
+                    <!--                                when the user clicks to view the item in the project progress page-->
+                    <input hidden id="modifyItemPage" name="modifyItemPage" value="projectProgressPage">
+                </span>
+                <span th:if="${param.source[0] == 'taskBoardPage'}">
+                    <input formaction="/user/modifyItemByDeveloper" hidden id="uniqueModifyDeveloperButton"
+                           name="modifyDeveloperButton"
+                           type="submit" value="taskBoardPage">
+                    <!--                                when the user clicks to view the item in the task board page-->
+                    <input hidden id="modifyItemPage" name="modifyItemPage" value="taskBoardPage">
+                    <!--                sprint id is also needed-->
+                    <input hidden id="sprintIdModal" name="sprintIdModal" th:value="${param.sprintIdModal[0]}">
+                </span>
+                <span th:if="${param.source[0] == 'sprintHistoryPage'}">
+                    <input formaction="/user/modifyItemByDeveloper" hidden id="uniqueModifyDeveloperButton"
+                           name="modifyDeveloperButton"
+                           type="submit" value="sprintHistoryPage">
+                    <!--                                when the user clicks to view the item in the sprint history page-->
+                    <input hidden id="modifyItemPage" name="modifyItemPage" value="sprintHistoryPage">
+                    <!--                sprint id is also needed-->
+                    <input hidden id="sprintIdModal" name="sprintIdModal" th:value="${param.sprintIdModal[0]}">
+                </span>
             </span>
-            <span th:if="${param.source[0] == 'projectProgressPage'}">
-                <input formaction="/user/modifyItemByDeveloper" hidden id="uniqueModifyDeveloperButton"
-                       name="modifyDeveloperButton"
-                       type="submit" value="projectProgressPage">
-                <!--                                when the user clicks to view the item in the project progress page-->
-                                <input hidden id="modifyItemPage" name="modifyItemPage" value="projectProgressPage">
-                            </span>
-            <span th:if="${param.source[0] == 'taskBoardPage'}">
-                <input formaction="/user/modifyItemByDeveloper" hidden id="uniqueModifyDeveloperButton"
-                       name="modifyDeveloperButton"
-                       type="submit" value="taskBoardPage">
-                <!--                                when the user clicks to view the item in the task board page-->
-                                <input hidden id="modifyItemPage" name="modifyItemPage" value="taskBoardPage">
-                <!--                sprint id is also needed-->
-                                <input hidden id="sprintIdModal" name="sprintIdModal"
-                                       th:value="${param.sprintIdModal[0]}">
-            </span>
-            <span th:if="${param.source[0] == 'sprintHistoryPage'}">
-                <input formaction="/user/modifyItemByDeveloper" hidden id="uniqueModifyDeveloperButton"
-                       name="modifyDeveloperButton"
-                       type="submit" value="sprintHistoryPage">
-                <!--                                when the user clicks to view the item in the sprint history page-->
-                                <input hidden id="modifyItemPage" name="modifyItemPage" value="sprintHistoryPage">
-                <!--                sprint id is also needed-->
-                                <input hidden id="sprintIdModal" name="sprintIdModal"
-                                       th:value="${param.sprintIdModal[0]}">
-                            </span>
-        </span>
-
         <tr>
             <td>
                 <label for="uniqueItemTitle"
@@ -92,40 +85,39 @@
         </tr>
         <tr>
             <td>
-
-                <span th:if="${item.type == 1 or item.type == 2}">
-                <span th:if="${item.type == 1}">
-                    <label for="uniqueItemType">Type:</label>
-                    <span class="informationText" id="uniqueItemTypeInput">Epic</span>
-                    <input name="itemType" type="hidden" value="EPIC">
-                </span>
-                <span th:if="${item.type == 2}">
-                    <label for="uniqueItemType">Type:</label>
-                    <span class="informationText" id="uniqueItemTypeInput">Story</span>
-                    <input name="itemType" type="hidden" value="STORY">
-                </span>
-            </span>
-
-                <span th:unless="${item.type == 1 or item.type == 2}">
-                    <label class="developerLabel" for="uniqueItemType">Type:</label>
-                <select class="uniqueItemInputDeveloper" hidden id="uniqueItemType" name="itemType"
-                        th:disabled="${#authorization.expression('hasAnyAuthority(''DEVELOPER'',''ADMIN'', ''SCRUM_MASTER'')') ? 'false' : 'true'}">
-                    <span th:each="itemType : ${itemTypes}">
-                        <span th:if="${itemType.repositoryId != 0 and itemType.repositoryId != 1 and itemType.repositoryId != 2}">
-                            <option th:selected="${item.type == itemType.repositoryId ? true : false}"
-                                    th:text="${itemType.name}"
-                                    th:value="${itemType}"></option>
+                    <span th:if="${item.type == 1 or item.type == 2}">
+                        <span th:if="${item.type == 1}">
+                            <label for="uniqueItemType">Type:</label>
+                            <span class="informationText" id="uniqueItemTypeInput">Epic</span>
+                            <input name="itemType" type="hidden" value="EPIC">
+                        </span>
+                        <span th:if="${item.type == 2}">
+                            <label for="uniqueItemType">Type:</label>
+                            <span class="informationText" id="uniqueItemTypeInput">Story</span>
+                            <input name="itemType" type="hidden" value="STORY">
                         </span>
                     </span>
-                </select>
+                <span th:unless="${item.type == 1 or item.type == 2}">
+                        <label class="developerLabel" for="uniqueItemType">Type:</label>
+                        <select class="uniqueItemInputDeveloper" hidden id="uniqueItemType" name="itemType"
+                                th:disabled="${#authorization.expression('hasAnyAuthority(''DEVELOPER'',''ADMIN'', ''SCRUM_MASTER'')') ? 'false' : 'true'}">
+                            <span th:each="itemType : ${itemTypes}">
+                                <span th:if="${itemType.repositoryId != 0 and itemType.repositoryId != 1 and itemType.repositoryId != 2}">
+                                    <option th:selected="${item.type == itemType.repositoryId ? true : false}"
+                                            th:text="${itemType.name}"
+                                            th:value="${itemType}"></option>
+                                </span>
+                            </span>
+                        </select>
                     <!--                for the span (can't have the span inside the select, so we recurse again-->
-                <span th:each="itemType : ${itemTypes}">
-                    <span th:if="${itemType.repositoryId != 0 and itemType.repositoryId != 1 and itemType.repositoryId != 2}">
-                        <span class="informationText developerSpan" th:if="${item.type == itemType.repositoryId}"
-                              th:text="${itemType.name}"></span>
+                        <span th:each="itemType : ${itemTypes}">
+                            <span th:if="${itemType.repositoryId != 0 and itemType.repositoryId != 1 and itemType.repositoryId != 2}">
+                                <span class="informationText developerSpan"
+                                      th:if="${item.type == itemType.repositoryId}"
+                                      th:text="${itemType.name}"></span>
+                            </span>
+                        </span>
                     </span>
-                </span>
-            </span>
             </td>
         </tr>
         <tr>
@@ -136,235 +128,228 @@
         </tr>
         <tr>
             <td>
-                <textarea cols="48" id="uniqueItemDescription" maxlength="200"
-                          th:class="${(item.type == 1 or item.type == 2) ? 'uniqueItemInputProductOwner' : 'uniqueItemInputDeveloper'}"
-                          name="itemDescription"
-                          readonly rows="4" th:text="${item.description}"></textarea>
+                    <textarea cols="48" id="uniqueItemDescription" maxlength="200"
+                              name="itemDescription"
+                              readonly
+                              rows="4"
+                              th:class="${(item.type == 1 or item.type == 2) ? 'uniqueItemInputProductOwner' : 'uniqueItemInputDeveloper'}"
+                              th:text="${item.description}"></textarea>
             </td>
         </tr>
         <tr>
             <td>
                 <label for="uniqueItemAcceptanceCriteria"
-                       th:class="${(item.type == 1 or item.type == 2) ? 'productOwnerLabel' : 'developerLabel'}">Acceptance
-                    Criteria:</label>
+                       th:class="${(item.type == 1 or item.type == 2) ? 'productOwnerLabel' : 'developerLabel'}">
+                    Acceptance Criteria:</label>
             </td>
         </tr>
         <tr>
             <td>
-                <textarea cols="48" id="uniqueItemAcceptanceCriteria" maxlength="200"
-                          th:class="${(item.type == 1 or item.type == 2) ? 'uniqueItemInputProductOwner' : 'uniqueItemInputDeveloper'}"
-                          name="itemAcceptanceCriteria"
-                          readonly rows="4" th:text="${item.acceptanceCriteria}"></textarea>
+                    <textarea cols="48" id="uniqueItemAcceptanceCriteria" maxlength="200"
+                              name="itemAcceptanceCriteria"
+                              readonly
+                              rows="4"
+                              th:class="${(item.type == 1 or item.type == 2) ? 'uniqueItemInputProductOwner' : 'uniqueItemInputDeveloper'}"
+                              th:text="${item.acceptanceCriteria}"></textarea>
             </td>
         </tr>
         <tr>
             <td>
-                <span th:if="${item.type == 1 or item.type == 2}">
-                <span th:if="${item.type == 1}">
-                    <label for="uniqueItemParentId">Parent:</label>
-                    <select class="uniqueItemInputProductOwner" disabled hidden id="uniqueItemParentId"
-                            name="itemParentId">
-                        <option selected value="0">Disabled</option>
-                    </select>
-                    <input name="itemParentId" type="hidden" value="0">
-                </span>
-                <span th:if="${item.type == 2}">
-                    <label class="productOwnerLabel" for="uniqueItemParentId">Parent:</label>
-                    <select class="uniqueItemInputProductOwner" hidden id="uniqueItemParentId" name="itemParentId">
-        <option selected value="0">No parent</option>
-        <span th:each="parent : ${backlog}">
-            <span th:if="${parent.type == 1 and parent.status != 4}">
-                <!-- if the item is in an active sprint, show only its parent            -->
-                <span th:if="${item.status == 3 and parent.status == 3}">
-                    <span th:if="${item.parent}">
-                        <span th:if="${parent.id == item.parent.id}">
-                            <option selected th:text="${parent.title}"
-                                    th:value="${parent.id}"></option>
+                    <span th:if="${item.type == 1 or item.type == 2}">
+                        <span th:if="${item.type == 1}">
+                            <label for="uniqueItemParentId">Parent:</label>
+                            <select class="uniqueItemInputProductOwner" disabled hidden id="uniqueItemParentId"
+                                    name="itemParentId">
+                                <option selected value="0">Disabled</option>
+                            </select>
+                            <input name="itemParentId" type="hidden" value="0">
                         </span>
-                        <span th:unless="${parent.id == item.parent.id}">
-                            <option th:text="${parent.title}"
-                                    th:value="${parent.id}"></option>
+                        <span th:if="${item.type == 2}">
+                            <label class="productOwnerLabel" for="uniqueItemParentId">Parent:</label>
+                            <select class="uniqueItemInputProductOwner" hidden id="uniqueItemParentId"
+                                    name="itemParentId">
+                                <option selected value="0">No parent</option>
+                                <span th:each="parent : ${backlog}">
+                                    <span th:if="${parent.type == 1 and parent.status != 4}">
+                                        <!-- if the item is in an active sprint, show only its parent            -->
+                                        <span th:if="${item.status == 3 and parent.status == 3}">
+                                            <span th:if="${item.parent}">
+                                                <span th:if="${parent.id == item.parent.id}">
+                                                    <option selected th:text="${parent.title}"
+                                                            th:value="${parent.id}"></option>
+                                                </span>
+                                                <span th:unless="${parent.id == item.parent.id}">
+                                                    <option th:text="${parent.title}"
+                                                            th:value="${parent.id}"></option>
+                                                </span>
+                                            </span>
+                                            <span th:unless="${item.parent}">
+                                                <option th:text="${parent.title}"
+                                                        th:value="${parent.id}"></option>
+                                            </span>
+                                        </span>
+                                        <!-- if item is not in active sprint, show only available parents-->
+                                        <span th:unless="${item.status == 3}">
+                                            <span th:if="${parent.status !=3}">
+                                                <span th:if="${item.parent}">
+                                                    <span th:if="${parent.id == item.parent.id}">
+                                                        <option selected th:text="${parent.title}"
+                                                                th:value="${parent.id}"></option>
+                                                    </span>
+                                                    <span th:unless="${parent.id == item.parent.id}">
+                                                        <option th:text="${parent.title}"
+                                                                th:value="${parent.id}"></option>
+                                                    </span>
+                                                </span>
+                                                <span th:unless="${item.parent}">
+                                                    <option th:text="${parent.title}"
+                                                            th:value="${parent.id}"></option>
+                                                </span>
+                                            </span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </select>
                         </span>
                     </span>
-                    <span th:unless="${item.parent}">
-                        <option th:text="${parent.title}"
-                                th:value="${parent.id}"></option>
-                    </span>
-                </span>
-                <!-- if item is not in active sprint, show only available parents-->
-                <span th:unless="${item.status == 3}">
-                    <span th:if="${parent.status !=3}">
-                        <span th:if="${item.parent}">
-                            <span th:if="${parent.id == item.parent.id}">
-                                <option selected th:text="${parent.title}"
-                                        th:value="${parent.id}"></option>
-                            </span>
-                            <span th:unless="${parent.id == item.parent.id}">
-                                <option th:text="${parent.title}"
-                                        th:value="${parent.id}"></option>
-                            </span>
-                        </span>
-                        <span th:unless="${item.parent}">
-                            <option th:text="${parent.title}"
-                                    th:value="${parent.id}"></option>
-                        </span>
-                    </span>
-                </span>
-
-            </span>
-        </span>
-    </select>
-                </span>
-            </span>
                 <span th:unless="${item.type == 1 or item.type == 2}">
-                    <label class="developerLabel" for="uniqueItemParentId">Parent:</label>
-            <select class="uniqueItemInputDeveloper" hidden id="uniqueItemParentId" name="itemParentId">
-                <option selected value="0">No parent</option>
-                <span th:each="parent : ${backlog}">
-            <span th:if="${((parent.type == 1 and item.type == 2) or (parent.type == 2 and (item.type == 3 or item.type == 4))) and parent.status != 4}">
-                <!-- if the item is in an active sprint, show only its parent            -->
-                <span th:if="${item.status == 3 and parent.status == 3}">
-                    <span th:if="${item.parent}">
-                        <span th:if="${parent.id == item.parent.id}">
-                            <option selected th:text="${parent.title}"
-                                    th:value="${parent.id}"></option>
-                        </span>
-                        <span th:unless="${parent.id == item.parent.id}">
-                            <option th:text="${parent.title}"
-                                    th:value="${parent.id}"></option>
-                        </span>
+                        <label class="developerLabel" for="uniqueItemParentId">Parent:</label>
+                        <select class="uniqueItemInputDeveloper" hidden id="uniqueItemParentId" name="itemParentId">
+                            <option selected value="0">No parent</option>
+                            <span th:each="parent : ${backlog}">
+                                <span th:if="${((parent.type == 1 and item.type == 2) or (parent.type == 2 and (item.type == 3 or item.type == 4))) and parent.status != 4}">
+                                    <!-- if the item is in an active sprint, show only its parent            -->
+                                    <span th:if="${item.status == 3 and parent.status == 3}">
+                                        <span th:if="${item.parent}">
+                                            <span th:if="${parent.id == item.parent.id}">
+                                                <option selected th:text="${parent.title}"
+                                                        th:value="${parent.id}"></option>
+                                            </span>
+                                            <span th:unless="${parent.id == item.parent.id}">
+                                                <option th:text="${parent.title}"
+                                                        th:value="${parent.id}"></option>
+                                            </span>
+                                        </span>
+                                        <span th:unless="${item.parent}">
+                                            <option th:text="${parent.title}"
+                                                    th:value="${parent.id}"></option>
+                                        </span>
+                                    </span>
+                                    <!-- if item is not in active sprint, show only available parents-->
+                                    <span th:unless="${item.status == 3}">
+                                        <span th:if="${parent.status !=3}">
+                                            <span th:if="${item.parent}">
+                                                <span th:if="${parent.id == item.parent.id}">
+                                                    <option selected th:text="${parent.title}"
+                                                            th:value="${parent.id}"></option>
+                                                </span>
+                                                <span th:unless="${parent.id == item.parent.id}">
+                                                    <option th:text="${parent.title}"
+                                                            th:value="${parent.id}"></option>
+                                                </span>
+                                            </span>
+                                            <span th:unless="${item.parent}">
+                                                <option th:text="${parent.title}"
+                                                        th:value="${parent.id}"></option>
+                                            </span>
+                                        </span>
+                                    </span>
+                                </span>
+                            </span>
+                        </select>
                     </span>
-                    <span th:unless="${item.parent}">
-                        <option th:text="${parent.title}"
-                                th:value="${parent.id}"></option>
-                    </span>
-                </span>
-                <!-- if item is not in active sprint, show only available parents-->
-                <span th:unless="${item.status == 3}">
-                    <span th:if="${parent.status !=3}">
-                    <span th:if="${item.parent}">
-                        <span th:if="${parent.id == item.parent.id}">
-                            <option selected th:text="${parent.title}"
-                                    th:value="${parent.id}"></option>
-                        </span>
-                        <span th:unless="${parent.id == item.parent.id}">
-                            <option th:text="${parent.title}"
-                                    th:value="${parent.id}"></option>
-                        </span>
-                    </span>
-                        <span th:unless="${item.parent}">
-                            <option th:text="${parent.title}"
-                                    th:value="${parent.id}"></option>
-                        </span>
-                    </span>
-                </span>
-            </span>
-        </span>
-            </select>
-            </span>
                 <span th:if="${item.parent}">
-                <span th:class="${(item.type == 1 or item.type == 2) ? 'informationText productOwnerSpan' : 'informationText developerSpan'}"
-                      th:text="${item.parent.title}"></span>
+                        <span th:class="${(item.type == 1 or item.type == 2) ? 'informationText productOwnerSpan' : 'informationText developerSpan'}"
+                              th:text="${item.parent.title}"></span>
                         <span th:if="${param.source}">
                             <span th:if="${param.source[0] == 'projectPage'}">
                                 <button name="action"
                                         th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${item.parent.id} +'/?modalView=true&modalSource=projectPage'} + '\''"
-                                        type="button" value="view">View
-                                </button>
+                                        type="button" value="view">View</button>
                             </span>
                             <span th:if="${param.source[0] == 'projectProgressPage'}">
                                 <button name="action"
                                         th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${item.parent.id} +'/?modalView=true&modalSource=projectProgressPage'} + '\''"
-                                        type="button" value="view">View
-                                </button>
+                                        type="button" value="view">View</button>
                             </span>
                             <span th:if="${param.source[0] == 'taskBoardPage'}">
                                 <button name="action"
                                         th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${item.parent.id} +'/?modalView=true&modalSource=taskBoardPage&sprintIdModal=' + ${param.sprintIdModal[0]}} + '\''"
-                                        type="button" value="view">View
-                                </button>
+                                        type="button" value="view">View</button>
                             </span>
                             <span th:if="${param.source[0] == 'sprintHistoryPage'}">
                                 <button name="action"
                                         th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${item.parent.id} +'/?modalView=true&modalSource=sprintHistoryPage&sprintIdModal=' + ${param.sprintIdModal[0]}} + '\''"
-                                        type="button" value="view">View
-                                </button>
+                                        type="button" value="view">View</button>
                             </span>
                         </span>
-            </span>
+                    </span>
                 <span th:unless="${item.parent}">
-                <span th:class="${(item.type == 1 or item.type == 2) ? 'informationText productOwnerSpan' : 'informationText developerSpan'}">No Parent</span>
-                </span>
+                        <span th:class="${(item.type == 1 or item.type == 2) ? 'informationText productOwnerSpan' : 'informationText developerSpan'}">No Parent</span>
+                    </span>
                 <!--in case any of the above select options are disabled-->
                 <span th:if="${item.status == 3}">
-                    <span th:if="${item.parent}">
-                        <input name="itemParentId" th:value="${item.parent.id}" type="hidden">
+                        <span th:if="${item.parent}">
+                            <input name="itemParentId" th:value="${item.parent.id}" type="hidden">
+                        </span>
+                        <span th:unless="${item.parent}">
+                            <input name="itemParentId" type="hidden" value="0">
+                        </span>
                     </span>
-                    <span th:unless="${item.parent}">
-                        <input name="itemParentId" type="hidden" value="0">
-                    </span>
-                </span>
             </td>
         </tr>
         <tr>
             <td>
-                <span th:if="${(item.type == 1 or item.type == 2) and item.children != null}">
-                    Children:
-                    <span th:if="${item.children.isEmpty()}">
-                        <span class="informationText">
-                            No Children
-                        </span>
-                    </span>
-                    <span th:unless="${item.children.isEmpty()}">
-                        <button id="uniqueItemChildrenButtonExpand"
-                                th:onclick="expandList()" type="button">Expand List
-                                </button>
-                        <button id="uniqueItemChildrenButtonClose"
-                                style="display: none" th:onclick="closeList()" type="button">Close List
-                                </button>
-                        <span hidden id="uniqueItemChildren">
-                            <br>
-                            <ul>
-                            <span th:each="child : ${item.children}">
-                                <li>
-                                <span class="informationText" th:text="${child.title + ' '}"></span>
-                                    <span th:if="${child.status == 1}">(In Backlog)</span>
-                                    <span th:if="${child.status == 2}">(In Ready Sprint)</span>
-                                    <span th:if="${child.status == 3}">(In Active Sprint)</span>
-                                    <span th:if="${child.status == 4}">(Finished)</span>
-                                    <span th:if="${param.source}">
-                                        <span th:if="${param.source[0] == 'projectPage'}">
-                                            <button name="action"
-                                                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=projectPage'} + '\''"
-                                                    type="button" value="view">View
-                                            </button>
-                                        </span>
-                                        <span th:if="${param.source[0] == 'projectProgressPage'}">
-                                            <button name="action"
-                                                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=projectProgressPage'} + '\''"
-                                                    type="button" value="view">View
-                                            </button>
-                                        </span>
-                                        <span th:if="${param.source[0] == 'taskBoardPage'}">
-                                            <button name="action"
-                                                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=taskBoardPage&sprintIdModal=' + ${param.sprintIdModal[0]}} + '\''"
-                                                    type="button" value="view">View
-                                            </button>
-                                        </span>
-                                        <span th:if="${param.source[0] == 'sprintHistoryPage'}">
-                                            <button name="action"
-                                                    th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=sprintHistoryPage&sprintIdModal=' + ${param.sprintIdModal[0]}} + '\''"
-                                                    type="button" value="view">View
-                                            </button>
-                                        </span>
-                                    </span>
-                                </li>
+                    <span th:if="${(item.type == 1 or item.type == 2) and item.children != null}">
+                        Children:
+                        <span th:if="${item.children.isEmpty()}">
+                            <span class="informationText">
+                                No Children
                             </span>
+                        </span>
+                        <span th:unless="${item.children.isEmpty()}">
+                            <button id="uniqueItemChildrenButtonExpand"
+                                    th:onclick="expandList()" type="button">Expand List</button>
+                            <button id="uniqueItemChildrenButtonClose"
+                                    style="display: none" th:onclick="closeList()" type="button">Close List</button>
+                            <span hidden id="uniqueItemChildren">
+                                <br>
+                                <ul>
+                                    <span th:each="child : ${item.children}">
+                                        <li>
+                                            <span class="informationText" th:text="${child.title + ' '}"></span>
+                                            <span th:if="${child.status == 1}">(In Backlog)</span>
+                                            <span th:if="${child.status == 2}">(In Ready Sprint)</span>
+                                            <span th:if="${child.status == 3}">(In Active Sprint)</span>
+                                            <span th:if="${child.status == 4}">(Finished)</span>
+                                            <span th:if="${param.source}">
+                                                <span th:if="${param.source[0] == 'projectPage'}">
+                                                    <button name="action"
+                                                            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=projectPage'} + '\''"
+                                                            type="button" value="view">View</button>
+                                                </span>
+                                                <span th:if="${param.source[0] == 'projectProgressPage'}">
+                                                    <button name="action"
+                                                            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=projectProgressPage'} + '\''"
+                                                            type="button" value="view">View</button>
+                                                </span>
+                                                <span th:if="${param.source[0] == 'taskBoardPage'}">
+                                                    <button name="action"
+                                                            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=taskBoardPage&sprintIdModal=' + ${param.sprintIdModal[0]}} + '\''"
+                                                            type="button" value="view">View</button>
+                                                </span>
+                                                <span th:if="${param.source[0] == 'sprintHistoryPage'}">
+                                                    <button name="action"
+                                                            th:onclick="'window.location.href=\'' + @{'/user/project/' + ${projectId} + '/item/' + ${child.id} +'/?modalView=true&modalSource=sprintHistoryPage&sprintIdModal=' + ${param.sprintIdModal[0]}} + '\''"
+                                                            type="button" value="view">View</button>
+                                                </span>
+                                            </span>
+                                        </li>
+                                    </span>
                                 </ul>
+                            </span>
                         </span>
                     </span>
-
-                </span>
             </td>
         </tr>
         <tr>
@@ -379,94 +364,93 @@
                        th:class="${(item.type == 1 or item.type == 2) ? 'productOwnerLabel' : 'developerLabel'}">Priority:</label>
                 <select hidden id="uniqueItemPriority" name="itemPriority"
                         th:class="${(item.type == 1 or item.type == 2) ? 'uniqueItemInputProductOwner':'uniqueItemInputDeveloper'}">
-                <span th:each="itemPriority : ${itemPriorities}">
-                    <span th:if="${itemPriority.repositoryId != 0}">
-                        <option th:selected="${item.priority == itemPriority.repositoryId ? true : false}"
-                                th:text="${itemPriority.name}" th:value="${itemPriority}">
-                        </option>
-                    </span>
-                </span>
+                        <span th:each="itemPriority : ${itemPriorities}">
+                            <span th:if="${itemPriority.repositoryId != 0}">
+                                <option th:selected="${item.priority == itemPriority.repositoryId ? true : false}"
+                                        th:text="${itemPriority.name}" th:value="${itemPriority}">
+                                </option>
+                            </span>
+                        </span>
                 </select>
                 <span th:each="itemPriority : ${itemPriorities}">
-                <span th:class="${(item.type == 1 or item.type == 2) ? 'informationText productOwnerSpan' : 'informationText developerSpan'}"
-                      th:if="${item.priority == itemPriority.repositoryId}"
-                      th:text="${itemPriority.name}"></span>
-                </span>
+                        <span th:class="${(item.type == 1 or item.type == 2) ? 'informationText productOwnerSpan' : 'informationText developerSpan'}"
+                              th:if="${item.priority == itemPriority.repositoryId}"
+                              th:text="${itemPriority.name}"></span>
+                    </span>
             </td>
         </tr>
         <span th:if="${item.type == 1 or item.type == 2}">
-        <tr>
-            <td>
-                <label class="developerLabel" for="itemEstimatedEffort">Effort:</label>
-                <input class="uniqueItemInputDeveloper" hidden id="itemEstimatedEffort" name="itemEstimatedEffort"
-                       placeholder="0 to 10" th:value="${item.estimatedEffort != 0 ? item.estimatedEffort : ''}"
-                       type="number">
-                <span class="informationText developerSpan" id="uniqueItemEstimatedEffortInput"
-                      th:text="${item.estimatedEffort}"></span>
-                <img class="hintSymbol" hidden onclick="openHintModal('createItem-effort')"
-                     style="width: 30px;height: 30px;margin: 0 0 7px 1px;" th:src="@{/images/hintSymbol.png}">
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="uniqueItemEffort">Total Task Effort:</label>
-                <input hidden id="uniqueItemEffort" name="itemEffort" th:value="${item.effort}">
-                <span class="informationText" id="uniqueItemTotalEffortInput" th:text="${item.effort}"></span>
-            </td>
-        </tr>
-        </span>
+                <tr>
+                    <td>
+                        <label class="developerLabel" for="itemEstimatedEffort">Effort:</label>
+                        <input class="uniqueItemInputDeveloper" hidden id="itemEstimatedEffort"
+                               name="itemEstimatedEffort"
+                               placeholder="0 to 10" th:value="${item.estimatedEffort != 0 ? item.estimatedEffort : ''}"
+                               type="number">
+                        <span class="informationText developerSpan" id="uniqueItemEstimatedEffortInput"
+                              th:text="${item.estimatedEffort}"></span>
+                        <img class="hintSymbol" hidden onclick="openHintModal('createItem-effort')"
+                             style="width: 30px;height: 30px;margin: 0 0 7px 1px;" th:src="@{/images/hintSymbol.png}">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label for="uniqueItemEffort">Total Task Effort:</label>
+                        <input hidden id="uniqueItemEffort" name="itemEffort" th:value="${item.effort}">
+                        <span class="informationText" id="uniqueItemTotalEffortInput" th:text="${item.effort}"></span>
+                    </td>
+                </tr>
+            </span>
         <span th:unless="${item.type == 1 or item.type == 2}">
-            <tr>
-                <td>
-                   <label class="developerLabel" for="uniqueItemEffort">Effort:</label>
-                    <input class="uniqueItemInputDeveloper" hidden id="uniqueItemEffort" name="itemEffort"
-                           placeholder="0 to 10" th:value="${item.effort != 0 ? item.effort : ''}"
-                           type="number">
-                <span class="informationText developerSpan" th:text="${item.effort}"></span>
-                    <input hidden name="itemEstimatedEffort" th:value="0" type="number">
-                    <img class="hintSymbol" hidden onclick="openHintModal('createItem-effort')"
-                         style="width: 30px;height: 30px;margin: 0 0 3px 1px;" th:src="@{/images/hintSymbol.png}">
-                </td>
-            </tr>
-        </span>
+                <tr>
+                    <td>
+                        <label class="developerLabel" for="uniqueItemEffort">Effort:</label>
+                        <input class="uniqueItemInputDeveloper" hidden id="uniqueItemEffort" name="itemEffort"
+                               placeholder="0 to 10" th:value="${item.effort != 0 ? item.effort : ''}"
+                               type="number">
+                        <span class="informationText developerSpan" th:text="${item.effort}"></span>
+                        <input hidden name="itemEstimatedEffort" th:value="0" type="number">
+                        <img class="hintSymbol" hidden onclick="openHintModal('createItem-effort')"
+                             style="width: 30px;height: 30px;margin: 0 0 3px 1px;" th:src="@{/images/hintSymbol.png}">
+                    </td>
+                </tr>
+            </span>
         <tr>
             <td>
                 <label class="developerLabel" for="fakeItemAssigneeId">Assignee:</label>
                 <select class="uniqueItemInputDeveloper" hidden id="fakeItemAssigneeId" name="fakeItemAssigneeId"
                         th:disabled="${#authorization.expression('hasAnyAuthority(''ADMIN'', ''SCRUM_MASTER'')')
-                        or (item.assignee != null and session.userId == item.assignee.id)
-                        or (item.assignee == null)
-                        ? 'false' : 'true'}">
+                            or (item.assignee != null and session.userId == item.assignee.id)
+                            or (item.assignee == null)
+                            ? 'false' : 'true'}">
                     <option selected value="0">No assignee</option>
                     <span th:each="user : ${allUsers}">
-                    <span th:if="${item.assignee}">
-                    <option th:selected="${item.assignee.id == user.id ? true : false}"
-                            th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
-                            th:value="${user.id}">
-                    </option>
-                    </span>
-                    <span th:unless="${item.assignee}">
-                    <option th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
-                            th:value="${user.id}">
-                    </option>
-                    </span>
-                </span>
+                            <span th:if="${item.assignee}">
+                                <option th:selected="${item.assignee.id == user.id ? true : false}"
+                                        th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                                        th:value="${user.id}">
+                                </option>
+                            </span>
+                            <span th:unless="${item.assignee}">
+                                <option th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                                        th:value="${user.id}">
+                                </option>
+                            </span>
+                        </span>
                 </select>
                 <span th:if="${item.assignee}">
-                    <input hidden name="itemAssigneeId" th:id="|itemAssigneeId${item.id}|"
-                           th:value="${item.assignee.id}">
-                    <span th:each="user : ${allUsers}">
-                        <span class="informationText developerSpan" th:if="${item.assignee.id == user.id}"
-                              th:text="${user.firstName + ' ' + user.lastName}">
+                        <input hidden name="itemAssigneeId" th:id="|itemAssigneeId${item.id}|"
+                               th:value="${item.assignee.id}">
+                        <span th:each="user : ${allUsers}">
+                            <span class="informationText developerSpan" th:if="${item.assignee.id == user.id}"
+                                  th:text="${user.firstName + ' ' + user.lastName}">
+                            </span>
                         </span>
                     </span>
-                </span>
                 <span th:unless="${item.assignee}">
-                    <input hidden name="itemAssigneeId" th:id="|itemAssigneeId${item.id}|" value="0">
-                    <span class="informationText developerSpan">
-                    No Assignee
+                        <input hidden name="itemAssigneeId" th:id="|itemAssigneeId${item.id}|" value="0">
+                        <span class="informationText developerSpan">No Assignee</span>
                     </span>
-                </span>
                 <img class="hintSymbol" hidden onclick="openHintModal('createItem-assignee')"
                      style="width: 30px;height: 30px;margin: 0 0 3px 0px;" th:src="@{/images/hintSymbol.png}">
             </td>
@@ -485,22 +469,19 @@
                       th:text="${#dates.format(item.date_created, 'dd-MMM-yyyy')}"></span>
             </td>
         </tr>
-
         <tr>
             <td>
                 <button class="deleteAndUpdateButton" hidden id="uniqueItemUpdateButton"
                         name="action"
                         type="submit"
-                        value="update">
-                    Update
+                        value="update">Update
                 </button>
                 <button class="deleteAndUpdateButton" hidden id="uniqueItemDeleteButton"
                         name="action"
-                        type="submit"
                         th:if="${item.status != 3
-                        and !itemHasFinishedChildren}"
-                        value="delete">
-                    Delete
+                            and !itemHasFinishedChildren}"
+                        type="submit"
+                        value="delete">Delete
                 </button>
             </td>
         </tr>
@@ -512,9 +493,7 @@
                 <span th:insert="include/warnings :: disableDeletionBecauseActiveSprint"></span>
             </td>
         </tr>
-
     </table>
-
 </form>
 <br>
 <h4>
@@ -527,45 +506,41 @@
         <input hidden id="commentIdView" name="commentIdView" readonly th:value="${comment.id}">
         <input hidden id="commentItemIdView" name="commentItemIdView" th:value="${item.id}">
         <input hidden id="commentProjectIdView" name="commentProjectIdView" th:value="${item.project.id}">
-
         <span th:if="${param.source}">
-            <span th:if="${param.source[0] == 'projectPage'}">
-<!--                                when the user clicks to view the item in the project page-->
-                <input hidden id="modifyItemPageComment" name="modifyItemPageComment" value="viewItem">
+                <span th:if="${param.source[0] == 'projectPage'}">
+    <!--                                when the user clicks to view the item in the project page-->
+                    <input hidden id="modifyItemPageComment" name="modifyItemPageComment" value="viewItem">
+                </span>
+                <span th:if="${param.source[0] == 'projectProgressPage'}">
+    <!--                               when the user clicks to view the item in the project progress page-->
+                    <input hidden id="modifyItemPageComment" name="modifyItemPageComment"
+                           value="projectProgressPage">
+                </span>
+                <span th:if="${param.source[0] == 'taskBoardPage'}">
+    <!--                                when the user clicks to view the item in the task board page-->
+                    <input hidden id="modifyItemPageComment" name="modifyItemPageComment"
+                           value="taskBoardPage">
+                    <!--                sprint id is also needed-->
+                    <input hidden id="sprintIdModalComment" name="sprintIdModalComment"
+                           th:value="${param.sprintIdModal[0]}">
+                </span>
+                <span th:if="${param.source[0] == 'sprintHistoryPage'}">
+    <!--                                when the user clicks to view the item in the sprint history page-->
+                    <input hidden id="modifyItemPageComment" name="modifyItemPageComment"
+                           value="sprintHistoryPage">
+                    <!--                sprint id is also needed-->
+                    <input hidden id="sprintIdModalComment" name="sprintIdModalComment"
+                           th:value="${param.sprintIdModal[0]}">
+                </span>
             </span>
-            <span th:if="${param.source[0] == 'projectProgressPage'}">
-<!--                                when the user clicks to view the item in the project progress page-->
-                                <input hidden id="modifyItemPageComment" name="modifyItemPageComment"
-                                       value="projectProgressPage">
-                            </span>
-            <span th:if="${param.source[0] == 'taskBoardPage'}">
-<!--                                when the user clicks to view the item in the task board page-->
-                                <input hidden id="modifyItemPageComment" name="modifyItemPageComment"
-                                       value="taskBoardPage">
-                <!--                sprint id is also needed-->
-                                <input hidden id="sprintIdModalComment" name="sprintIdModalComment"
-                                       th:value="${param.sprintIdModal[0]}">
-                            </span>
-            <span th:if="${param.source[0] == 'sprintHistoryPage'}">
-<!--                                when the user clicks to view the item in the sprint history page-->
-                                <input hidden id="modifyItemPageComment" name="modifyItemPageComment"
-                                       value="sprintHistoryPage">
-                <!--                sprint id is also needed-->
-                                <input hidden id="sprintIdModalComment" name="sprintIdModalComment"
-                                       th:value="${param.sprintIdModal[0]}">
-                            </span>
-        </span>
-
-
         <span th:text="${comment.owner.firstName + ' ' + comment.owner.lastName + ' at '}"></span>
         <span th:text="${#dates.format(comment.date_created, 'dd-MMM-yyyy HH:mm:ss')}"></span>
-
         <input maxlength="32" name="commentBodyView"
                readonly size="32"
                th:id="|commentBodyView${comment.id}|" th:value="${comment.body}">
         <button name="action" th:id="|commentEditId${comment.id}|"
                 th:if="${comment.owner.id == session.userId
-        or #authorization.expression('hasAuthority(''ADMIN'')')}"
+            or #authorization.expression('hasAuthority(''ADMIN'')')}"
                 th:onclick="|modifyComment(${comment.id})|" type="button" value="update">Edit
         </button>
         <button hidden name="action"
@@ -586,34 +561,33 @@
     <input id="commentBody" maxlength="32" name="commentBody" placeholder="Short comment about task"
            size="32">
     <button type="submit">Post</button>
-
     <span th:if="${param.source}">
             <span th:if="${param.source[0] == 'projectPage'}">
-<!--                                when the user clicks to view the item in the project page-->
+    <!--                                when the user clicks to view the item in the project page-->
                 <input hidden id="modifyItemPageCommentCreateCreate" name="modifyItemPageCommentCreate"
                        value="viewItem">
             </span>
             <span th:if="${param.source[0] == 'projectProgressPage'}">
-<!--                                when the user clicks to view the item in the project progress page-->
-                                <input hidden id="modifyItemPageCommentCreate" name="modifyItemPageCommentCreate"
-                                       value="projectProgressPage">
-                            </span>
+    <!--                                when the user clicks to view the item in the project progress page-->
+                <input hidden id="modifyItemPageCommentCreate" name="modifyItemPageCommentCreate"
+                       value="projectProgressPage">
+            </span>
             <span th:if="${param.source[0] == 'taskBoardPage'}">
-<!--                                when the user clicks to view the item in the task board page-->
-                                <input hidden id="modifyItemPageCommentCreate" name="modifyItemPageCommentCreate"
-                                       value="taskBoardPage">
+    <!--                                when the user clicks to view the item in the task board page-->
+                <input hidden id="modifyItemPageCommentCreate" name="modifyItemPageCommentCreate"
+                       value="taskBoardPage">
                 <!--                sprint id is also needed-->
-                                <input hidden id="sprintIdModalCommentCreate" name="sprintIdModalCommentCreate"
-                                       th:value="${param.sprintIdModal[0]}">
-                            </span>
+                <input hidden id="sprintIdModalCommentCreate" name="sprintIdModalCommentCreate"
+                       th:value="${param.sprintIdModal[0]}">
+            </span>
             <span th:if="${param.source[0] == 'sprintHistoryPage'}">
-<!--                                when the user clicks to view the item in the sprint history page-->
-                                <input hidden id="modifyItemPageCommentCreate" name="modifyItemPageCommentCreate"
-                                       value="sprintHistoryPage">
+    <!--                                when the user clicks to view the item in the sprint history page-->
+                <input hidden id="modifyItemPageCommentCreate" name="modifyItemPageCommentCreate"
+                       value="sprintHistoryPage">
                 <!--                sprint id is also needed-->
-                                <input hidden id="sprintIdModalCommentCreate" name="sprintIdModalCommentCreate"
-                                       th:value="${param.sprintIdModal[0]}">
-                            </span>
+                <input hidden id="sprintIdModalCommentCreate" name="sprintIdModalCommentCreate"
+                       th:value="${param.sprintIdModal[0]}">
+            </span>
         </span>
 </form>
 <script th:src="@{/js/modalFunctions.js}"></script>
@@ -621,7 +595,6 @@
     // self executing function here
     (function () {
         showHints();
-
     })();
 </script>
 </body>

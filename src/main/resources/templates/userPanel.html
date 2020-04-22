@@ -10,7 +10,6 @@
 <body>
 <span th:insert="include/navigation :: bar"></span>
 <br>
-
 <h3>Existing Users:</h3>
 <div th:each="user : ${users}" th:style="${user.roles.size() > 1 ? 'border-style: dotted' : 'border-style: solid'}">
     <form method="post" th:action="@{/admin/editUser}">
@@ -25,81 +24,78 @@
         <label for="userLastName">Last Name</label>
         <input id="userLastName" name="userLastName" th:value="${user.lastName}">
         <!-- conditionals for each role: for example the following says: if the user roles list is bigger than 1
-        (which means the user is a mster_admin (since a master admin has all roles, then etc.       -->
+        (which means the user is a master_admin (since a master admin has all roles, then etc.       -->
         <span th:if="${user.roles.size() > 1}">
-            <select disabled id="masterAdminFake" name="userRoleFake">-->
-                <option selected value="master_admin">Disabled</option>
-            </select>
-            <!-- need a second one which is hidden because Back-End does not recognise the disabled one -->
-            <select hidden id="masterAdmin" name="userRole">
-                <option selected value="master_admin">Disabled</option>
-            </select>
-            <span th:if="${session.role == 'Master Admin'}">
-                <button name="action" type="submit" value="update">Update</button>
-            </span>
-        </span>
-        <span th:unless="${user.roles.size() > 1}">
-            <span th:if="${user.roles.get(0).role == 'ADMIN'}">
-                <span th:if="${session.role == 'Master Admin'}">
-                    <select id="userRole" name="userRole">
-                        <span th:each="roleEnum : ${allRoleEnums}">
-                        <span th:if="${roleEnum.repositoryId != 1}">
-                            <option th:selected="${user.roles[0].role == roleEnum.name ? true : false}"
-                                    th:text="${roleEnum.name}"
-                                    th:value="${roleEnum.name}">
-                            </option>
-                        </span>
-                        </span>
-                    </select>
-                <button name="action" type="submit" value="update">Update</button>
-                <button name="action" type="submit" value="delete">Delete</button>
-                </span>
-                <span th:unless="${session.role == 'Master Admin'}">
-                    <select disabled id="masterAdminFake" name="userRoleFake">-->
-                        <option selected value="master_admin">Disabled</option>
-                    </select>
-                    <!-- need a second one which is hidden because Back-End does not recognise the disabled one -->
-                    <select hidden id="masterAdmin" name="userRole">
-                        <option selected value="master_admin">Disabled</option>
-                    </select>
-                    <span th:if="${user.id == session.userId}">
-                        <button name="action" type="submit" value="update">Update</button>
-                    </span>
-                </span>
-            </span>
-            <span th:if="${user.roles.get(0).role == 'DEVELOPER' or user.roles.get(0).role == 'PRODUCT_OWNER' or user.roles.get(0).role == 'SCRUM_MASTER'}">
-                <select id="userRole" name="userRole">
-                <span th:if="${session.role == 'Master Admin'}">
-                    <span th:each="roleEnum : ${allRoleEnums}">
-                        <span th:if="${roleEnum.repositoryId != 1}">
-                            <option th:selected="${user.roles[0].role == roleEnum.name ? true : false}"
-                                    th:text="${roleEnum.name}"
-                                    th:value="${roleEnum.name}">
-                            </option>
-                        </span>
-                    </span>
-                </span>
-                <span th:unless="${session.role == 'Master Admin'}">
-                    <span th:each="roleEnum : ${allRoleEnums}">
-                        <span th:if="${roleEnum.repositoryId != 1 and roleEnum.repositoryId != 2}">
-                            <option th:selected="${user.roles[0].role == roleEnum.name ? true : false}"
-                                    th:text="${roleEnum.name}"
-                                    th:value="${roleEnum.name}">
-                            </option>
-                        </span>
-                    </span>
-                </span>
-
+                <select disabled id="masterAdminFake" name="userRoleFake">-->
+                    <option selected value="master_admin">Disabled</option>
                 </select>
-                <button name="action" type="submit" value="update">Update</button>
-                <button name="action" type="submit" value="delete">Delete</button>
+            <!-- need a second one which is hidden because Back-End does not recognise the disabled one -->
+                <select hidden id="masterAdmin" name="userRole">
+                    <option selected value="master_admin">Disabled</option>
+                </select>
+                <span th:if="${session.role == 'Master Admin'}">
+                    <button name="action" type="submit" value="update">Update</button>
+                </span>
             </span>
-        </span>
+        <span th:unless="${user.roles.size() > 1}">
+                <span th:if="${user.roles.get(0).role == 'ADMIN'}">
+                    <span th:if="${session.role == 'Master Admin'}">
+                        <select id="userRole" name="userRole">
+                            <span th:each="roleEnum : ${allRoleEnums}">
+                            <span th:if="${roleEnum.repositoryId != 1}">
+                                <option th:selected="${user.roles[0].role == roleEnum.name ? true : false}"
+                                        th:text="${roleEnum.name}"
+                                        th:value="${roleEnum.name}">
+                                </option>
+                            </span>
+                            </span>
+                        </select>
+                        <button name="action" type="submit" value="update">Update</button>
+                        <button name="action" type="submit" value="delete">Delete</button>
+                    </span>
+                    <span th:unless="${session.role == 'Master Admin'}">
+                        <select disabled id="masterAdminFake" name="userRoleFake">-->
+                            <option selected value="master_admin">Disabled</option>
+                        </select>
+                        <!-- need a second one which is hidden because Back-End does not recognise the disabled one -->
+                        <select hidden id="masterAdmin" name="userRole">
+                            <option selected value="master_admin">Disabled</option>
+                        </select>
+                        <span th:if="${user.id == session.userId}">
+                            <button name="action" type="submit" value="update">Update</button>
+                        </span>
+                    </span>
+                </span>
+                <span th:if="${user.roles.get(0).role == 'DEVELOPER' or user.roles.get(0).role == 'PRODUCT_OWNER' or user.roles.get(0).role == 'SCRUM_MASTER'}">
+                    <select id="userRole" name="userRole">
+                        <span th:if="${session.role == 'Master Admin'}">
+                            <span th:each="roleEnum : ${allRoleEnums}">
+                                <span th:if="${roleEnum.repositoryId != 1}">
+                                    <option th:selected="${user.roles[0].role == roleEnum.name ? true : false}"
+                                            th:text="${roleEnum.name}"
+                                            th:value="${roleEnum.name}">
+                                    </option>
+                                </span>
+                            </span>
+                        </span>
+                        <span th:unless="${session.role == 'Master Admin'}">
+                            <span th:each="roleEnum : ${allRoleEnums}">
+                                <span th:if="${roleEnum.repositoryId != 1 and roleEnum.repositoryId != 2}">
+                                    <option th:selected="${user.roles[0].role == roleEnum.name ? true : false}"
+                                            th:text="${roleEnum.name}"
+                                            th:value="${roleEnum.name}">
+                                    </option>
+                                </span>
+                            </span>
+                        </span>
+                    </select>
+                    <button name="action" type="submit" value="update">Update</button>
+                    <button name="action" type="submit" value="delete">Delete</button>
+                </span>
+            </span>
     </form>
 </div>
-
 <br>
-
 <h3>Add a new User:</h3>
 <form method="post" th:action="@{/admin/createUser}">
     <label for="email">Email</label>
@@ -112,20 +108,20 @@
     <input id="lastName" name="lastName" th:value="${lastName}">
     <label for="roles">Role</label>
     <select id="roles" name="role">
-        <span th:if="${session.role == 'Master Admin'}">
-            <span th:each="roleEnum : ${allRoleEnums}">
-                <span th:if="${roleEnum.repositoryId != 1}">
-                    <option th:text="${roleEnum.name}" th:value="${roleEnum.name}"></option>
+            <span th:if="${session.role == 'Master Admin'}">
+                <span th:each="roleEnum : ${allRoleEnums}">
+                    <span th:if="${roleEnum.repositoryId != 1}">
+                        <option th:text="${roleEnum.name}" th:value="${roleEnum.name}"></option>
+                    </span>
                 </span>
             </span>
-        </span>
         <span th:unless="${session.role == 'Master Admin'}">
-            <span th:each="roleEnum : ${allRoleEnums}">
-                <span th:if="${roleEnum.repositoryId != 1 and roleEnum.repositoryId != 2 }">
-                    <option th:text="${roleEnum.name}" th:value="${roleEnum.name}"></option>
+                <span th:each="roleEnum : ${allRoleEnums}">
+                    <span th:if="${roleEnum.repositoryId != 1 and roleEnum.repositoryId != 2 }">
+                        <option th:text="${roleEnum.name}" th:value="${roleEnum.name}"></option>
+                    </span>
                 </span>
             </span>
-        </span>
     </select>
     <button type="submit">Submit</button>
 </form>

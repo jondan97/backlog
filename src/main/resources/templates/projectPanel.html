@@ -26,7 +26,6 @@
             <img class="hintSymbol" hidden onclick="openHintModal('projectDescription')" src="../images/hintSymbol.png"
                  style="width: 25px;height: 25px;margin: 0 0 3px 0px;">
         </th>
-
         <th>
             Developers Working
             <img class="hintSymbol" hidden onclick="openHintModal('projectDevelopersWorking')"
@@ -64,7 +63,6 @@
             Executed Sprints
         </th>
     </tr>
-
     <div th:each="project : ${projects}">
         <tr class="projectRow">
             <form>
@@ -91,8 +89,8 @@
                     <span th:text="${project.team_velocity}"></span>
                 </td>
                 <td th:onclick="|window.location='project/${project.id}'|">
-                    <span th:if="${project.sprint_duration != 1}"
-                          th:text="${project.sprint_duration + ' weeks'}"></span>
+                        <span th:if="${project.sprint_duration != 1}"
+                              th:text="${project.sprint_duration + ' weeks'}"></span>
                     <span th:text="${project.sprint_duration + ' week'}"
                           th:unless="${project.sprint_duration != 1}"></span>
                     <input hidden name="projectSprintDuration"
@@ -115,52 +113,43 @@
                     <span th:text="${project.executed_sprints}"></span>
                 </td>
                 <span sec:authorize="hasAnyAuthority('ADMIN','PRODUCT_OWNER')">
-        <td>
-            <button th:id="${'modifyProjectButton' + projectStat.count}"
-                    th:onclick="|modifyProject(${projectStat.count})|" type="button">
-                Modify
-            </button>
-            <button hidden name="action" th:id="${'updateProjectButton' + projectStat.count}" type="submit"
-                    value="update">
-                Update
-            </button>
-            <button hidden name="action" th:id="${'deleteProjectButton' + projectStat.count}" type="submit"
-                    value="delete">
-                Delete
-            </button>
-            </td>
-        </span>
+                        <td>
+                            <button th:id="${'modifyProjectButton' + projectStat.count}"
+                                    th:onclick="|modifyProject(${projectStat.count})|" type="button">Modify</button>
+                            <button hidden name="action" th:id="${'updateProjectButton' + projectStat.count}"
+                                    type="submit"
+                                    value="update">Update</button>
+                            <button hidden name="action" th:id="${'deleteProjectButton' + projectStat.count}"
+                                    type="submit"
+                                    value="delete">Delete</button>
+                        </td>
+                    </span>
             </form>
         </tr>
     </div>
     <div th:if="${projects.size() == 0}">
         <tr class="projectRow">
-            <td colspan="9">
+            <td colspan="10">
                 No projects yet.
             </td>
         </tr>
     </div>
 </table>
-
 <span sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN', 'SCRUM_MASTER')">
-    <br>
-    <div id="createElementButtonSet">
-        <span class="textHeader"> Create a Project</span>
-        <input id="createElementPlusSymbol" onclick="showCreateProjectTable()" th:src="@{/images/add.png}" type="image">
-    </div>
-    <table hidden id="createProjectTable" th:insert="include/createProject :: createForm">
-
-    </table>
-</span>
+        <br>
+        <div id="createElementButtonSet">
+            <span class="textHeader"> Create a Project</span>
+            <input id="createElementPlusSymbol" onclick="showCreateProjectTable()" th:src="@{/images/add.png}"
+                   type="image">
+        </div>
+        <table hidden id="createProjectTable" th:insert="include/createProject :: createForm">
+        </table>
+    </span>
 <span th:insert="include/modals :: editProjectModal"></span>
-
 <span th:insert="include/modals :: hintModal"></span>
 <span th:insert="include/hints :: hints"></span>
 <script th:src="@{/js/general.js}"></script>
-
 <script th:src="@{/js/projectPanel.js}"></script>
-
-
 <script>
     // self executing function here
     (function () {

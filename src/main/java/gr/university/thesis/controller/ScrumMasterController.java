@@ -118,6 +118,7 @@ public class ScrumMasterController {
             projectService.findProjectById(sprint.getProject().getId()).ifPresent(project -> project.setTeam_velocity(sprint.getVelocity()));
             sprintService.calculateTotalEffort(sprint);
             redir.addFlashAttribute("sprintFinished", true);
+            redir.addFlashAttribute("previousSprintGoal", sprint.getGoal());
             redir.addFlashAttribute("previousSprintVelocity", sprint.getVelocity());
             redir.addFlashAttribute("previousSprintTotalEffort", sprint.getTotal_effort());
         }
