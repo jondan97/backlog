@@ -93,6 +93,7 @@
 <span th:insert="include/hints :: hints"></span>
 <script th:src="@{/js/general.js}"></script>
 <script th:src="@{/js/taskBoard.js}"></script>
+<span th:insert="include/notifierBox :: notificationMessage"></span>
 <!--in the event of redirecting to a modal (after modifying item or clicking on a parent let's say-->
 <span th:if="${itemId}">
         <script>

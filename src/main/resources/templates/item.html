@@ -14,7 +14,7 @@
         <button id="uniqueItemModifyProductOwnerButton" name="action" onclick="modifyItemProductOwner()"
                 sec:authorize="hasAnyAuthority('PRODUCT_OWNER', 'ADMIN', 'SCRUM_MASTER')"
                 th:if="${item.status != 4 and (item.type == 1 or item.type == 2)}"
-                type="button">Modify(Product Owner)
+                type="button">Modify(As product owner)
         </button>
         <!--    if the user is a developer or scrum master-->
         <button id="uniqueItemModifyDeveloperButton"
@@ -23,7 +23,7 @@
                     and item.status != 4}"
                 th:onclick="|modifyItemDeveloper(${item.type})|"
                 type="button"
-                value="projectPage">Modify(Developer)
+                value="projectPage">Modify(As developer)
         </button>
         <span th:if="${param.source}">
                 <span th:if="${param.source[0] == 'projectPage'}">
@@ -68,6 +68,11 @@
                 <input hidden id="uniqueItemTitle" name="itemTitle"
                        th:class="${(item.type == 1 or item.type == 2) ? 'uniqueItemInputProductOwner' : 'uniqueItemInputDeveloper'}"
                        th:value="${item.title}">
+            </td>
+        </tr>
+        <tr>
+            <td class="warningMessage" hidden id="updateTitleWarning">
+                <span th:insert="include/warnings :: itemTitleUpdate"></span>
             </td>
         </tr>
         <tr>

@@ -79,3 +79,7 @@ function showSprintFinishedModal() {
     $('#sprintHasFinishedModal').modal({show: true});
 }
 
+function showZeroEffortModal() {
+    $('#zeroEffortModal').modal({show: true});
+}
+

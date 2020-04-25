@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -61,17 +62,20 @@ public class AdminController {
      * @param firstName: input for the first name of the user
      * @param lastName:  input for the last name of the user
      * @param role:      input for the role of the user
+     * @param redir:     allows the controller to add 'flash' attributes, which will only be valid during redirection
+     * @return : returns a redirection to the user panel
      * @throws UserAlreadyExistsException : if the new email the user tried to update exists, then throw this exception
      * @throws UserHasEmptyEmailException : if the user has no email
-     * @return : returns a redirection to the user panel
      */
     @PostMapping("/createUser")
     public String createUser(@RequestParam String email,
                              @RequestParam String password,
                              @RequestParam String firstName,
                              @RequestParam String lastName,
-                             @RequestParam String role) throws UserAlreadyExistsException, UserHasEmptyEmailException {
+                             @RequestParam String role,
+                             RedirectAttributes redir) throws UserAlreadyExistsException, UserHasEmptyEmailException {
         userService.createUser(email, password, firstName, lastName, role);
+        redir.addFlashAttribute("userCreated", true);
         return "redirect:/admin/userPanel";
     }
 
@@ -83,7 +87,8 @@ public class AdminController {
      * @param userPassword: input for the password of the user
      * @param userFirstName : input for the first name of the user
      * @param userLastName: input for the last name of the user
-     * @param userRole: input for the role of the user
+     * @param userRole:     input for the role of the user
+     * @param redir:        allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : returns a redirection to the admin page
      * @throws UserAlreadyExistsException : if the new email the user tried to update exists, then throw this exception
      * @throws UserHasEmptyEmailException : if the user has no email
@@ -94,8 +99,10 @@ public class AdminController {
                              @RequestParam String userPassword,
                              @RequestParam String userFirstName,
                              @RequestParam String userLastName,
-                             @RequestParam String userRole) throws UserAlreadyExistsException, UserHasEmptyEmailException {
+                             @RequestParam String userRole,
+                             RedirectAttributes redir) throws UserAlreadyExistsException, UserHasEmptyEmailException {
         userService.updateUser(userId, userEmail, userPassword, userFirstName, userLastName, userRole);
+        redir.addFlashAttribute("userUpdated", true);
         return "redirect:/admin/userPanel";
     }
 
@@ -103,11 +110,14 @@ public class AdminController {
      * this method calls the user service in order to delete an existing user from the repository
      *
      * @param userId: required id in order to delete the user from the repository
+     * @param redir:  allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : returns user panel template (redirects)
      */
     @RequestMapping(value = "/editUser", params = "action=delete", method = RequestMethod.POST)
-    public String deleteUser(@RequestParam long userId) {
+    public String deleteUser(@RequestParam long userId,
+                             RedirectAttributes redir) {
         userService.deleteUser(userId);
+        redir.addFlashAttribute("userDeleted", true);
         return "redirect:/admin/userPanel";
     }
 }

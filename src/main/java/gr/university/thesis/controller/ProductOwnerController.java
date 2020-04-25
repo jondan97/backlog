@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
 
@@ -62,6 +63,7 @@ public class ProductOwnerController {
      * @param developersWorking: the number of developers working on this project, helps in estimating
      * @param teamVelocity:      the velocity of the team from previous projects
      * @param sprintDuration     : the duration of each sprint in this project
+     * @param redir              :allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @param session:           the current session, needed to find the creator of the project
      * @return : returns a redirection to the project panel
      * @throws ProjectAlreadyExistsException : if the user tries to create a project with a title of another project that already
@@ -75,30 +77,36 @@ public class ProductOwnerController {
                                 @RequestParam String developersWorking,
                                 @RequestParam String teamVelocity,
                                 @RequestParam String sprintDuration,
+                                RedirectAttributes redir,
                                 HttpSession session) throws ProjectAlreadyExistsException, ProjectHasEmptyTitleException {
         projectService.createProject(title, description, developersWorking, teamVelocity, sprintDuration, sessionService.getUserWithSessionId(session));
+        redir.addFlashAttribute("projectCreated", true);
         return "redirect:/user/projectPanel";
     }
 
     /**
      * this method calls the project service in order to update an existing project and store it in the repository
      *
-     * @param projectId:                     the project id in order to find it on the repository
-     * @param projectTitle:                  the possibly updated title of the project
-     * @param projectDescription:            the possibly updated description of the project
-     * @param projectDevelopersWorking:      the number of developers that work on this project might change
-     * @param projectSprintDuration:         update to duration of each sprint in the project
+     * @param projectId:                the project id in order to find it on the repository
+     * @param projectTitle:             the possibly updated title of the project
+     * @param projectDescription:       the possibly updated description of the project
+     * @param projectDevelopersWorking: the number of developers that work on this project might change
+     * @param projectSprintDuration:    update to duration of each sprint in the project
+     * @param redir                     allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @throws ProjectAlreadyExistsException : if the user tries to update a project with a title of another project that already
      *                                       exists
      * @throws ProjectHasEmptyTitleException : the user cannot update a project and sets its title to blank
+     * @return: returns the project panel template (redirects)
      */
     @RequestMapping(value = "/editProject", params = "action=update", method = RequestMethod.POST)
     public String updateProject(@RequestParam long projectId,
                                 @RequestParam String projectTitle,
                                 @RequestParam String projectDescription,
                                 @RequestParam String projectDevelopersWorking,
-                                @RequestParam String projectSprintDuration) throws ProjectAlreadyExistsException, ProjectHasEmptyTitleException {
+                                @RequestParam String projectSprintDuration,
+                                RedirectAttributes redir) throws ProjectAlreadyExistsException, ProjectHasEmptyTitleException {
         projectService.updateProject(projectId, projectTitle, projectDescription, projectDevelopersWorking, projectSprintDuration);
+        redir.addFlashAttribute("projectUpdated", true);
         return "redirect:/user/projectPanel";
     }
 
@@ -106,11 +114,14 @@ public class ProductOwnerController {
      * this method calls the project service in order to delete an existing project from the repository
      *
      * @param projectId: required id in order to delete the project from the repository
+     * @param redir: allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : returns project panel template (redirects)
      */
     @RequestMapping(value = "/editProject", params = "action=delete", method = RequestMethod.POST)
-    public String deleteProject(@RequestParam long projectId) {
+    public String deleteProject(@RequestParam long projectId,
+                                RedirectAttributes redir) {
         projectService.deleteProject(projectId);
+        redir.addFlashAttribute("projectDeleted", true);
         return "redirect:/user/projectPanel";
     }
 
@@ -128,6 +139,7 @@ public class ProductOwnerController {
      * @param assigneeId:  id of the assigned user
      * @param parentId     : the parent of the item
      * @param session:     current session, needed to find the creator of this item
+     * @param redir: allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : returns a redirection to the project page
      * @throws ItemAlreadyExistsException : user has tried to create an item with the same title
      * @throws ItemHasEmptyTitleException : user has tried to create an item with no title
@@ -143,11 +155,34 @@ public class ProductOwnerController {
                              @RequestParam long projectId,
                              @RequestParam long assigneeId,
                              @RequestParam long parentId,
-                             HttpSession session) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
-        itemService.createItem(title, description, acceptanceCriteria, ItemType.valueOf(type),
-                ItemPriority.valueOf(priority), effort, estimatedEffort, new Project(projectId),
-                new User(assigneeId), sessionService.getUserWithSessionId(session),
-                new Item(parentId));
-        return "redirect:/user/project/" + projectId;
+                             HttpSession session,
+                             RedirectAttributes redir) {
+        try {
+            itemService.createItem(title, description, acceptanceCriteria, ItemType.valueOf(type),
+                    ItemPriority.valueOf(priority), effort, estimatedEffort, new Project(projectId),
+                    new User(assigneeId), sessionService.getUserWithSessionId(session),
+                    new Item(parentId));
+            //this is also needed to toggle the 'Create an Item' form
+            redir.addFlashAttribute("productBacklogItemCreated", true);
+            //this is general use, used by all menus that can create items
+            redir.addFlashAttribute("itemCreated", true);
+        } catch (ItemAlreadyExistsException | ItemHasEmptyTitleException e) {
+            redir.addFlashAttribute("createdProductBacklogItemTitle", title);
+            redir.addFlashAttribute("createdProductBacklogItemDescription", description);
+            redir.addFlashAttribute("createdProductBacklogItemAcceptanceCriteria", acceptanceCriteria);
+            //received full capitalized from front-end so we need to reformat it to first letter only capital
+            String reformattedTypeStr = type.substring(0, 1) + type.substring(1).toLowerCase();
+            redir.addFlashAttribute("createdProductBacklogItemType", reformattedTypeStr);
+            //same as above
+            String reformattedPriorityStr = priority.substring(0, 1) + priority.substring(1).toLowerCase();
+            redir.addFlashAttribute("createdProductBacklogItemPriority", reformattedPriorityStr);
+            redir.addFlashAttribute("createdProductBacklogItemParentId", parentId);
+            if (e instanceof ItemAlreadyExistsException) {
+                redir.addFlashAttribute("createdProductBacklogItemAlreadyExists", true);
+            } else {
+                redir.addFlashAttribute("createdProductBacklogItemHasEmptyTitle", true);
+            }
+        }
+        return "redirect:/user/project/" + projectId + "#createItemForm";
     }
 }

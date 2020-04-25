@@ -43,7 +43,6 @@
 
 .containerBottom:hover .overlay {
     opacity: 1;
-    background-color: rgba(255, 52, 86, 0.76);
     cursor: pointer;
 }
 

@@ -9,13 +9,25 @@
         <tr>
             <td>
                 <label for="title">Title:</label>
-                <input id="title" name="title" placeholder="Name of the item">
+                <input id="title" maxlength="20" name="title" placeholder="Name of the item"
+                       th:value="${createdItemOnTheGoTitle != null} ? ${createdItemOnTheGoTitle}">
+            </td>
+        </tr>
+        <tr>
+            <td class="warningMessage" th:if="${createdItemOnTheGoAlreadyExists}">
+                Story with the same title already exists. To avoid confusion, please choose another title.
+            </td>
+            <td class="warningMessage" th:if="${createdItemOnTheGoHasEmptyTitle}">
+                Story cannot have an empty title. Please input a title.
             </td>
         </tr>
         <tr>
             <td>
-                <label for="type">Type:</label>
-                <select id="type" name="type">
+                <label for="fakeType">Type:</label>
+                <select disabled id="fakeType">
+                    <option selected>Story</option>
+                </select>
+                <select hidden id="type" name="type">
                         <span th:each="itemType : ${itemTypes}">
                             <span th:if="${itemType.repositoryId == 2}">
                                 <option th:selected="${itemType.repositoryId == 3}" th:text="${itemType.name}"
@@ -34,7 +46,8 @@
             <td>
                     <textarea cols="50" id="description" maxlength="200" name="description"
                               placeholder="Short description about the item"
-                              rows="4" style="width: 99%"></textarea>
+                              rows="4" style="width: 99%"
+                              th:text="${createdItemOnTheGoDescription != null} ? ${createdItemOnTheGoDescription}"></textarea>
             </td>
         </tr>
         <tr>
@@ -46,7 +59,8 @@
             <td>
                     <textarea cols="50" id="acceptanceCriteria" maxlength="200" name="acceptanceCriteria"
                               placeholder="Under what conditions, is this item considered done"
-                              rows="4" style="width: 99%"></textarea>
+                              rows="4" style="width: 99%"
+                              th:text="${createdItemOnTheGoAcceptanceCriteria != null} ? ${createdItemOnTheGoAcceptanceCriteria}"></textarea>
             </td>
         </tr>
         <tr>
@@ -83,7 +97,12 @@
                 <select id="priority" name="priority">
                         <span th:each="itemPriority : ${itemPriorities}">
                             <span th:if="${itemPriority.repositoryId != 0}">
+                                <option th:if="${createdItemOnTheGoPriority != null}"
+                                        th:selected="${itemPriority.importance == createdItemOnTheGoPriority}"
+                                        th:text="${itemPriority.name}"
+                                        th:value="${itemPriority}"></option>
                                 <option th:selected="${itemPriority.repositoryId == 3}" th:text="${itemPriority.name}"
+                                        th:unless="${createdItemOnTheGoPriority != null}"
                                         th:value="${itemPriority}"></option>
                             </span>
                         </span>

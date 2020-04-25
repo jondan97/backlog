@@ -51,3 +51,45 @@
 .warningMessage {
     color: red;
 }
+
+.successMessage {
+    font-weight: bold;
+    color: green;
+}
+
+/*notification message */
+.notifierBox {
+    padding: 10px;
+    color: white;
+    background-color: forestgreen;
+    font-weight: bold;
+    top: 0vh;
+    /* keep the element centered */
+    left: 50%;
+    transform: translateX(-50%);
+    transition: all 100ms linear;
+    position: fixed;
+    display: none;
+    border-radius: 5px;
+    z-index: 2000;
+}
+
+.notifier {
+    float: left;
+}
+
+/* The close button */
+.closebtn {
+    margin-left: 10px;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 21px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* When moving the mouse over the close button */
+.closebtn:hover {
+    color: black;
+}

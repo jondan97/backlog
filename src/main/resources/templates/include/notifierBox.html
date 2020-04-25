@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<span th:fragment="notificationMessage">
+    <!-- DIY NOTIFICATION MESSAGE SECTION-->
+<div class="notifierBox">
+    <div class="notifier"></div>
+    <span class="closebtn" hidden id="notificationMessageCloseButtonSymbol"
+          onclick="this.parentElement.style.display='none';">&times;</span>
+</div>
+<script th:if="${itemCreated}">
+    // self executing function here
+    (function () {
+        showNotificationMessage("Item has been created successfully.", "forestgreen");
+    })();
+</script>
+<script th:if="${itemUpdated}">
+    // self executing function here
+    (function () {
+        showNotificationMessage("Item has been updated successfully.", "darkkhaki");
+    })();
+</script>
+<script th:if="${itemDeleted}">
+    // self executing function here
+    (function () {
+        showNotificationMessage("Item has been deleted successfully.", " crimson");
+    })();
+</script>
+<script th:if="${projectCreated}">
+    // self executing function here
+    (function () {
+        showNotificationMessage("Project has been created successfully.", "forestgreen");
+    })();
+</script>
+<script th:if="${projectUpdated}">
+    // self executing function here
+    (function () {
+        showNotificationMessage("Project has been updated successfully.", "darkkhaki");
+    })();
+</script>
+<script th:if="${projectDeleted}">
+    // self executing function here
+    (function () {
+        showNotificationMessage("Project has been deleted successfully.", " crimson");
+    })();
+</script>
+<script th:if="${userCreated}">
+    // self executing function here
+    (function () {
+        showNotificationMessage("User has been created successfully.", "forestgreen");
+    })();
+</script>
+<script th:if="${userUpdated}">
+    // self executing function here
+    (function () {
+        showNotificationMessage("User has been updated successfully.", "darkkhaki");
+    })();
+</script>
+<script th:if="${userDeleted}">
+    // self executing function here
+    (function () {
+        showNotificationMessage("User has been deleted successfully.", " crimson");
+    })();
+</script>
+</span>
+</body>
+</html>

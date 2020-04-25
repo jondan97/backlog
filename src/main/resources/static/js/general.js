@@ -58,3 +58,29 @@ function showHints() {
     }
 }
 
+/* Function for the notification message */
+function showNotificationMessage(text, color) {
+    var topVar = 0;
+    var increment = 1 / 10;
+    $('#notificationMessageCloseButtonSymbol').attr('hidden', false);
+    var notifierBox = $('.notifierBox');
+    notifierBox.css('background-color', color);
+    /* animation function */
+    $('.notifier').html(text);
+    notifierBox.fadeIn();
+    if (!id)
+        var id = setInterval(frame, 50);
+
+    function frame() {
+        if (topVar === 0.8 || topVar > 0.8) {
+            clearInterval(id);
+            setTimeout(function () {
+                notifierBox.fadeOut(250);
+            }, 2000)
+        } else {
+            topVar += increment;
+            notifierBox.css('top', (topVar + 'vh'));
+        }
+    }
+}
+

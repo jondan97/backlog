@@ -59,6 +59,7 @@
 <span th:insert="include/hints :: hints"></span>
 <script th:src="@{/js/general.js}"></script>
 <script th:src="@{/js/sprintHistory.js}"></script>
+<span th:insert="include/notifierBox :: notificationMessage"></span>
 <script th:inline="javascript">
     const categories = [[${burnDownChartData.categories}]];
     const ideal_burn = [[${burnDownChartData.ideal_burn}]];

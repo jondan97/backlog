@@ -543,27 +543,56 @@ public class UserController {
                                     @RequestParam long assigneeId,
                                     @RequestParam long parentId,
                                     @RequestParam long parentStatus,
-                                    HttpSession session) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
-        //1 is for item with parent in project backlog
-        if (parentStatus == 1) {
-            Item item = itemService.createItemOnTheGo(null, title, description, acceptanceCriteria, ItemType.valueOf(type),
-                    ItemPriority.valueOf(priority), effort, new Project(projectId),
-                    new User(assigneeId), sessionService.getUserWithSessionId(session),
-                    new Item(parentId));
-        }
-        //0 is for item without a parent in the sprint backlog, 2 for ready sprint and 3 for active
-        else if (parentStatus == 0 || parentStatus == 2 || parentStatus == 3) {
-            Optional<Sprint> sprintOptional = sprintService.findActiveSprintInProject(new Project(projectId));
-            if (sprintOptional.isPresent()) {
-                Sprint sprint = sprintOptional.get();
-                Item item = itemService.createItemOnTheGo(sprint, title, description, acceptanceCriteria, ItemType.valueOf(type),
+                                    HttpSession session,
+                                    RedirectAttributes redir) {
+        try {
+            //1 is for item with parent in project backlog
+            if (parentStatus == 1) {
+                itemService.createItemOnTheGo(null, title, description, acceptanceCriteria, ItemType.valueOf(type),
                         ItemPriority.valueOf(priority), effort, new Project(projectId),
                         new User(assigneeId), sessionService.getUserWithSessionId(session),
                         new Item(parentId));
-                itemSprintHistoryService.createAssociationAndSaveToRepository(item, new Sprint(sprintId));
+            }
+            //0 is for item without a parent in the sprint backlog, 2 for ready sprint and 3 for active
+            else if (parentStatus == 0 || parentStatus == 2 || parentStatus == 3) {
+                Optional<Sprint> sprintOptional = sprintService.findActiveSprintInProject(new Project(projectId));
+                if (sprintOptional.isPresent()) {
+                    Sprint sprint = sprintOptional.get();
+                    Item item = itemService.createItemOnTheGo(sprint, title, description, acceptanceCriteria, ItemType.valueOf(type),
+                            ItemPriority.valueOf(priority), effort, new Project(projectId),
+                            new User(assigneeId), sessionService.getUserWithSessionId(session),
+                            new Item(parentId));
+                    itemSprintHistoryService.createAssociationAndSaveToRepository(item, new Sprint(sprintId));
+                }
+            }
+            redir.addFlashAttribute("itemCreated", true);
+        } catch (ItemAlreadyExistsException | ItemHasEmptyTitleException e) {
+            //received full capitalized from front-end so we need to reformat it to first letter only capital
+            String reformattedTypeStr = type.substring(0, 1) + type.substring(1).toLowerCase();
+            redir.addFlashAttribute("createdItemOnTheGoTitle", title);
+            redir.addFlashAttribute("createdItemOnTheGoDescription", description);
+            redir.addFlashAttribute("createdItemOnTheGoAcceptanceCriteria", acceptanceCriteria);
+            //same as above
+            String reformattedPriorityStr = priority.substring(0, 1) + priority.substring(1).toLowerCase();
+            redir.addFlashAttribute("createdItemOnTheGoPriority", reformattedPriorityStr);
+            redir.addFlashAttribute("createdItemOnTheGoParentId", parentId);
+            if (reformattedTypeStr.equals(ItemType.STORY.getName())) {
+                redir.addFlashAttribute("createdItemOnTheGoModal", 2);
+                redir.addFlashAttribute("createdItemOnTheGoBacklog", parentStatus);
+                redir.addFlashAttribute("createdStoryItemParentId", parentId);
+            } else if (reformattedTypeStr.equals(ItemType.TASK.getName()) || reformattedTypeStr.equals(ItemType.BUG.getName())) {
+                redir.addFlashAttribute("createdItemOnTheGoModal", 1);
+                redir.addFlashAttribute("createdItemOnTheGoBacklog", parentStatus);
+                redir.addFlashAttribute("createdItemOnTheGoType", reformattedTypeStr);
+                redir.addFlashAttribute("createdItemOnTheGoEffort", effort);
+                redir.addFlashAttribute("createdItemOnTheGoAssigneeId", assigneeId);
+            }
+            if (e instanceof ItemAlreadyExistsException) {
+                redir.addFlashAttribute("createdItemOnTheGoAlreadyExists", true);
+            } else {
+                redir.addFlashAttribute("createdItemOnTheGoHasEmptyTitle", true);
             }
         }
-
         return "redirect:/user/project/" + projectId;
     }
 
@@ -603,12 +632,17 @@ public class UserController {
                              @RequestParam long sprintId,
                              @RequestParam String modifyItemPage,
                              RedirectAttributes redir
-    ) throws ItemAlreadyExistsException, ItemHasEmptyTitleException {
+    ) {
         //the associations need to be defined before the item is updated
         itemSprintHistoryService.manageItemSprintAssociation(new Item(itemId), new Sprint(sprintId), new Item(itemParentId));
-        itemService.updateItem(itemId, itemTitle, itemDescription, itemAcceptanceCriteria, itemType, itemPriority,
-                itemEffort, itemEstimatedEffort,
-                new User(itemAssigneeId), new Item(itemParentId));
+        try {
+            itemService.updateItem(itemId, itemTitle, itemDescription, itemAcceptanceCriteria, itemType, itemPriority,
+                    itemEffort, itemEstimatedEffort,
+                    new User(itemAssigneeId), new Item(itemParentId));
+            redir.addFlashAttribute("itemUpdated", true);
+        } catch (ItemAlreadyExistsException | ItemHasEmptyTitleException e) {
+            redir.addFlashAttribute("failedToUpdateItem", itemId);
+        }
         if (modifyItemPage.equals("projectPage"))
             return "redirect:/user/project/" + itemProjectId;
         else {
@@ -646,6 +680,7 @@ public class UserController {
         //need to delete its associations first (if they exist)
         itemSprintHistoryService.removeItemFromSprint(new Item(itemId), new Sprint(sprintId), null);
         itemService.deleteItem(itemId);
+        redir.addFlashAttribute("itemDeleted", true);
         if (modifyItemPage.equals("projectPage"))
             return "redirect:/user/project/" + itemProjectId;
         else {

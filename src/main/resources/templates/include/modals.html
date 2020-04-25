@@ -137,5 +137,31 @@
             </div>
         </div>
     </span>
+
+<span th:fragment="zeroEffortModal">
+                <!-- Sprint Has Finished Modal -->
+        <div class="modal fade" id="zeroEffortModal" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Sprint Start Error</h4>
+                        <button class="close" data-dismiss="modal" type="button">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <span>
+                            <p><b>The sprint has zero effort and cannot be started.</b></p>
+                            <p>Please try and add some <b>tasks/bugs</b> to increase the total effort.</p>
+                            <p>The developers will not be able to work if the epics and stories are not actually turned into tasks and bugs first. Tasks/Bugs are the only types of item the developers see in the <b>task board</b> page.</p>
+                            <p><b>Some notes</b>: For more information on how to do that, please turn the <b>hints</b> on and click the question mark symbol next to the "<b>Add New Task</b>" button.</p>
+                        </span>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-default" data-dismiss="modal" type="button">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </span>
 </body>
 </html>

@@ -306,13 +306,14 @@ public class SprintService {
                                     .getRepositoryId()).collect(Collectors.toList());
             //calculating the effort of the remaining parents
             int effortOfRemainingParents = mostImportantItemsInSprintBacklog.stream().mapToInt(item -> item.getEffort()).sum();
-            int sprintTotalEffort = (int) sprint.getTotal_effort();
+            int sprintTotalEffort = sprintBacklogParents.stream().mapToInt(item -> item.getEffort()).sum();
 
             for (Item projectBacklogParent : projectBacklogParents) {
                 if (projectBacklogParent.getPriority() == finalMostImportantItemValueInSprintBacklog) {
                     effortOfRemainingParents += projectBacklogParent.getEffort();
-                    //if the sprint backlog can fit at least one more 'most important item', then notify the user that
-                    //they should remove the 'least important items' and add a more 'most important item' instead
+                    //if the sprint backlog can fit at least one more 'most important item' from the product backlog,
+                    // then notify the user that they should remove the 'least important items' and add
+                    // a more 'most important item' instead
                     if (effortOfRemainingParents < sprintTotalEffort) {
                         return false;
                     }

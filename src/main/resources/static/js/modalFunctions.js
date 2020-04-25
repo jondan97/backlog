@@ -12,6 +12,7 @@ function modifyItemDeveloper(type) {
     $('#uniqueItemUpdateButton').attr('hidden', false);
 
     if (type === 3 || type === 4) {
+        $('#updateTitleWarning').attr('hidden', false);
         $('#uniqueItemDeleteButton').attr('hidden', false);
         $('.deletionWarning').attr('hidden', false);
     }
@@ -26,6 +27,7 @@ function modifyItemProductOwner() {
     let uniqueItemInputClass = $('#viewUniqueItemTable .uniqueItemInputProductOwner');
     uniqueItemInputClass.attr('hidden', false);
     uniqueItemInputClass.attr('readonly', false);
+    $('#updateTitleWarning').attr('hidden', false);
 
     let uniqueDeveloperLabel = $('.productOwnerLabel');
     uniqueDeveloperLabel.css("background-color", "coral");

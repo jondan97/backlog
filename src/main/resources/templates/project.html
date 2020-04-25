@@ -26,10 +26,16 @@
                   th:if="${project.team_velocity != 0 and sprint.total_effort != 0 and sprint.total_effort < project.team_velocity}">
                 <span th:insert="include/warnings :: addEffort"></span>
             </span>
-            <span style="float: right">
+            <span style="float: right" th:if="${sprint.total_effort != 0}">
                 <button class="btn btn-success btn-primary btn-lg" form="sprintForm" name="action"
                         sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')" type="submit" value="start">
                     Start</button>
+            </span>
+            <span style="float: right" th:if="${sprint.total_effort == 0}">
+                <button class="btn btn-outline-danger btn-primary btn-lg" onclick="showZeroEffortModal()"
+                        sec:authorize="hasAnyAuthority('SCRUM_MASTER', 'ADMIN')">
+                    Start</button>
+                <span th:insert="include/modals :: zeroEffortModal"></span>
             </span>
         </span>
         <span th:unless="${sprint.status == 1}">
@@ -104,6 +110,7 @@
 <span th:insert="include/modals :: createStoryModal"></span>
 <script th:src="@{/js/general.js}"></script>
 <script th:src="@{/js/project.js}"></script>
+<span th:insert="include/notifierBox :: notificationMessage"></span>
 <!--in the event of redirecting to a modal (after modifying item or clicking on a parent let's say-->
 <span th:if="${itemId}">
         <script>
@@ -118,6 +125,24 @@
             showSprintFinishedModal();
         </script>
     </span>
+<span th:if="${productBacklogItemCreated != null or createdProductBacklogItemAlreadyExists != null or createdProductBacklogItemHasEmptyTitle != null}">
+    <script>
+        showCreateItemTable();
+    </script>
+    <!--    inputs should be toggled, since the create an item menu is initialized with the story type in mind-->
+    <script th:if="${(createdProductBacklogItemAlreadyExists != null or createdProductBacklogItemHasEmptyTitle != null) and createdProductBacklogItemType == 'Epic'}">
+    //alert(document.getElementById("type").value);
+    toggleInputs();
+</script>
+</span>
+<span th:if="${createdItemOnTheGoAlreadyExists != null or createdItemOnTheGoHasEmptyTitle != null}">
+    <script th:text="|createItemOnTheGo(${createdItemOnTheGoModal},${createdItemOnTheGoBacklog},${createdItemOnTheGoParentId});|">
+    </script>
+</span>
+<span th:if="${failedToUpdateItem != null}">
+    <script th:text="|openViewItemModal(${project.id}, ${failedToUpdateItem});|">
+    </script>
+</span>
 <script>
     // self executing function here
     (function () {

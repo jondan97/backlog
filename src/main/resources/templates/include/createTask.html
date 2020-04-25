@@ -9,7 +9,16 @@
         <tr>
             <td>
                 <label for="title">Title:</label>
-                <input id="title" name="title" placeholder="Name of the item">
+                <input id="title" maxlength="20" name="title" placeholder="Name of the item"
+                       th:value="${createdItemOnTheGoTitle != null} ? ${createdItemOnTheGoTitle}">
+            </td>
+        </tr>
+        <tr>
+            <td class="warningMessage" th:if="${createdItemOnTheGoAlreadyExists}">
+                Story with the same title already exists. To avoid confusion, please choose another title.
+            </td>
+            <td class="warningMessage" th:if="${createdItemOnTheGoHasEmptyTitle}">
+                Story cannot have an empty title. Please input a title.
             </td>
         </tr>
         <tr>
@@ -18,7 +27,12 @@
                 <select id="type" name="type">
                         <span th:each="itemType : ${itemTypes}">
                             <span th:if="${itemType.repositoryId != 0 and itemType.repositoryId != 1 and itemType.repositoryId != 2}">
+                                <option th:if="${createdItemOnTheGoType != null}"
+                                        th:selected="${itemType.name == createdItemOnTheGoType}"
+                                        th:text="${itemType.name}"
+                                        th:value="${itemType}"></option>
                                 <option th:selected="${itemType.repositoryId == 3}" th:text="${itemType.name}"
+                                        th:unless="${createdItemOnTheGoType != null}"
                                         th:value="${itemType}"></option>
                             </span>
                         </span>
@@ -34,7 +48,8 @@
             <td>
                     <textarea cols="50" id="description" maxlength="200" name="description"
                               placeholder="Short description about the item"
-                              rows="4" style="width: 99%"></textarea>
+                              rows="4" style="width: 99%"
+                              th:text="${createdItemOnTheGoDescription != null} ? ${createdItemOnTheGoDescription}"></textarea>
             </td>
         </tr>
         <tr>
@@ -46,7 +61,8 @@
             <td>
                     <textarea cols="50" id="acceptanceCriteria" maxlength="200" name="acceptanceCriteria"
                               placeholder="Under what conditions, is this item considered done"
-                              rows="4" style="width: 99%"></textarea>
+                              rows="4" style="width: 99%"
+                              th:text="${createdItemOnTheGoAcceptanceCriteria != null} ? ${createdItemOnTheGoAcceptanceCriteria}"></textarea>
             </td>
         </tr>
         <tr>
@@ -83,7 +99,12 @@
                 <select id="priority" name="priority">
                         <span th:each="itemPriority : ${itemPriorities}">
                             <span th:if="${itemPriority.repositoryId != 0}">
+                                <option th:if="${createdItemOnTheGoPriority != null}"
+                                        th:selected="${itemPriority.importance == createdItemOnTheGoPriority}"
+                                        th:text="${itemPriority.name}"
+                                        th:value="${itemPriority}"></option>
                                 <option th:selected="${itemPriority.repositoryId == 3}" th:text="${itemPriority.name}"
+                                        th:unless="${createdItemOnTheGoPriority != null}"
                                         th:value="${itemPriority}"></option>
                             </span>
                         </span>
@@ -94,7 +115,9 @@
             <td>
                     <span id="taskBugEffort">
                         <label for="effort">Effort:</label>
-                        <input id="effort" name="effort" placeholder="0 to 10" type="number">
+                        <input id="effort" name="effort" placeholder="0 to 10"
+                               th:value="${createdItemOnTheGoEffort != null} ? ${createdItemOnTheGoEffort}"
+                               type="number">
                     </span>
             </td>
         </tr>
@@ -108,9 +131,14 @@
                 <select id="assigneeId" name="assigneeId">
                     <option selected value="0">No assignee</option>
                     <span th:each="user : ${allUsers}">
-                            <option th:selected="${user.id == session.userId}"
-                                    th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
-                                    th:value="${user.id}"></option>
+                        <option th:if="${createdItemOnTheGoAssigneeId != null}"
+                                th:selected="${user.id == createdItemOnTheGoAssigneeId}"
+                                th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                                th:value="${user.id}"></option>
+                                <option th:selected="${user.id == session.userId}"
+                                        th:text="${user.firstName + ' ' + user.lastName + ', ' + user.email}"
+                                        th:unless="${createdItemOnTheGoAssigneeId != null}"
+                                        th:value="${user.id}"></option>
                         </span>
                 </select>
                 <input hidden id="projectId" name="projectId" th:value="${project.id}">

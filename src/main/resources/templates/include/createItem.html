@@ -14,7 +14,8 @@
         <tr>
             <td>
                 <label for="title">Title:</label>
-                <input id="title" name="title" placeholder="Name of the item">
+                <input id="title" maxlength="20" name="title" placeholder="Name of the item"
+                       th:value="${createdProductBacklogItemTitle != null} ? ${createdProductBacklogItemTitle}">
                 <img class="hintSymbol" hidden onclick="openHintModal('createItem-title')"
                      src="../../images/hintSymbol.png" style="width: 30px;height: 30px;margin: 0 0 7px 0px;">
             </td>
@@ -25,7 +26,12 @@
                 <select id="type" name="type" onchange="toggleInputs()">
                         <span th:each="itemType : ${itemTypes}">
                             <span th:if="${itemType.repositoryId != 0 and itemType.repositoryId != 3 and itemType.repositoryId != 4}">
+                                <option th:if="${createdProductBacklogItemType != null}"
+                                        th:selected="${itemType.name == createdProductBacklogItemType}"
+                                        th:text="${itemType.name}"
+                                        th:value="${itemType}"></option>
                                 <option th:selected="${itemType.repositoryId == 2}" th:text="${itemType.name}"
+                                        th:unless="${createdProductBacklogItemType != null}"
                                         th:value="${itemType}"></option>
                             </span>
                         </span>
@@ -44,6 +50,7 @@
         <tr>
             <td>
                     <textarea cols="50" id="description" maxlength="200" name="description"
+                              th:text="${createdProductBacklogItemDescription != null} ? ${createdProductBacklogItemDescription}"
                               placeholder="Short description about the item" rows="4"></textarea>
             </td>
         </tr>
@@ -57,6 +64,7 @@
         <tr>
             <td>
                     <textarea cols="50" id="acceptanceCriteria" maxlength="200"
+                              th:text="${createdProductBacklogItemAcceptanceCriteria != null} ? ${createdProductBacklogItemAcceptanceCriteria}"
                               name="acceptanceCriteria"
                               placeholder="Under what conditions, is this item considered done" rows="4"></textarea>
             </td>
@@ -66,9 +74,15 @@
                 <label for="fakeEpicParentId">Parent:</label>
                 <select id="fakeEpicParentId" name="fakeParentId">
                     <option selected value="0">No Parent</option>
+                    <!--                    this could have been made in one line, but for clarity reasons (and efficiency) it was created with a if-else clause-->
                     <span th:each="item : ${backlog}">
                             <span th:if="${item.type == 1 and (item.status != 4 and item.status != 3)}">
-                                <option th:text="${item.title}" th:value="${item.id}"></option>
+                                <option th:if="${createdProductBacklogItemParentId != null}"
+                                        th:selected="${item.id == createdProductBacklogItemParentId}"
+                                        th:text="${item.title}"
+                                        th:value="${item.id}"></option>
+                                <option th:text="${item.title}" th:unless="${createdProductBacklogItemParentId != null}"
+                                        th:value="${item.id}"></option>
                             </span>
                         </span>
                 </select>
@@ -83,7 +97,12 @@
                 <select id="priority" name="priority">
                         <span th:each="itemPriority : ${itemPriorities}">
                             <span th:if="${itemPriority.repositoryId != 0}">
+                                <option th:if="${createdProductBacklogItemPriority != null}"
+                                        th:selected="${itemPriority.importance == createdProductBacklogItemPriority}"
+                                        th:text="${itemPriority.name}"
+                                        th:value="${itemPriority}"></option>
                                 <option th:selected="${itemPriority.repositoryId == 3}" th:text="${itemPriority.name}"
+                                        th:unless="${createdProductBacklogItemPriority != null}"
                                         th:value="${itemPriority}"></option>
                             </span>
                         </span>
@@ -94,6 +113,17 @@
         </tr>
         <tr>
             <td>
+            </td>
+        </tr>
+        <tr>
+            <td class="successMessage" th:if="${productBacklogItemCreated}">
+                Item has been successfully created.
+            </td>
+            <td class="warningMessage" th:if="${createdProductBacklogItemAlreadyExists}">
+                Item with the same title already exists. To avoid confusion, please choose another title.
+            </td>
+            <td class="warningMessage" th:if="${createdProductBacklogItemHasEmptyTitle}">
+                Item cannot have an empty title. Please input a title.
             </td>
         </tr>
         <tr>
