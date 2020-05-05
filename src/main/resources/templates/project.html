@@ -76,7 +76,7 @@
                         </span>
                     </span>
                 </div>
-            <span th:if="${sprint.associatedItems.size() == 0}">There are no items in the Sprint Backlog.</span>
+            <span th:if="${sprint.associatedItems == null or sprint.associatedItems.size() == 0}">There are no items in the Sprint Backlog.</span>
         </span>
     </span>
 <br>

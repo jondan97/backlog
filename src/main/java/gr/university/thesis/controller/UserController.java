@@ -73,13 +73,15 @@ public class UserController {
      *
      * @param projectId: the project id that was requested by the user to view
      * @param model:     the user interface that will be shown in the front-end
+     * @param redir:     allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : returns the project template
      * @throws ProjectDoesNotExistException: throws this exception when the user tries to access a project that does
      *                                       not exist
      */
     @RequestMapping(value = "/project/{projectId}")
     public String viewProject(@PathVariable long projectId,
-                              Model model) throws ProjectDoesNotExistException {
+                              Model model,
+                              RedirectAttributes redir) throws ProjectDoesNotExistException {
         Optional<Project> projectOptional = projectService.findProjectById(projectId);
         if (projectOptional.isPresent()) {
             Project project = projectOptional.get();
@@ -95,7 +97,12 @@ public class UserController {
                         && Time.calculateDifferenceInMs(new Date(), sprint.getEnd_date()) <= 0) {
                     sprintService.finishSprint(sprint.getId());
                     itemSprintHistoryService.transferUnfinishedItemsFromOldSprint(sprint);
-                    sprint = sprintService.findActiveSprintInProject(project).get();
+                    redir.addFlashAttribute("sprintFinished", true);
+                    redir.addFlashAttribute("previousSprintGoal", sprint.getGoal());
+                    redir.addFlashAttribute("previousSprintVelocity", sprint.getVelocity());
+                    redir.addFlashAttribute("previousSprintTotalEffort", sprint.getTotal_effort());
+                    //need to redirect here because project throws null exception if returned as normal template
+                    return "redirect:/user/project/" + projectId;
                 }
                 model.addAttribute("sprint", sprint);
                 //for the navbar

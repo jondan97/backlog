@@ -105,6 +105,7 @@ public class ScrumMasterController {
      *
      * @param sprintId:        the sprint that the user wants to finish
      * @param sprintProjectId: the project that this sprint belongs to
+     * @param redir:           allows the controller to add 'flash' attributes, which will only be valid during redirection
      * @return : redirection to project page
      */
     @RequestMapping(value = "/editSprint", params = "action=finish", method = RequestMethod.POST)

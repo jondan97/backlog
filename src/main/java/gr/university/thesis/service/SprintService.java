@@ -267,16 +267,23 @@ public class SprintService {
         ArrayList<Item> projectBacklogParents = new ArrayList<>();
         Set<ItemSprintHistory> associatedItems = sprint.getAssociatedItems();
         int mostImportantItemValueInSprintBacklog = 0;
-        for (ItemSprintHistory itemSprintHistory : associatedItems) {
-            //tasks are not included in this comparison, only epics and stories
-            if (itemSprintHistory.getItem().getParent() == null
-                    && (itemSprintHistory.getItem().getType() != ItemType.TASK.getRepositoryId()
-                    && itemSprintHistory.getItem().getType() != ItemType.BUG.getRepositoryId())) {
-                sprintBacklogParents.add(itemSprintHistory.getItem());
-                if (itemSprintHistory.getItem().getPriority() > mostImportantItemValueInSprintBacklog) {
-                    mostImportantItemValueInSprintBacklog = itemSprintHistory.getItem().getPriority();
+        //will throw null exception
+        if (associatedItems != null) {
+            for (ItemSprintHistory itemSprintHistory : associatedItems) {
+                //tasks are not included in this comparison, only epics and stories
+                if (itemSprintHistory.getItem().getParent() == null
+                        && (itemSprintHistory.getItem().getType() != ItemType.TASK.getRepositoryId()
+                        && itemSprintHistory.getItem().getType() != ItemType.BUG.getRepositoryId())) {
+                    sprintBacklogParents.add(itemSprintHistory.getItem());
+                    if (itemSprintHistory.getItem().getPriority() > mostImportantItemValueInSprintBacklog) {
+                        mostImportantItemValueInSprintBacklog = itemSprintHistory.getItem().getPriority();
+                    }
                 }
             }
+        }
+        //sprint backlog is null so why check, basically it is 'empty'
+        else {
+            return true;
         }
         int mostImportantItemValueInProjectBacklog = 0;
         for (Object objects : projectBacklog) {

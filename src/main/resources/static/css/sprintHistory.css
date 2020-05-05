@@ -21,7 +21,7 @@
     border-left: 1px solid black;
 }
 
-.greyHover:nth-of-type(even) {
+.greyHover {
     background-color: #a9c0f2;
 }
 
