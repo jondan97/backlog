@@ -1,5 +1,10 @@
 function showCreateProjectTable() {
-    document.getElementById("createProjectTable").hidden = false;
+    let projectTableHiddenStatus = document.getElementById("createProjectTable").hidden;
+    if (projectTableHiddenStatus === true) {
+        document.getElementById("createProjectTable").hidden = false;
+    } else {
+        document.getElementById("createProjectTable").hidden = true;
+    }
 }
 
 // When the user clicks on the button, open the modal
@@ -10,6 +15,7 @@ function modifyProject(projectCount) {
     document.getElementById("projectTitle").value = document.getElementById("projectTitle" + projectCount).value;
     document.getElementById("projectDescription").value = document.getElementById("projectDescription" + projectCount).value;
     document.getElementById("projectDevelopersWorking").value = document.getElementById("projectDevelopersWorking" + projectCount).value;
+    document.getElementById("projectCount").value = projectCount;
     let sprintDurationValue = document.getElementById("projectSprintDuration" + projectCount).value;
     if (sprintDurationValue == 1) {
         document.getElementById("projectSprintDurationOption1").selected = true;

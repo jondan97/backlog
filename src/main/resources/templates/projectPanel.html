@@ -151,6 +151,15 @@
 <script th:src="@{/js/general.js}"></script>
 <script th:src="@{/js/projectPanel.js}"></script>
 <span th:insert="include/notifierBox :: notificationMessage"></span>
+<span th:if="${createdProjectAlreadyExists != null or createdProjectHasEmptyTitle != null}">
+    <script>
+        showCreateProjectTable();
+    </script>
+</span>
+<span th:if="${failedToUpdateProject != null}">
+    <script th:text="|modifyProject(${failedToUpdateProject});|">
+    </script>
+</span>
 <script>
     // self executing function here
     (function () {

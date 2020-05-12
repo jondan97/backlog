@@ -7,10 +7,16 @@
 <table th:fragment="editProject">
     <form id="modifyProjectForm" method="post" th:action="@{/pm/editProject}">
         <input hidden id="projectId" name="projectId">
+        <input hidden id="projectCount" name="projectCount">
         <tr>
             <td>
                 <label for="projectTitle">Title:</label>
                 <input id="projectTitle" name="projectTitle">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <span class="warningMessage" th:insert="include/warnings :: projectTitleUpdate"></span>
             </td>
         </tr>
         <tr>

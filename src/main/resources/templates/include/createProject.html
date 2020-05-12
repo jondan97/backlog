@@ -8,7 +8,8 @@
     <tr>
         <td>
             <label for="title">Title:</label>
-            <input id="title" name="title" placeholder="Name of the project">
+            <input id="title" name="title" placeholder="Name of the project"
+                   th:value="${createdProjectTitle != null} ? ${createdProjectTitle}">
         </td>
     </tr>
     <tr>
@@ -19,19 +20,23 @@
     <tr>
         <td>
                 <textarea cols="50" form="createProjectForm" id="description" maxlength="200" name="description"
-                          placeholder="Short description about the project" rows="4"></textarea>
+                          placeholder="Short description about the project" rows="4"
+                          th:text="${createdProjectDescription != null} ? ${createdProjectDescription}"></textarea>
         </td>
     </tr>
     <tr>
         <td>
             <label for="developersWorking">Developers Working:</label>
-            <input id="developersWorking" name="developersWorking" placeholder="3 to 9 or more" type="number">
+            <input id="developersWorking" name="developersWorking" placeholder="3 to 9 or more"
+                   th:value="${createdProjectDevelopersWorking != null} ? ${createdProjectDevelopersWorking}"
+                   type="number">
         </td>
     </tr>
     <tr>
         <td>
             <label for="teamVelocity">Initial Team Velocity:</label>
             <input id="teamVelocity" name="teamVelocity" placeholder="0 and above"
+                   th:value="${createdProjectVelocity != null} ? ${createdProjectVelocity}"
                    type="number">
         </td>
     </tr>
@@ -39,19 +44,34 @@
         <td>
             <label for="sprintDuration">Sprint Duration:</label>
             <select id="sprintDuration" name="sprintDuration">
-                <option value="1">
+                <option th:selected="${createdProjectSprintDuration != null and createdProjectSprintDuration == '1'}"
+                        value="1">
                     1 week
                 </option>
-                <option selected value="2">
+                <option th:selected="${createdProjectSprintDuration == null or createdProjectSprintDuration == '2'}"
+                        value="2">
                     2 weeks
                 </option>
-                <option value="3">
+                <option th:selected="${createdProjectSprintDuration != null and createdProjectSprintDuration == '3'}"
+                        value="3">
                     3 weeks
                 </option>
-                <option value="4">
+                <option th:selected="${createdProjectSprintDuration != null and createdProjectSprintDuration == '4'}"
+                        value="4">
                     4 weeks
                 </option>
             </select>
+    </tr>
+    <tr>
+        <td class="warningMessage" th:if="${createdProjectAlreadyExists}">
+            Project with the same title already exists. To avoid confusion, please choose another title.
+        </td>
+        <td class="warningMessage" th:if="${createdProjectHasEmptyTitle}">
+            Project cannot have an empty title. Please input a title.
+        </td>
+    </tr>
+    <tr>
+        <td>
             <button style="float: right" type="submit">Create Project</button>
         </td>
     </tr>

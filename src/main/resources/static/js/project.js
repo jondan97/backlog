@@ -1,5 +1,10 @@
 function showCreateItemTable() {
-    document.getElementById("createItemTable").hidden = false;
+    let createItemTableHiddenStatus = document.getElementById("createItemTable").hidden;
+    if (createItemTableHiddenStatus === true) {
+        document.getElementById("createItemTable").hidden = false;
+    } else {
+        document.getElementById("createItemTable").hidden = true;
+    }
 }
 
 function toggleInputs() {

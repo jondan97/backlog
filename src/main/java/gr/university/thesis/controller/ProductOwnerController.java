@@ -78,9 +78,22 @@ public class ProductOwnerController {
                                 @RequestParam String teamVelocity,
                                 @RequestParam String sprintDuration,
                                 RedirectAttributes redir,
-                                HttpSession session) throws ProjectAlreadyExistsException, ProjectHasEmptyTitleException {
-        projectService.createProject(title, description, developersWorking, teamVelocity, sprintDuration, sessionService.getUserWithSessionId(session));
-        redir.addFlashAttribute("projectCreated", true);
+                                HttpSession session) {
+        try {
+            projectService.createProject(title, description, developersWorking, teamVelocity, sprintDuration, sessionService.getUserWithSessionId(session));
+            redir.addFlashAttribute("projectCreated", true);
+        } catch (ProjectAlreadyExistsException | ProjectHasEmptyTitleException e) {
+            redir.addFlashAttribute("createdProjectTitle", title);
+            redir.addFlashAttribute("createdProjectDescription", description);
+            redir.addFlashAttribute("createdProjectDevelopersWorking", developersWorking);
+            redir.addFlashAttribute("createdProjectVelocity", teamVelocity);
+            redir.addFlashAttribute("createdProjectSprintDuration", sprintDuration);
+            if (e instanceof ProjectAlreadyExistsException) {
+                redir.addFlashAttribute("createdProjectAlreadyExists", true);
+            } else {
+                redir.addFlashAttribute("createdProjectHasEmptyTitle", true);
+            }
+        }
         return "redirect:/user/projectPanel";
     }
 
@@ -104,9 +117,14 @@ public class ProductOwnerController {
                                 @RequestParam String projectDescription,
                                 @RequestParam String projectDevelopersWorking,
                                 @RequestParam String projectSprintDuration,
-                                RedirectAttributes redir) throws ProjectAlreadyExistsException, ProjectHasEmptyTitleException {
-        projectService.updateProject(projectId, projectTitle, projectDescription, projectDevelopersWorking, projectSprintDuration);
-        redir.addFlashAttribute("projectUpdated", true);
+                                @RequestParam String projectCount,
+                                RedirectAttributes redir) {
+        try {
+            projectService.updateProject(projectId, projectTitle, projectDescription, projectDevelopersWorking, projectSprintDuration);
+            redir.addFlashAttribute("projectUpdated", true);
+        } catch (ProjectAlreadyExistsException | ProjectHasEmptyTitleException e) {
+            redir.addFlashAttribute("failedToUpdateProject", projectCount);
+        }
         return "redirect:/user/projectPanel";
     }
 
