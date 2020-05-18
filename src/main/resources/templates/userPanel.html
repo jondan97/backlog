@@ -14,8 +14,7 @@
 <h3>Existing Users:</h3>
 <div th:each="user : ${users}" th:style="${user.roles.size() > 1 ? 'border-style: dotted' : 'border-style: solid'}">
     <form method="post" th:action="@{/admin/editUser}">
-        <label for="userId">ID</label>
-        <input id="userId" name="userId" readonly th:value="${user.id}">
+        <input hidden id="userId" name="userId" th:value="${user.id}">
         <label for="userEmail">Email</label>
         <input id="userEmail" name="userEmail" th:value="${user.email}" type="email">
         <label for="userPassword">Password</label>
